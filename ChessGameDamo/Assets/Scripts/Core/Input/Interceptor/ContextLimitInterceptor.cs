@@ -1,0 +1,43 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ContextLimitInterceptor : IInputInterceptor
+{
+    public bool IsPassCheeck(InputAction action, InputContext context)
+    {
+        if (InputManager.Instance.CurrentRunMode == InputRunMode.NormalOperate)
+        {
+            string key = action.ToString();
+            if (!InputConfigCache.InputBindDict.TryGetValue(key, out var cfg))
+            {
+                Debug.LogWarning($"[ContextLimitInterceptor]Œ¥’“µΩ≈‰÷√£∫{key}");
+                return false;
+            }
+            return cfg.AllowContext.Contains(context);
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}

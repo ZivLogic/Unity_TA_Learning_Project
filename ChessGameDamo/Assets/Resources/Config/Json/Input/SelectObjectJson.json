@@ -1,0 +1,17 @@
+{
+    "Chess_Black":{
+        "CanSelect":true,
+        "SelectWeight":10,
+        "DetectRange":1.5
+    },
+    "Chess_White":{
+        "CanSelect":true,
+        "SelectWeight":10,
+        "DetectRange":1.5
+    },
+    "SceneWall":{
+        "CanSelect":false,
+        "SelectWeight":0,
+        "DetectRange":2
+    }
+}

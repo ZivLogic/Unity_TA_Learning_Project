@@ -1,0 +1,18 @@
+{
+"ChessBoard" : {
+	"Length" : 5.46,
+	"Width" : 5.46,
+	"TileNumberX" : 8,
+	"TileNumberZ" : 8,
+	"BoardInitPosition" : {
+		"x" : 0,
+		"y" : 0.1,
+		"z": 0,
+		},
+	"TileInitPosition" : {
+		"x" : -2.73,
+		"y" : 0.2,
+		"z" : -2.73,
+		}
+	}
+}

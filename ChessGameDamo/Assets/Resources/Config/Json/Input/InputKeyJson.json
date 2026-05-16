@@ -1,0 +1,56 @@
+{
+    "MoveUp": {
+        "KeyBindCode": "W",
+        "MouseButtonIndex": -1,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.2,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld"],
+        "AllowUIOverlayPenetrate": true
+    },
+    "MoveDown": {
+        "KeyBindCode": "S",
+        "MouseButtonIndex": -1,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.2,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld"],
+        "AllowUIOverlayPenetrate": true
+    },
+    "MoveLeft": {
+        "KeyBindCode": "A",
+        "MouseButtonIndex": -1,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.2,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld"],
+        "AllowUIOverlayPenetrate": true
+    },
+    "MoveRight": {
+        "KeyBindCode": "D",
+        "MouseButtonIndex": -1,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.2,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld"],
+        "AllowUIOverlayPenetrate": true
+    },
+    "SelectTarget": {
+        "KeyBindCode": "None",
+        "MouseButtonIndex": 0,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.3,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld"],
+        "AllowUIOverlayPenetrate": false
+    },
+    "CancelOperate": {
+        "KeyBindCode": "Escape",
+        "MouseButtonIndex": -1,
+        "IsEnable": true,
+        "ClickCdThreshold": 0.2,
+        "DeviceType": "KeyboardMouse",
+        "AllowContext": ["GameWorld","BagPanel","ShopPanel","SettingPanel","DialogPanel","UIPanelOnly"],
+        "AllowUIOverlayPenetrate": false
+    }
+}

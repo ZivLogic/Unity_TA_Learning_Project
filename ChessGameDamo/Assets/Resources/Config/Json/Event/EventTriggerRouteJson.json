@@ -1,0 +1,58 @@
+﻿{
+  "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs",
+    "HandlerMethodName": "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnResponseChessConfig_InitChessConfig": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "FactoryLogic_OnResponseChessConfig_InitChessConfig",
+    "HandlerMethodName": "FactoryLogic_OnResponseChessConfig_InitChessConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "InputLogic_OnConfig_IsInputConfig": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "InputLogic_OnConfig_IsInputConfig",
+    "HandlerMethodName": "InputLogic_OnConfig_IsInputConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnEntityIDConfig_InitEntityID": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
+    "HandlerMethodName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigLogic_InitChessConfig_InitChessEvent": {
+    "SystemID": "FactoryPublish",
+    "EventTypeFullName": "ConfigLogic_InitChessConfig_InitChessEvent",
+    "HandlerMethodName": "ConfigLogic_InitChessConfig_InitChessEvent",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigLogic_InitEntityIDConfig_InitEntityID": {
+    "SystemID": "FactoryPublish",
+    "EventTypeFullName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
+    "HandlerMethodName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll": {
+    "SystemID": "AssetsPublish",
+    "EventTypeFullName": "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll",
+    "HandlerMethodName": "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigLogic_OnInputConfig_InitInputConfig": {
+    "SystemID": "InputPublish",
+    "EventTypeFullName": "ConfigLogic_OnInputConfig_InitInputConfig",
+    "HandlerMethodName": "ConfigLogic_OnInputConfig_InitInputConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  }
+}

@@ -1,0 +1,80 @@
+﻿{
+  "ChessBoard": {
+    "ConfigType": "ChessBoardConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/ChessBoardJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessBoardTile": {
+    "ConfigType": "ChessBoardTileConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/ChessBoardTileJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessmanPosition": {
+    "ConfigType": "ChessmanPositionConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/ChessmanPositionJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "Chessman": {
+    "ConfigType": "ChessmanConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/ChessmanJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "ChessmanPrefabs": {
+    "ConfigType": "ChessmanPrefabsConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Prefabs/ChessmanPrefabsJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "ChessBoardPrefab": {
+    "ConfigType": "ChessBoardPrefabConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Prefabs/ChessBoardPrefabJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "InputKey": {
+    "ConfigType": "InputKeyConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Input/InputKeyJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "SelectObject": {
+    "ConfigType": "SelectObjectConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Input/SelectObjectJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "InputInterceptor": {
+    "ConfigType": "InputInterceptorConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Input/InputInterceptorJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "EventRoute": {
+    "ConfigType": "EventRouteItem, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Event/EventRouteJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "EventTriggerRoute": {
+    "ConfigType": "EventTriggerRouteItem, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Event/EventTriggerRouteJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "EntityID": {
+    "ConfigType": "EntityIDConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/EntityIDJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "EntityID_Special": {
+    "ConfigType": "EntityIDConfig_Special, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/EntityID_SpecialJson",
+    "IsTable": true,
+    "IsEnable": true
+  }
+}

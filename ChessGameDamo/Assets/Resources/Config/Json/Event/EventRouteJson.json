@@ -1,0 +1,58 @@
+﻿{
+  "ConfigLogic_InitChessConfig_InitChessEvent": {
+    "SystemID": "ConfigLogic",
+    "EventTypeFullName": "ConfigLogic_InitChessConfig_InitChessEvent",
+    "HandlerMethodName": "InitChessConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigLogic_OnInputConfig_InitInputConfig": {
+    "SystemID": "ConfigLogic",
+    "EventTypeFullName": "ConfigLogic_OnInputConfig_InitInputConfig",
+    "HandlerMethodName": "OnInputConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigLogic_InitEntityIDConfig_InitEntityID": {
+    "SystemID": "ConfigLogic",
+    "EventTypeFullName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
+    "HandlerMethodName": "InitEntityIDConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnResponseChessConfig_InitChessConfig": {
+    "SystemID": "FactoryLogic",
+    "EventTypeFullName": "FactoryLogic_OnResponseChessConfig_InitChessConfig",
+    "HandlerMethodName": "OnResponseChessConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll": {
+    "SystemID": "FactoryLogic",
+    "EventTypeFullName": "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll",
+    "HandlerMethodName": "OnResponseChessPrefabs",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryLogic_OnEntityIDConfig_InitEntityID": {
+    "SystemID": "FactoryLogic",
+    "EventTypeFullName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
+    "HandlerMethodName": "OnEntityIDConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs": {
+    "SystemID": "AssetsLogic",
+    "EventTypeFullName": "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs",
+    "HandlerMethodName": "OnInitCrateChessPrefabs",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "InputLogic_OnConfig_IsInputConfig": {
+    "SystemID": "InputLogic",
+    "EventTypeFullName": "InputLogic_OnConfig_IsInputConfig",
+    "HandlerMethodName": "OnConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  }
+}

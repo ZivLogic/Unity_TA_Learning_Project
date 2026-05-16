@@ -1,0 +1,87 @@
+{
+"Pawn" : {
+	"positionWhite" : [[0, 1], [1,1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1]],
+	"positionBlack" : [[0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6], [7, 6]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+},
+"Rook" : {
+	"positionWhite" : [[0, 0], [7, 0]],
+	"positionBlack" : [[0, 7], [7, 7]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+},
+"Knight" : {
+	"positionWhite" : [[1, 0], [6, 0]],
+	"positionBlack" : [[1, 7], [6, 7]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+},
+"Bishop" : {
+	"positionWhite" : [[2, 0], [5, 0]],
+	"positionBlack" : [[2, 7], [5, 7]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+},
+"Queen" : {
+	"positionWhite" : [[3, 0]],
+	"positionBlack" : [[4, 7]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+},
+"King" : {
+	"positionWhite" : [[4, 0]],
+	"positionBlack" : [[3, 7]],
+	"rotationWhite" : {
+		"x" : 0,
+		"y" : 0,
+		"z" : 0
+		},	
+	"rotationBlack" : {
+		"x" : 0,
+		"y" : 180,
+		"z" : 0
+		}
+}
+
+}

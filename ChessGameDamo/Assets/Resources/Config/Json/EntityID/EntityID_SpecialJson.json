@@ -1,0 +1,38 @@
+﻿{
+  "ChessMan_Pawn": {
+    "AttrTable": {"Name":"兵"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  },
+  "ChessMan_Rook": {
+    "AttrTable": {"Name":"车"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  },
+  "ChessMan_Knight": {
+    "AttrTable": {"Name":"马"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  },
+  "ChessMan_Bishop": {
+    "AttrTable": {"Name":"象"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  },
+  "ChessMan_Queen": {
+    "AttrTable": {"Name":"后"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  },
+  "ChessMan_King": {
+    "AttrTable": {"Name":"王"},
+    "ClassIDTable": ["TestCS"],
+    "ParentName": "ChessMan",
+    "IsEnable": true
+  }
+}
