@@ -7,8 +7,11 @@ public class LogicFactoryManager : MonoBehaviour, IFactory
 {
     public string FactoryName => "Logic";
 
+    //泛用身份类，如人，狗这种大类别
     private Dictionary<EntityIdentityType, EntityIDConfig> _enableConfigCache = new Dictionary<EntityIdentityType, EntityIDConfig>();
+    //精确身份类，如主角，NPC1这种区别
     private Dictionary<EntitySpecialIdentityType, EntityIDConfig_Special> _specialConfigCache = new Dictionary<EntitySpecialIdentityType, EntityIDConfig_Special>();
+    
     //初始化注册自己
     private void Awake()
     {
@@ -29,8 +32,9 @@ public class LogicFactoryManager : MonoBehaviour, IFactory
         _enableConfigCache = EntityFactoryManager._EnableConfigCache;
         _specialConfigCache = EntityFactoryManager._SpecialConfigCache;
         if (_enableConfigCache == null || _specialConfigCache == null)
-        {
+        { 
             Debug.LogError("[LogicFactoryManager]获取实体配置失败");
+            return;
         }
     }
 

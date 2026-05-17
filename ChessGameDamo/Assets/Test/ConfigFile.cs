@@ -281,6 +281,18 @@ public class ConfigFile : MonoBehaviour
             .Add("ConfigType", "EntityIDConfig_Special, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/EntityID/EntityID_SpecialJson")
             .Add("IsTable", true)
+            .Add("IsEnable", true)
+
+            .Group("PhysicsValue")
+            .Add("ConfigType", "PhysicsValueConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/EntityID/PhysicsValueJson")
+            .Add("IsTable", true)
+            .Add("IsEnable", true)
+
+             .Group("PhysicsComponent")
+            .Add("ConfigType", "PhysicsComponentConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/EntityID/PhysicsIDComponentJson")
+            .Add("IsTable", true)
             .Add("IsEnable", true);
         Game.ExportToFileFormat_Overwrite(GameConfig);
         #endregion
@@ -460,6 +472,76 @@ public class ConfigFile : MonoBehaviour
             .Add("ParentName", "ChessMan")
             .Add("IsEnable", true);
         entitySpecialID.ExportToFileFormat_Overwrite(EntitySpecialID);
+        #endregion
+        #region 物理加载优先级配置
+        string PhysicsValue = @"E:/JsonFile/Unity/ChessGame/PhysicsValueJson.json";
+        var physicsValue = new ConfigBuilder();
+        physicsValue
+
+            .Group("Test1")
+            .Add("Priority", 0)
+            .Add("IDTable", new List<string>()
+            {
+                "ChessBoard"
+                
+            })
+            .Add("IsEnable", true)
+
+            .Group("Test2")
+            .Add("Priority", 1)
+            .Add("IDTable", new List<string>()
+            {
+                "ChessMan_Pawn"
+
+            })
+            .Add("IsEnable", true);
+        physicsValue.ExportToFileFormat_Overwrite(PhysicsValue);
+        #endregion
+        #region 物理实体组件配置
+        string PhysicsID = @"E:/JsonFile/Unity/ChessGame/PhysicsIDComponentJson.json";
+        var physicsID = new ConfigBuilder();
+        physicsID
+            .Group("ChessBoard")
+            .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Box", new Dictionary<string , object>()
+                {
+                    {"Center", new Dictionary<string, object>() {
+                        {"X", 0 },
+                        {"Y", 0 },
+                        {"Z", 0 }
+                    } },
+                    {"Size", new Dictionary<string, object>(){
+                        {"X",6.24 },
+                        {"Y",0.8 },
+                        {"Z",6.24 }
+                    } },
+                    {"IsTrigger", false }
+                }}
+            })
+
+            .Group("ChessMan_Pawn")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new Dictionary<string, object>() {
+                        {"X", 0 },
+                        {"Y", 0.35 },
+                        {"Z", 0 }
+                    } },
+                    {"Radius", 0.2 },
+                    {"Height", 0.7 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
+            });
+        physicsID.ExportToFileFormat_Overwrite(PhysicsID);
         #endregion
     }
 

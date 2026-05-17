@@ -7,9 +7,14 @@ using UnityEngine;
 public class EntityFactoryManager : MonoBehaviour, IFactory
 {
     public string FactoryName => "Entity";
-
+    //泛用身份类，如人，狗这种大类别
     public static Dictionary<EntityIdentityType, EntityIDConfig> _EnableConfigCache = new Dictionary<EntityIdentityType, EntityIDConfig>();
+    //精确身份类，如主角，NPC1这种区别
     public static Dictionary<EntitySpecialIdentityType, EntityIDConfig_Special> _SpecialConfigCache = new Dictionary<EntitySpecialIdentityType, EntityIDConfig_Special>();
+    //物理优先级，比如先加载地板，再加载人
+    public static Dictionary<string, PhysicsValueConfig> PhysicsValueCache = new Dictionary<string, PhysicsValueConfig>();
+    //物理组件添加表,指定谁添加物理组件
+    public static Dictionary<string, PhysicsComponentConfig> PhysicsComponentCache = new Dictionary<string, PhysicsComponentConfig>();
     //启动子工厂
     private void Awake()
     {
@@ -22,6 +27,8 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
     {
         _EnableConfigCache.Clear();
         _SpecialConfigCache.Clear();
+        PhysicsValueCache.Clear();
+        PhysicsComponentCache.Clear();
         GetEntityConfigClassID();
     }
     #region 通用：创建空实体逻辑根物体
@@ -34,7 +41,7 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         return entityRoot;
     }
     #endregion
-    #region 核心：给生成的实体自动打上身份标识
+    #region 核心：给生成的实体自动打上身份标识（泛类）
     private void MarkEntityIdentity(GameObject entity, EntityIdentityType identityType)
     {
         //如果已有就直接赋值，没有就添加
@@ -44,6 +51,17 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             tag = entity.AddComponent<EntityIdentityTag>();
         }
         tag.IdentityType = identityType;
+    }
+    #endregion
+    #region 核心：给生成的实体自动打上身份标识（特殊）
+    private void MarkEntityIdentitySpecial(GameObject entity, EntitySpecialIdentityType specialType)
+    {
+        EntitySpecialIdentityTag tag = entity.GetComponent<EntitySpecialIdentityTag>();
+        if (tag == null)
+        {
+            tag = entity.AddComponent<EntitySpecialIdentityTag>();
+        }
+        tag.SpecialType = specialType;
     }
     #endregion
     #region 通用：绑定特殊身份标识
@@ -87,8 +105,12 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         var pack = new Package();
         var entityID = new EntityIDConfig { };
         var entityIDSpe = new EntityIDConfig_Special { };
-        pack.Put(EventPackName.LogicManager_GetEntityConfigClassID_EntityIDConfig, entityID);
-        pack.Put(EventPackName.LogicManager_GetEntityConfigClassID_EntityIDSpecialConfig, entityIDSpe);
+        var physicsValue = new PhysicsValueConfig { };
+        var physicsComponent = new PhysicsComponentConfig { };
+        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDConfig, entityID);
+        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig, entityIDSpe);
+        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsValueConfig, physicsValue);
+        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsComponentConfig, physicsComponent);
         var pub = new ConfigLogic_InitEntityIDConfig_InitEntityID { package = pack };
         FactoryManager.Instance._publish.ConfigLogic_InitEntityIDConfig_InitEntityID(pub);
     }
@@ -133,6 +155,12 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             
         }
         Debug.Log($"[EntityFactoryManager]实体路由配置加载完成，特殊缓存存储数量：{_SpecialConfigCache.Count}");
+    }
+    public void OnPhysicsConfig(Dictionary<string, PhysicsComponentConfig> phyCom, Dictionary<string, PhysicsValueConfig> phyVal)
+    {
+        PhysicsValueCache = phyVal;
+        PhysicsComponentCache = phyCom;
+        return;
     }
 
     public bool CreateChessBoard(GameObject boardPfg, ChessBoardConfig boardCfg)
@@ -229,10 +257,22 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
                 GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
                 //绑定全局基础身份
                 MarkEntityIdentity(chessRoot, EntityIdentityType.ChessMan);
+                if (name == "Pawn")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Pawn);
+                if (name == "Rook")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Rook);
+                if (name == "Knight")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Knight);
+                if (name == "Bishop")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Bishop);
+                if (name == "Queen")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Queen);
+                if (name == "King")
+                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_King);
                 //计算偏移
                 Vector3 offset = CalcModelHalfHeightOffset(prefab);
                 //模型绑父级
-                BindModelToParent(prefab, chessRoot.transform, rootName, offset);
+                BindModelToParent(prefab, chessRoot.transform, rootName, Vector3.zero);
                 Debug.Log($"[EntityFactoryManager]棋子预设体生成，名字{chessRoot.name}");
                 
             }
@@ -276,8 +316,20 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             string rootName = $"{name}_{realPos.x}_{realPos.y}";
             GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
             MarkEntityIdentity(chessRoot, EntityIdentityType.ChessMan);
+            if (name == "Pawn")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Pawn);
+            if (name == "Rook")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Rook);
+            if (name == "Knight")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Knight);
+            if (name == "Bishop")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Bishop);
+            if (name == "Queen")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Queen);
+            if (name == "King")
+                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_King);
             Vector3 offset = CalcModelHalfHeightOffset(prefab);
-            BindModelToParent(prefab, chessRoot.transform, rootName, offset);
+            BindModelToParent(prefab, chessRoot.transform, rootName, Vector3.zero);
             
         }
         else

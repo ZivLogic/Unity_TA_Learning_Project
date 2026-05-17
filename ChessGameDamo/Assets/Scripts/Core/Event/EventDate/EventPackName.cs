@@ -22,8 +22,13 @@ public class EventPackName
     public const string INPUT_MOUSEPOS3D = "INPUT_MOUSEPOS3D";                    //鼠标位置3D
     public const string INPUT_MOUSESELECT = "INPUT_MOUSESELECT";                  //鼠标选中物体
     //规范用语，统一为：发布方_方法名_值名称
-    public const string LogicManager_GetEntityConfigClassID_EntityIDConfig = "LogicManager_GetEntityConfigClassID_EntityIDConfig";
-    public const string LogicManager_GetEntityConfigClassID_EntityIDSpecialConfig = "LogicManager_GetEntityConfigClassID_EntityIDSpecialConfig";
+    public const string Test_string = "test";
+    public const string EntityManager_GetEntityConfigClassID_EntityIDConfig = "EntityManager_GetEntityConfigClassID_EntityIDConfig";
+    public const string EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig = "EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig";
+    public const string EntityManager_GetEntityConfigClassID_PhysicsValueConfig = "EntityManager_GetEntityConfigClassID_PhysicsValueConfig";
+    public const string EntityManager_GetEntityConfigClassID_PhysicsComponentConfig = "EntityManager_GetEntityConfigClassID_PhysicsComponentConfig";
     public const string ConfigLogic_InitEntityIDConfig_EntityIDConfig = "ConfigLogic_InitEntityIDConfig_EntityIDConfig";
     public const string ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial = "ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial";
+    public const string ConfigLogic_InitEntityIDConfig_PhysicsValueConfig = "ConfigLogic_InitEntityIDConfig_PhysicsValueConfig";
+    public const string ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig = "ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig";
 }

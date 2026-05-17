@@ -1,0 +1,8 @@
+﻿{
+  "ChessBoard": {
+    "ComponentTable": {"Box":{"Center":{"X":0,"Y":0,"Z":0},"Size":{"X":6.24,"Y":0.8,"Z":6.24},"IsTrigger":false}}
+  },
+  "ChessMan_Pawn": {
+    "ComponentTable": {"Capsule":{"Center":{"X":0,"Y":0.35,"Z":0},"Radius":0.2,"Height":0.7,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  }
+}

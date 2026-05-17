@@ -76,5 +76,17 @@
     "ConfigPath": "Config/Json/EntityID/EntityID_SpecialJson",
     "IsTable": true,
     "IsEnable": true
+  },
+  "PhysicsValue": {
+    "ConfigType": "PhysicsValueConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/PhysicsValueJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "PhysicsComponent": {
+    "ConfigType": "PhysicsComponentConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/PhysicsIDComponentJson",
+    "IsTable": true,
+    "IsEnable": true
   }
 }

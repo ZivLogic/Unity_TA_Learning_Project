@@ -53,11 +53,14 @@ public class FactoryLogic : BaseBusinessSystem
         var pack = evt.package;
         if (pack.Get<Dictionary<string, EntityIDConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfig, out var entityIDConfig)) { }
         if (pack.Get<Dictionary<string,EntityIDConfig_Special>>(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial, out var special)) { }
+        if (pack.Get<Dictionary<string, PhysicsValueConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsValueConfig, out var physicsValueConfig)) { }
+        if (pack.Get<Dictionary<string, PhysicsComponentConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig, out var physicsComponentConfig)) { }
         if ( ! pack.ValidsteAll())
         { Debug.LogError($"[FactoryLogic]某值为空！故障事件：{e}"); return; }
         var entityFactory = FactoryManager.Instance.GetFactory<EntityFactoryManager>("Entity");
         entityFactory?.OnEntityIDConfig(entityIDConfig);
         entityFactory?.OnEntityIDSpecialConfig(special);
+        entityFactory?.OnPhysicsConfig(physicsComponentConfig, physicsValueConfig);
     }
 
     #endregion

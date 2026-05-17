@@ -27,6 +27,7 @@ public class FactoryManager : MonoBehaviour
         CreateSystem<MapFactoryManager>();      //创建地图工厂
         CreateSystem<EntityFactoryManager>();   //创建实体工厂
         CreateSystem<LogicFactoryManager>();    //创建逻辑工厂
+        CreateSystem<PhysicsFactoryManager>();  //创建物理工厂
 
         //初始化事件器
         _logic = new FactoryLogic();
@@ -127,6 +128,11 @@ public class FactoryManager : MonoBehaviour
         var logicFactory = GetFactory<LogicFactoryManager>("Logic");
         logicFactory?.AutoAttachAllLogic();
     }
+    private void AutoPhysicsScript()
+    {
+        var physicsFactory = GetFactory<PhysicsFactoryManager>("Physics");
+        physicsFactory?.AutoAttachAllPhysics();
+    }
 
 
 
@@ -138,6 +144,9 @@ public class FactoryManager : MonoBehaviour
         //最后调用
         //实体全部生成完毕再挂载脚本
         AutoLogicScript();
+        //再挂载物理脚本
+        AutoPhysicsScript();
+        
     }
 
     // Update is called once per frame

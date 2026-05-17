@@ -1,0 +1,12 @@
+﻿{
+  "Test1": {
+    "Priority": 0,
+    "IDTable": ["ChessBoard"],
+    "IsEnable": true
+  },
+  "Test2": {
+    "Priority": 1,
+    "IDTable": ["ChessMan_Pawn"],
+    "IsEnable": true
+  }
+}
