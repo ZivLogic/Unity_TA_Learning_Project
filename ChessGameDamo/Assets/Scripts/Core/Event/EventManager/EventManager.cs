@@ -27,6 +27,8 @@ public class EventManager : MonoBehaviour
     //音频队列
     private Queue<(string eventName,object[] data)> audioQueue = new Queue<(string ,object[])> ();
 
+    private Queue<(string eventName, object[] data)> inputQueue = new Queue<(string, object[])>();
+
     //拓展强类型队列
     private Dictionary<Type, List<Delegate>> typedListeners = new Dictionary<Type, List<Delegate>>();
 
@@ -38,7 +40,9 @@ public class EventManager : MonoBehaviour
 
     private Queue<PackageEvent> audioTypedQueue = new Queue<PackageEvent>();
 
-    
+    private Queue<PackageEvent> inputTypedQueue = new Queue<PackageEvent>();
+
+
     private void Awake()
     {
         if (Instance == null)                            //如果不存在该实例，则创建
@@ -109,6 +113,7 @@ public class EventManager : MonoBehaviour
     public void EmitRender<T>(T e) where T : PackageEvent => renderTypedQueue.Enqueue(e);
     public void EmitPhysics<T>(T e) where T : PackageEvent => physicsTypedQueue.Enqueue(e);
     public void EmitAudio<T>(T e) where T : PackageEvent => audioTypedQueue.Enqueue(e);
+    public void EmitInput<T>(T e) where T : PackageEvent => inputTypedQueue.Enqueue(e);
 
     //备用方案
     //public void EmitRender(EventBase msg) => renderTypedQueue.Enqueue(msg);
@@ -214,6 +219,24 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public IEnumerator ProcessInput()
+    {
+        while (true)
+        {
+            while (inputQueue.Count > 0)
+            {
+                var (name, data) = inputQueue.Dequeue();
+                Dispatch(name, data);
+            }
+            while (inputTypedQueue.Count > 0)
+            {
+                var msg = inputTypedQueue.Dequeue();
+                DispatchTyped(msg);
+            }
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
     //主循环
     private void Start()
     {
@@ -222,6 +245,7 @@ public class EventManager : MonoBehaviour
         StartCoroutine(ProcessRender());
         StartCoroutine(ProcessPhysics());
         StartCoroutine(ProcessAudio());
+        StartCoroutine (ProcessInput());
     }
 
     // Update is called once per frame

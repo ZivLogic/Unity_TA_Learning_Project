@@ -400,17 +400,17 @@ public class ConfigFile : MonoBehaviour
         entitySpecialID
             //棋子类
             //兵
-            .Group("ChessMan_Pawn")
-            .Add("AttrTable", new Dictionary<string, object>()
+            .Group("ChessMan_Pawn")                                       //顶层名字对应身份ID枚举
+            .Add("AttrTable", new Dictionary<string, object>()            //属性表
             {
                 {"Name", "兵"}
             })
-            .Add("ClassIDTable", new List<string>()
+            .Add("ClassIDTable", new List<string>()                       //挂载脚本的脚本ID列表
             {
                 "TestCS"
             })
-            .Add("ParentName", "ChessMan")
-            .Add("IsEnable", true)
+            .Add("ParentName", "ChessMan")                                //父级名字
+            .Add("IsEnable", true)                                        //是否启用
             //车
             .Group("ChessMan_Rook")
             .Add("AttrTable", new Dictionary<string, object>()
@@ -478,21 +478,25 @@ public class ConfigFile : MonoBehaviour
         var physicsValue = new ConfigBuilder();
         physicsValue
 
-            .Group("Test1")
-            .Add("Priority", 0)
-            .Add("IDTable", new List<string>()
+            .Group("Test1")                             //顶层名，无要求
+            .Add("Priority", 0)                         //优先级，数值越小越快加载
+            .Add("IDTable", new List<string>()          //需要在这个优先级加载的身份ID表
             {
                 "ChessBoard"
                 
             })
-            .Add("IsEnable", true)
+            .Add("IsEnable", true)                      //是否启用
 
             .Group("Test2")
             .Add("Priority", 1)
             .Add("IDTable", new List<string>()
             {
-                "ChessMan_Pawn"
-
+                "ChessMan_Pawn",
+                "ChessMan_Rook",
+                "ChessMan_Knight",
+                "ChessMan_Bishop",
+                "ChessMan_Queen",
+                "ChessMan_King"
             })
             .Add("IsEnable", true);
         physicsValue.ExportToFileFormat_Overwrite(PhysicsValue);
@@ -501,20 +505,20 @@ public class ConfigFile : MonoBehaviour
         string PhysicsID = @"E:/JsonFile/Unity/ChessGame/PhysicsIDComponentJson.json";
         var physicsID = new ConfigBuilder();
         physicsID
-            .Group("ChessBoard")
-            .Add("ComponentTable", new Dictionary<string, object>()
+            .Group("ChessBoard")                                             //顶层名对应身份枚举ID
+            .Add("ComponentTable", new Dictionary<string, object>()          //组件字典
             {
                 {"Box", new Dictionary<string , object>()
                 {
-                    {"Center", new Dictionary<string, object>() {
-                        {"X", 0 },
-                        {"Y", 0 },
-                        {"Z", 0 }
+                    {"Center", new List<float> {
+                        0f,
+                        0.04f,
+                        0f
                     } },
-                    {"Size", new Dictionary<string, object>(){
-                        {"X",6.24 },
-                        {"Y",0.8 },
-                        {"Z",6.24 }
+                    {"Size", new List<float>{
+                        6.24f,
+                        0.16f,
+                        6.24f
                     } },
                     {"IsTrigger", false }
                 }}
@@ -525,10 +529,10 @@ public class ConfigFile : MonoBehaviour
             {
                 {"Capsule", new Dictionary<string , object>()
                 {
-                    {"Center", new Dictionary<string, object>() {
-                        {"X", 0 },
-                        {"Y", 0.35 },
-                        {"Z", 0 }
+                    {"Center", new List<float> {
+                        0f,
+                        0.35f,
+                        0f
                     } },
                     {"Radius", 0.2 },
                     {"Height", 0.7 },
@@ -540,8 +544,221 @@ public class ConfigFile : MonoBehaviour
                      {"UseGravity", true },
                      {"IsKinematic", false }
                  } }
+            })
+
+             .Group("ChessMan_Rook")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.38f,
+                        0f
+                    } },
+                    {"Radius", 0.24 },
+                    {"Height", 0.8 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
+            })
+
+             .Group("ChessMan_Knight")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.4f,
+                        0f
+                    } },
+                    {"Radius", 0.24 },
+                    {"Height", 0.82 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
+            })
+
+             .Group("ChessMan_Bishop")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.49f,
+                        0f
+                    } },
+                    {"Radius", 0.26 },
+                    {"Height", 1 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
+            })
+
+             .Group("ChessMan_Queen")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.51f,
+                        0f
+                    } },
+                    {"Radius", 0.26 },
+                    {"Height", 1.04 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
+            })
+
+             .Group("ChessMan_King")
+             .Add("ComponentTable", new Dictionary<string, object>()
+            {
+                {"Capsule", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.62f,
+                        0f
+                    } },
+                    {"Radius", 0.31 },
+                    {"Height", 1.25 },
+                    {"IsTrigger", false }
+                }},
+                 {"Rigidbody", new Dictionary<string, object>()
+                 {
+                     {"Mass", 1 },
+                     {"UseGravity", true },
+                     {"IsKinematic", false }
+                 } }
             });
         physicsID.ExportToFileFormat_Overwrite(PhysicsID);
+        #endregion
+        #region 选中逻辑配置
+        string SelectObjectJson = @"E:/JsonFile/Unity/ChessGame/SelectObjectJson.json";
+        var selectObjectJson = new ConfigBuilder();
+        selectObjectJson
+            .Group("ChessBoard")                        //顶层名对应身份ID
+            .Add("CanSelect", false)                    //是否可被选中
+            .Add("IsEnable", true)                      //是否启用
+
+            .Group("ChessMan")
+            .Add("CanSelect", true)
+            .Add("IsEnable", true);
+        selectObjectJson.ExportToFileFormat_Overwrite(SelectObjectJson);
+        #endregion
+        #region 输入枚举配置
+        string InputKeyJson = @"E:/JsonFile/Unity/ChessGame/InputKeyJson.json";
+        var inputKeyJson = new ConfigBuilder();
+        inputKeyJson
+            .Group("MoveUp")                               //顶层名与枚举同名
+            .Add("KeyBindCode", "W")                       //对应的键值
+            .Add("MouseButtonIndex", -1)                   //是否启用鼠标，-1不启用，0左键，1右键，2中键
+            .Add("IsEnable", true)                         //是否启用整个配置
+            .Add("ClickCdThreshold", 0.2)                  //输入阈值冷却CD（按下专用）
+            .Add("HoldInterval", 0.05f)                    //持续按住的节流间隔（持续按下专用）
+            .Add("DeviceType", "KeyboardMouse")            //设备类型
+            .Add("AllowContext", new List<string>          //枚举可通行的上下文列表
+            {
+                "GameWorld"
+            })
+            .Add("AllowUIOverlayPenetrate", true)          //是否可穿透UI
+
+            .Group("MoveDown")
+            .Add("KeyBindCode", "S")
+            .Add("MouseButtonIndex", -1)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.2)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "GameWorld"
+            })
+            .Add("AllowUIOverlayPenetrate", true)
+
+            .Group("MoveLeft")
+            .Add("KeyBindCode", "A")
+            .Add("MouseButtonIndex", -1)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.2)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "GameWorld"
+            })
+            .Add("AllowUIOverlayPenetrate", true)
+
+            .Group("MoveRight")
+            .Add("KeyBindCode", "D")
+            .Add("MouseButtonIndex", -1)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.2)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "GameWorld"
+            })
+            .Add("AllowUIOverlayPenetrate", true)
+
+            .Group("SelectTarget")
+            .Add("KeyBindCode", "None")
+            .Add("MouseButtonIndex", 0)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.3)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "GameWorld",
+                "SelSelectObject"
+            })
+            .Add("AllowUIOverlayPenetrate", false)
+
+            .Group("CancelOperate")
+            .Add("KeyBindCode", "Escape")
+            .Add("MouseButtonIndex", -1)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.3)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "GameWorld",
+                "BagPanel",
+                "ShopPanel",
+                "SettingPanel",
+                "DialogPanel",
+                "UIPanelOnly",
+                "SelSelectObject"
+            })
+            .Add("AllowUIOverlayPenetrate", false);
+        inputKeyJson.ExportToFileFormat_Overwrite(InputKeyJson);
         #endregion
     }
 

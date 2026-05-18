@@ -9,6 +9,7 @@ public class InputKeyConfig
     public int MouseButtonIndex;         //鼠标按键序号，-1表示不启用，0表示左键，1右键，2中键
     public bool IsEnable;                //是否使用该输入
     public float ClickCdThreshold;       //点击间隔 
+    public float HoldInterval;           //时间节流间隔，控制持续按下的事件数
     //跨平台
     public InputDeviceType DeviceType;
     //上下文白名单：该按键允许哪些上下文生效

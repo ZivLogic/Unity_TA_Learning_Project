@@ -8,7 +8,7 @@ public class InputManager : MonoBehaviour
 {
     //单例
     public static InputManager Instance;
-
+    //事件发布/监听模块
     public InputLogic _logic;
     public InputPublish _publish;
 
@@ -35,7 +35,7 @@ public class InputManager : MonoBehaviour
     private void OnDestroy()
     {
         //如果已被销毁则直接跳过
-        if (GameGlobalState.IsQuitting)return;
+        if (GameGlobalState.IsQuitting) return;
         // 注销本系统所有事件订阅
         _logic.UnlistenAllEvent();
     }
@@ -48,7 +48,7 @@ public class InputManager : MonoBehaviour
 
     #region 全局状态
     //当前输入运行模式
-    public InputRunMode CurrentRunMode {  get; private set; } = InputRunMode.ForbidAll;
+    public InputRunMode CurrentRunMode { get; private set; } = InputRunMode.ForbidAll;
 
     //当前输入上下文
     public InputContext CurrentContext { get; private set; } = InputContext.GameWorld;
@@ -58,8 +58,8 @@ public class InputManager : MonoBehaviour
     private bool[] _mouseSnapshot = new bool[3];
 
     //通用轴快照
-    public Vector2 MoveAxis {  get; private set; }
-    public Vector2 LookAxis {  get; private set; }
+    public Vector2 MoveAxis { get; private set; }
+    public Vector2 LookAxis { get; private set; }
 
     //按冷却计时缓存 阈值校验用
     private Dictionary<KeyCode, float> _keyCdTimer = new Dictionary<KeyCode, float>();
@@ -69,10 +69,10 @@ public class InputManager : MonoBehaviour
 
     //拦截器映射表
     private Dictionary<InterceptorType, Func<IInputInterceptor>> _interceptorCreator = new Dictionary<InterceptorType, Func<IInputInterceptor>>()
-    {
-        {InterceptorType.CutSceneGlobal, () => new GlobalModeInterceptor() },
-        {InterceptorType.ContextLimit, () => new ContextLimitInterceptor() },
-    };
+{
+    {InterceptorType.CutSceneGlobal, () => new GlobalModeInterceptor() },
+    {InterceptorType.ContextLimit, () => new ContextLimitInterceptor() },
+};
 
     //加载拦截器
     public void LoadInterceptorDictConfig()
@@ -108,7 +108,7 @@ public class InputManager : MonoBehaviour
     private Dictionary<string, InputKeyConfig> _tempModifyConfig = new Dictionary<string, InputKeyConfig>();
 
     //是否在监听新按键录制
-    public bool IsRecordingKey {  get; private set; }
+    public bool IsRecordingKey { get; private set; }
 
     //当前正在修改的行为Key
     private string _curModifyActionKey;
@@ -124,7 +124,7 @@ public class InputManager : MonoBehaviour
 
     public void RegisterDefaultInterceptor()      //可以在这里注册默认拦截层逻辑
     {
-        
+
     }
 
     // Update is called once per frame
@@ -193,7 +193,7 @@ public class InputManager : MonoBehaviour
         foreach (var interceptor in _interceptorPipeline.Values)
         {
             if (!interceptor.IsPassCheeck(action, CurrentContext))
-              return false; 
+                return false;
         }
         return true;
     }
@@ -216,7 +216,7 @@ public class InputManager : MonoBehaviour
             if (_keySnapshot[bindKey] && Input.GetKeyDown(bindKey))
             {
                 //阈值校验
-                if (!IsInputCdValid(bindKey,cfg.ClickCdThreshold))
+                if (!IsInputCdValid(bindKey, cfg.ClickCdThreshold))
                     continue;
                 //转枚举
                 InputAction action = Enum.Parse<InputAction>(kv.Key);
@@ -257,11 +257,11 @@ public class InputManager : MonoBehaviour
                     2 => KeyCode.Mouse2,
                     _ => KeyCode.None
                 };
-                if (!IsInputCdValid(mouseKey,cfg.ClickCdThreshold))
+                if (!IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
                     continue;
                 //转输入枚举
                 if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
-                    continue;                
+                    continue;
                 //拦截管道校验
                 if (!PassAllInterceptorCheeck(action))
                     continue;
@@ -316,7 +316,7 @@ public class InputManager : MonoBehaviour
         {
             if (Input.GetKeyDown(key) && key != KeyCode.None)
             {
-               FinishRecordKey(key);
+                FinishRecordKey(key);
                 break;
             }
         }
@@ -324,7 +324,7 @@ public class InputManager : MonoBehaviour
     //完成按键录制 + 冲突验证
     private void FinishRecordKey(KeyCode newKey)
     {
-        IsRecordingKey = false ;
+        IsRecordingKey = false;
         if (!InputConfigCache.InputBindDict.TryGetValue(_curModifyActionKey, out var originCfg))
             return;
         //上下文冲突检测
@@ -345,7 +345,7 @@ public class InputManager : MonoBehaviour
     //保存全部按键 | 写入正式配置 + 发存档事件
     public void SaveAllModifyConfig()
     {
-        foreach (var kv  in _tempModifyConfig)
+        foreach (var kv in _tempModifyConfig)
         {
             if (InputConfigCache.InputBindDict.ContainsKey(kv.Key))
                 InputConfigCache.InputBindDict[kv.Key] = kv.Value;
@@ -412,7 +412,7 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        //LoadInterceptorDictConfig();
     }
 
 

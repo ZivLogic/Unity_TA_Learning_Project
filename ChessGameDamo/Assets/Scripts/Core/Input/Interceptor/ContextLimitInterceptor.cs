@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//上下文白名单拦截
 public class ContextLimitInterceptor : IInputInterceptor
 {
     public bool IsPassCheeck(InputAction action, InputContext context)
     {
+        //没有限制模式
         if (InputManager.Instance.CurrentRunMode == InputRunMode.NormalOperate)
         {
             string key = action.ToString();
@@ -16,6 +18,7 @@ public class ContextLimitInterceptor : IInputInterceptor
             }
             return cfg.AllowContext.Contains(context);
         }
+        
         return false;
     }
 

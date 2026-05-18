@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputCache
-{
+//public class InputCache
+//{
 
-}
+//}
 //È«¾Ö¾²Ì¬ÊäÈë×Öµä»º´æÆ÷
 public static class InputConfigCache
 {

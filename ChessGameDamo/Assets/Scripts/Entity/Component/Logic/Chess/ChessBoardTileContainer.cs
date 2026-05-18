@@ -22,8 +22,8 @@ public class ChessBoardTileContainer : MonoBehaviour
     private void AutoFindTileRoot()
     {
         Transform allChild = transform;
-        transform.Find(TileRootNodeName);
-        _tileRoot = allChild;
+        Transform child =  transform.Find(TileRootNodeName);
+        _tileRoot = child;
         //foreach (Transform child in allChild)
         //{
         //    if (child.name == TileRootNodeName)
@@ -51,6 +51,8 @@ public class ChessBoardTileContainer : MonoBehaviour
         foreach (Transform child in _tileRoot)
         {
             _tileList.Add(child.gameObject);
+            //Debug.Log($"[ChessBoardTileContainer]找到格子：{child.name}");
+            //Debug.Log(_tileRoot.name);
         }
 
         // 拿你已有的布局数据表

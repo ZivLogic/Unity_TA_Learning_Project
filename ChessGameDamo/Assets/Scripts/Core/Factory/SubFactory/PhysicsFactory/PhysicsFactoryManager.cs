@@ -171,6 +171,7 @@ public class PhysicsFactoryManager : MonoBehaviour, IFactory
             }
         }
         //Debug.Log("[PhysicsFactoryManager]第四步完成");
+        //Debug.Log($"[PhysicsFactoryManager]加载{root.name}");
     }
     //Box碰撞体
     private void DealBoxCollider(GameObject root, Dictionary<string, object> paramDict)

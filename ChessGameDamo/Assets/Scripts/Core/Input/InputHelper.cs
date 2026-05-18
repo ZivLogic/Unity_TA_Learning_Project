@@ -13,7 +13,34 @@ public static class InputHelper
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray,out RaycastHit hit, 1000f))
         {
-            return hit.collider.gameObject;
+            //获取到物体
+            GameObject clickObj = hit.collider.gameObject;
+            //检查是否有身份ID组件
+            EntityIdentityTag IDtag = clickObj.GetComponent<EntityIdentityTag>();
+            if (IDtag == null)
+            {
+                Debug.Log("[InputHelper]选中物体没有全局身份ID，不可选择");
+                return null;
+            }
+            string typeKey = IDtag.IdentityType.ToString();
+            //配置表里面是否有这个键
+            if ( ! InputConfigCache.ObjectSelectDict.TryGetValue(typeKey, out SelectObjectConfig config) )
+            {
+                Debug.LogError($"[InputHelper]没有这个配置：{typeKey}");
+                return null;
+            }
+            //判断配置是否启用
+            if ( ! config.IsEnable)
+            {
+                return null;
+            }
+            //判断是否允许选中
+            if ( ! config.CanSelect)
+            {
+                Debug.Log("[InputHelper]不可被选中");
+                return null;
+            }
+            return clickObj;
         }
         return null;
     }
@@ -23,28 +50,28 @@ public static class InputHelper
     //现在配置问题比较大
 
 
-    public static GameObject GetPrioritySelectObject(float selectRadius, LayerMask selectLayer)   //获取鼠标区域内预设体
-    {
-        if (!RaycastMouseHit(out RaycastHit hit, 1000f, selectLayer)) 
-            return null;
-        Collider[] hitCols = Physics.OverlapSphere(hit.point, selectRadius, selectLayer);  //对象获取列表
-        GameObject bestObj = null;                 //初始值为空
-        int maxWeght = int.MinValue;               //初始权重值为负无穷
-        foreach (var col in hitCols)               //遍历所有物体
-        {
-            GameObject target = col.gameObject;    //获取对象
-            if (!InputConfigCache.ObjectSelectDict.TryGetValue(target.name, out var cfg))   //如果不在缓存里，跳过
-                continue;
-            if (!cfg.CanSelect)       //如果不可选择，跳过
-                continue;
-            if (cfg.SelectWeight > maxWeght)    //选取优先级最大的物体
-            {
-                maxWeght = cfg.SelectWeight;
-                bestObj = target;
-            }
-        }
-        return bestObj;
-    }
+    //public static GameObject GetPrioritySelectObject(float selectRadius, LayerMask selectLayer)   //获取鼠标区域内预设体
+    //{
+    //    if (!RaycastMouseHit(out RaycastHit hit, 1000f, selectLayer)) 
+    //        return null;
+    //    Collider[] hitCols = Physics.OverlapSphere(hit.point, selectRadius, selectLayer);  //对象获取列表
+    //    GameObject bestObj = null;                 //初始值为空
+    //    int maxWeght = int.MinValue;               //初始权重值为负无穷
+    //    foreach (var col in hitCols)               //遍历所有物体
+    //    {
+    //        GameObject target = col.gameObject;    //获取对象
+    //        if (!InputConfigCache.ObjectSelectDict.TryGetValue(target.name, out var cfg))   //如果不在缓存里，跳过
+    //            continue;
+    //        if (!cfg.CanSelect)       //如果不可选择，跳过
+    //            continue;
+    //        if (cfg.SelectWeight > maxWeght)    //选取优先级最大的物体
+    //        {
+    //            maxWeght = cfg.SelectWeight;
+    //            bestObj = target;
+    //        }
+    //    }
+    //    return bestObj;
+    //}
     #endregion
 
     #region  按键字符串互转

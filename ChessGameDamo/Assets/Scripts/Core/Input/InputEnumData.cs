@@ -33,7 +33,8 @@ public enum InputContext
     ShopPanel,            //商城界面
     DialogPanel,          //弹窗/对话
     UIPanelOnly,          //纯UI置顶
-    SettingPanel          //设计面板
+    SettingPanel,         //设计面板
+    SelSelectObject       //选择物体
 }
 //拦截器类型
 public enum InterceptorType

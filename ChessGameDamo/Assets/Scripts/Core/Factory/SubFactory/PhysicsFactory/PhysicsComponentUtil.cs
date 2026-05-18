@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Newtonsoft.Json.Linq;
 
 public static class PhysicsComponentUtil
 {
@@ -72,12 +74,23 @@ public static class PhysicsComponentUtil
     #region 从字典取X Y Z 转 Veector3
     public static Vector3 GetVector3Param(Dictionary<string, object> dict, string key)
     {
-        if ( ! dict.ContainsKey (key)) return Vector3.zero;
-        var vecDict = dict[key] as Dictionary<string, object>;
-        if (vecDict == null) return Vector3.zero;
-        float x = GetParam<float>(vecDict, "X");
-        float y = GetParam<float>(vecDict, "Y");
-        float z = GetParam<float>(vecDict, "Z");
+        if (!dict.ContainsKey(key))
+        {
+            Debug.LogError($"[PhysicsComponentUtil] 找不到Key：{key}");
+            return Vector3.zero;
+        }
+
+        object data = dict[key];
+        JArray jArr = data as JArray;
+        if (jArr == null || jArr.Count < 3)
+        {
+            Debug.LogError($"[PhysicsComponentUtil] JArray解析失败，值：{data}");
+            return Vector3.zero;
+        }
+
+        float x = (float)jArr[0];
+        float y = (float)jArr[1];
+        float z = (float)jArr[2];
         return new Vector3(x, y, z);
     }
     #endregion

@@ -1,8 +1,23 @@
 ﻿{
   "ChessBoard": {
-    "ComponentTable": {"Box":{"Center":{"X":0,"Y":0,"Z":0},"Size":{"X":6.24,"Y":0.8,"Z":6.24},"IsTrigger":false}}
+    "ComponentTable": {"Box":{"Center":[0,0.04,0],"Size":[6.24,0.16,6.24],"IsTrigger":false}}
   },
   "ChessMan_Pawn": {
-    "ComponentTable": {"Capsule":{"Center":{"X":0,"Y":0.35,"Z":0},"Radius":0.2,"Height":0.7,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+    "ComponentTable": {"Capsule":{"Center":[0,0.35,0],"Radius":0.2,"Height":0.7,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  },
+  "ChessMan_Rook": {
+    "ComponentTable": {"Capsule":{"Center":[0,0.38,0],"Radius":0.24,"Height":0.8,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  },
+  "ChessMan_Knight": {
+    "ComponentTable": {"Capsule":{"Center":[0,0.4,0],"Radius":0.24,"Height":0.82,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  },
+  "ChessMan_Bishop": {
+    "ComponentTable": {"Capsule":{"Center":[0,0.49,0],"Radius":0.26,"Height":1,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  },
+  "ChessMan_Queen": {
+    "ComponentTable": {"Capsule":{"Center":[0,0.51,0],"Radius":0.26,"Height":1.04,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
+  },
+  "ChessMan_King": {
+    "ComponentTable": {"Capsule":{"Center":[0,0.62,0],"Radius":0.31,"Height":1.25,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
   }
 }
