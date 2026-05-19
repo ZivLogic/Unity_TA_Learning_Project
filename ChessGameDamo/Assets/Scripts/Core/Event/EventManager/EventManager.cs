@@ -233,7 +233,7 @@ public class EventManager : MonoBehaviour
                 var msg = inputTypedQueue.Dequeue();
                 DispatchTyped(msg);
             }
-            yield return new WaitForSeconds(0.05f);
+            yield return null;
         }
     }
 

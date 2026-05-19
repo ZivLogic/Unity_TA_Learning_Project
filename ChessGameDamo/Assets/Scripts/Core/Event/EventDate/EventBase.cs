@@ -21,7 +21,8 @@ public enum EventQueueType
     Logic,
     Render,
     Physics,
-    Audio
+    Audio,
+    Input
 }
 //全局事件类
 public class GameInit : PackageEvent { }

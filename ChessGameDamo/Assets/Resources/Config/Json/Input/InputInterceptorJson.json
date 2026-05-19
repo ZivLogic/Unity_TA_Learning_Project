@@ -1,14 +1,10 @@
 ﻿{
-  "CutSceneGloball": {
+  "CutSceneGlobal": {
     "Priority": 10,
     "IsEnable": true
   },
   "ContextLimit": {
     "Priority": 100,
-    "IsEnable": true
-  },
-  "UIOcclude": {
-    "Priority": 50,
     "IsEnable": true
   }
 }

@@ -12,6 +12,9 @@ public class InputManager : MonoBehaviour
     public InputLogic _logic;
     public InputPublish _publish;
 
+    //输入业务
+    public InputBusinessLogic _businessLogic;
+
     private void Awake()
     {
         if (Instance != null)
@@ -28,6 +31,9 @@ public class InputManager : MonoBehaviour
         //订阅事件
         SubscribeAllEvents();
 
+        //初始化输入业务
+        _businessLogic = new InputBusinessLogic();
+
         Debug.Log("[InputManager]初始化完成");
     }
 
@@ -38,6 +44,7 @@ public class InputManager : MonoBehaviour
         if (GameGlobalState.IsQuitting) return;
         // 注销本系统所有事件订阅
         _logic.UnlistenAllEvent();
+        InputBizRouter.Clear();
     }
 
     // 外部要调用系统方法 转发给内核
@@ -53,17 +60,26 @@ public class InputManager : MonoBehaviour
     //当前输入上下文
     public InputContext CurrentContext { get; private set; } = InputContext.GameWorld;
 
+    #endregion
+
+    #region 双帧快照 键盘加鼠标
     //原始快照层：帧硬件状态缓存
-    private Dictionary<KeyCode, bool> _keySnapshot = new Dictionary<KeyCode, bool>();
-    private bool[] _mouseSnapshot = new bool[3];
+    private Dictionary<KeyCode, bool> _keySnapshotCurr = new Dictionary<KeyCode, bool>();
+    private Dictionary<KeyCode, bool> _keySnapshotPrev = new Dictionary<KeyCode, bool>();
+    private bool[] _mouseSnapshotCurr = new bool[3];
+    private bool[] _mouseSnapshotPrev = new bool[3];
 
     //通用轴快照
     public Vector2 MoveAxis { get; private set; }
     public Vector2 LookAxis { get; private set; }
-
+    #endregion
+    #region 冷却&长按计时
     //按冷却计时缓存 阈值校验用
     private Dictionary<KeyCode, float> _keyCdTimer = new Dictionary<KeyCode, float>();
-
+    //长按节流计时
+    private Dictionary<KeyCode, float> _keyHoldTimer = new Dictionary<KeyCode, float>();
+    #endregion
+    #region 拦截管道
     //拦截优先级管道队列
     private SortedDictionary<int, IInputInterceptor> _interceptorPipeline = new SortedDictionary<int, IInputInterceptor>();
 
@@ -74,6 +90,19 @@ public class InputManager : MonoBehaviour
     {InterceptorType.ContextLimit, () => new ContextLimitInterceptor() },
 };
 
+    #endregion
+    #region 改建系统临时配置
+    //改建系统专用
+    //临时修改缓存
+    private Dictionary<string, InputKeyConfig> _tempModifyConfig = new Dictionary<string, InputKeyConfig>();
+
+    //是否在监听新按键录制
+    public bool IsRecordingKey { get; private set; }
+
+    //当前正在修改的行为Key
+    private string _curModifyActionKey;
+    #endregion
+    #region 加载拦截器
     //加载拦截器
     public void LoadInterceptorDictConfig()
     {
@@ -103,17 +132,6 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    //改建系统专用
-    //临时修改缓存
-    private Dictionary<string, InputKeyConfig> _tempModifyConfig = new Dictionary<string, InputKeyConfig>();
-
-    //是否在监听新按键录制
-    public bool IsRecordingKey { get; private set; }
-
-    //当前正在修改的行为Key
-    private string _curModifyActionKey;
-    #endregion
-
     public void AddInterceptor(int priority, IInputInterceptor interceptor)   //拦截注册器，输入优先级值和拦截器名字
     {
         if (!_interceptorPipeline.ContainsKey(priority))
@@ -126,6 +144,7 @@ public class InputManager : MonoBehaviour
     {
 
     }
+    #endregion
 
     // Update is called once per frame
     private void Update()
@@ -150,23 +169,65 @@ public class InputManager : MonoBehaviour
     private void RefreshRawSnapshot()
     {
         //键盘
-        _keySnapshot.Clear();
+        //帧位移：当前帧 => 上一帧
+        _keySnapshotPrev.Clear();
+        foreach (var kv in _keySnapshotCurr)
+            _keySnapshotPrev[kv.Key] = kv.Value;
+        Array.Copy(_mouseSnapshotCurr, _mouseSnapshotPrev, _mouseSnapshotCurr.Length);
+        //刷新当前帧键盘
+        _keySnapshotCurr.Clear();
         //遍历配置内所有绑定按键刷新状态快照
         foreach (var kv in InputConfigCache.InputBindDict)
         {
             KeyCode code = InputHelper.StringToKeyCode(kv.Value.KeyBindCode);
             if (code != KeyCode.None)
             {
-                _keySnapshot[code] = Input.GetKey(code);
+                _keySnapshotCurr[code] = Input.GetKey(code);
             }
         }
         //鼠标按键快照
-        _mouseSnapshot[0] = Input.GetMouseButton(0);
-        _mouseSnapshot[1] = Input.GetMouseButton(1);
-        _mouseSnapshot[2] = Input.GetMouseButton(2);
+        _mouseSnapshotCurr[0] = Input.GetMouseButton(0);
+        _mouseSnapshotCurr[1] = Input.GetMouseButton(1);
+        _mouseSnapshotCurr[2] = Input.GetMouseButton(2);
         //通用轴
         MoveAxis = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         LookAxis = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+    }
+    #endregion
+    #region 三态判断工具 
+    private InputKeyState GetKeyCodeState(KeyCode key)
+    {
+        bool curr = _keySnapshotCurr.TryGetValue(key, out var c) ? c : false;
+        bool prev = _keySnapshotPrev.TryGetValue(key, out var p) ? p : false;
+        if (curr && !prev) return InputKeyState.Down;
+        if (curr &&  prev) return InputKeyState.Hold;
+        if (!curr && prev) return InputKeyState.Up;
+        return InputKeyState.None;
+    }
+    private InputKeyState GetMouseBtnState(int mouseIndex)
+    {
+        if (mouseIndex < 0 || mouseIndex >= _mouseSnapshotCurr.Length)
+            return InputKeyState.None;
+        bool curr = _mouseSnapshotCurr[mouseIndex];
+        bool prev = _mouseSnapshotPrev[mouseIndex];
+        if (curr && !prev)return InputKeyState.Down;
+        if (curr &&  prev)return InputKeyState.Hold;
+        if (!curr && prev) return InputKeyState.Up;
+        return InputKeyState.None;
+    }
+    #endregion
+    #region 配置工具：解析允许监听的状态
+    private List<InputKeyState> GetAllowListenStates(InputKeyConfig cfg)
+    {
+        List<InputKeyState> list = new List<InputKeyState>();
+        if (cfg.ListenState == null)
+            return list;
+        foreach (var s in cfg.ListenState)
+        {
+            if (Enum.TryParse<InputKeyState>(s, true, out var st))
+                list.Add(st);
+        }
+        return list;
     }
     #endregion
     #region  阈值合法性校验核心
@@ -182,6 +243,23 @@ public class InputManager : MonoBehaviour
         if (interval >= limitCd)
         {
             _keyCdTimer[key] = Time.unscaledTime;
+            return true;
+        }
+        return false;
+    }
+    #endregion
+    #region 长按节流校验
+    private bool IsHoldIntervalValid(KeyCode key, float holdInterval)
+    {
+        if ( ! _keyHoldTimer.ContainsKey(key))
+        {
+            _keyHoldTimer[key] = Time.unscaledTime;
+            return true;
+        }
+        float interval = Time.unscaledTime - _keyHoldTimer[key];
+        if (interval >= holdInterval)
+        {
+            _keyHoldTimer[key]= Time.unscaledTime;
             return true;
         }
         return false;
@@ -212,22 +290,34 @@ public class InputManager : MonoBehaviour
             KeyCode bindKey = InputHelper.StringToKeyCode(cfg.KeyBindCode);
             if (bindKey == KeyCode.None)
                 continue;
-            //快照对比按下瞬间
-            if (_keySnapshot[bindKey] && Input.GetKeyDown(bindKey))
+            //获取三态
+            InputKeyState keyState = GetKeyCodeState(bindKey);
+            if (keyState == InputKeyState.None)
+                continue;
+            //配置过滤：只分发配置里允许的状态
+            var allowStates = GetAllowListenStates(cfg);
+            if ( ! allowStates.Contains(keyState) )
+                continue;
+            //按下抬起 走点击冷却
+            if (keyState is InputKeyState.Down or InputKeyState.Up )
             {
-                //阈值校验
-                if (!IsInputCdValid(bindKey, cfg.ClickCdThreshold))
+                if ( ! IsInputCdValid(bindKey, cfg.ClickCdThreshold))
                     continue;
-                //转枚举
-                InputAction action = Enum.Parse<InputAction>(kv.Key);
-                ////封装数据包(打包流程)
-                //InputEventPackage pkg = new InputEventPackage();
-                //拦截层校验
-                if (!PassAllInterceptorCheeck(action))
-                    continue;
-                //发布输入事件
-                EventInputActionKey(action);
             }
+            //长按 走时间节流
+            else if (keyState == InputKeyState.Hold)
+            {
+                if (!IsHoldIntervalValid(bindKey, cfg.HoldInterval))
+                    continue;
+            }
+            //解析行为枚举
+            if ( ! Enum.TryParse<InputAction>(kv.Key, out InputAction action))
+                continue;
+            //拦截层校验
+            if (!PassAllInterceptorCheeck(action))
+                continue;
+            //路由发到业务层
+            InputBizRouter.Dispatch(action, cfg, keyState);
         }
     }
     #endregion
@@ -244,55 +334,44 @@ public class InputManager : MonoBehaviour
                 continue;
             int mouseIndex = cfg.MouseButtonIndex;
             //越界保护
-            if (mouseIndex < 0 || mouseIndex >= _mouseSnapshot.Length)
+            if (mouseIndex < 0 || mouseIndex >= _mouseSnapshotCurr.Length)
                 continue;
-            //快照差分
-            if (_mouseSnapshot[mouseIndex] && Input.GetMouseButtonDown(mouseIndex))
+            //鼠标三态
+            InputKeyState mouseState = GetMouseBtnState(mouseIndex);
+            if (mouseState == InputKeyState.None)
+                continue;
+            //配置状态过滤
+            var allowStates = GetAllowListenStates(cfg);
+            if ( ! allowStates.Contains(mouseState))
+                continue;
+            //鼠标对应KeyCode
+            KeyCode mouseKey = mouseIndex switch
             {
-                //冷却阈值校验（统一用鼠标按键KeyCode）
-                KeyCode mouseKey = mouseIndex switch
-                {
-                    0 => KeyCode.Mouse0,
-                    1 => KeyCode.Mouse1,
-                    2 => KeyCode.Mouse2,
-                    _ => KeyCode.None
-                };
-                if (!IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
+                0 => KeyCode.Mouse0,
+                1 => KeyCode.Mouse1,
+                2 => KeyCode.Mouse2,
+                _ => KeyCode.None
+            };
+            //抬起按下冷却
+            if (mouseState is InputKeyState.Down or InputKeyState.Up)
+            {
+                if ( ! IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
                     continue;
-                //转输入枚举
-                if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
-                    continue;
-                //拦截管道校验
-                if (!PassAllInterceptorCheeck(action))
-                    continue;
-                //鼠标在摄像机成像画面的坐标
-                Vector2 mousePos = Input.mousePosition;
-                //鼠标世界坐标
-                Vector3 worldPos = InputHelper.GetMouseGroundPos();
-                //是否在UI上
-                bool isOnUI = InputHelper.IsMouseOverUI();
-                //具体业务逻辑
-                //EventInputActionMouse(action, mousePos);
-
-
-                //选中逻辑
-                if (action == InputAction.SelectTarget)
-                {
-                    if (!isOnUI)
-                    {
-                        LayerMask selectLayer = LayerMask.GetMask("SelectObject");
-                        //GameObject selectObj = InputHelper.GetPrioritySelectObject(cfg.ClickCdThreshold, selectLayer);    //这里的选中范围没有配置
-                        GameObject selectObj = InputHelper.RaycastSelectSingle();
-                        var pack = new Package();
-                        pack.Put(EventPackName.INPUT_ACTIONMOUSE, action);
-                        pack.Put(EventPackName.INPUT_MOUSEPOS3D, worldPos);
-                        pack.Put(EventPackName.INPUT_MOUSESELECT, selectObj);
-                        Debug.Log("选中物体");
-                        Debug.Log($"获取到物体：{selectObj},是否为空：{selectObj == null}");
-                        EventManager.Instance.EmitLogic(new InputMouseSelect() { package = pack });
-                    }
-                }
             }
+            //长按节流
+            else if (mouseState == InputKeyState.Hold)
+            {
+                if ( ! IsHoldIntervalValid(mouseKey, cfg.HoldInterval))
+                    continue;
+            }
+            //解析行为枚举
+            if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
+                continue;
+            //拦截层校验
+            if (!PassAllInterceptorCheeck(action))
+                continue;
+            //路由层分发业务
+            InputBizRouter.Dispatch(action, cfg, mouseState);
         }
     }
     #endregion
@@ -362,18 +441,6 @@ public class InputManager : MonoBehaviour
     }
     #endregion
 
-    private void EventInputActionKey(InputAction action)     //判断键盘事件发布方法
-    {
-        var pack = new Package();
-        pack.Put(EventPackName.INPUT_ACTIONKEY, action);     //现在是所有类型统一一个key查询，但是一次只打包一个类型，所以接收方调用暂时没问题
-    }
-
-    private void EventInputActionMouse(InputAction action, Vector2 pos)    //判断鼠标事件发布方法，需要鼠标枚举和鼠标坐标
-    {
-        var pack = new Package();
-        pack.Put(EventPackName.INPUT_ACTIONMOUSE, action);
-    }
-
     //切换上下文快捷方法
     public void SwitchInputContext(InputContext ctx)
     {
@@ -412,7 +479,8 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //LoadInterceptorDictConfig();
+        LoadInterceptorDictConfig();
+        _businessLogic.Init();
     }
 
 

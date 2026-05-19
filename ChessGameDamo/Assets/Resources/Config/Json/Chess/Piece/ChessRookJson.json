@@ -1,0 +1,14 @@
+﻿{
+  "Rook": {
+    "DisplayName": "车",
+    "ChessType": "Rook",
+    "MaxHP": 1,
+    "Value": 5,
+    "MaxMoveRange": 7,
+    "CanJump": false,
+    "CanMoveDiagonal": true,
+    "Moves": [[0,1],[0,-1],[-1,0],[1,0]],
+    "CanCapture": true,
+    "CaptureMoves": [[0,1],[0,-1],[-1,0],[1,0]]
+  }
+}

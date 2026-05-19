@@ -16,6 +16,7 @@ public class InputKeyConfig
     public List<InputContext> AllowContext = new List<InputContext>();
     //¸ß¼¶£ºÊÇ·ñÔÊĞíUI´©Í¸
     public bool AllowUIOverlayPenetrate;
+    public List<string> ListenState;      //ÅäÖÃ¼àÌıÄÄĞ©Êó±ê×´Ì¬
 
     public float ClickRadius = 0.5f;            //¼ì²â°ë¾¶
 

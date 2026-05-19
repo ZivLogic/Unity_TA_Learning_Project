@@ -11,15 +11,45 @@
     "IsTable": false,
     "IsEnable": true
   },
+  "ChessPawn": {
+    "ConfigType": "Chess_PawnConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessPawnJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessRook": {
+    "ConfigType": "Chess_RookConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessRookJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessKnight": {
+    "ConfigType": "Chess_PawnConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessKnightJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessBishop": {
+    "ConfigType": "Chess_BishopConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessBishopJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessQueen": {
+    "ConfigType": "Chess_QueenConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessQueenJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
+  "ChessKing": {
+    "ConfigType": "Chess_KingConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Chess/Piece/ChessKingJson",
+    "IsTable": false,
+    "IsEnable": true
+  },
   "ChessmanPosition": {
     "ConfigType": "ChessmanPositionConfig, Assembly-CSharp",
     "ConfigPath": "Config/Json/Chess/ChessmanPositionJson",
-    "IsTable": true,
-    "IsEnable": true
-  },
-  "Chessman": {
-    "ConfigType": "ChessmanConfig, Assembly-CSharp",
-    "ConfigPath": "Config/Json/Chess/ChessmanJson",
     "IsTable": true,
     "IsEnable": true
   },

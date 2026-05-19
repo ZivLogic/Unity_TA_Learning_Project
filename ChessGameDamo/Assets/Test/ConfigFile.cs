@@ -52,7 +52,7 @@ public class ConfigFile : MonoBehaviour
             .Add("Priority", 50)
             .Add("IsEnable", true);
         builder.ExportToFileFormat_Overwrite(TestPath001);
-    #endregion
+        #endregion
         #region 事件监听路由配置
         //事件监听路由
         string EventRoutePath = @"E:/JsonFile/Unity/ChessGame/EventRouteJson.json";
@@ -217,15 +217,45 @@ public class ConfigFile : MonoBehaviour
             .Add("IsTable", false)
             .Add("IsEnable", true)
 
+            .Group("ChessPawn")
+            .Add("ConfigType", "Chess_PawnConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessPawnJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
+            .Group("ChessRook")
+            .Add("ConfigType", "Chess_RookConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessRookJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
+            .Group("ChessKnight")
+            .Add("ConfigType", "Chess_PawnConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessKnightJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
+            .Group("ChessBishop")
+            .Add("ConfigType", "Chess_BishopConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessBishopJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
+            .Group("ChessQueen")
+            .Add("ConfigType", "Chess_QueenConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessQueenJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
+            .Group("ChessKing")
+            .Add("ConfigType", "Chess_KingConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Chess/Piece/ChessKingJson")
+            .Add("IsTable", false)
+            .Add("IsEnable", true)
+
             .Group("ChessmanPosition")
             .Add("ConfigType", "ChessmanPositionConfig, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/Chess/ChessmanPositionJson")
-            .Add("IsTable", true)
-            .Add("IsEnable", true)
-
-            .Group("Chessman")
-            .Add("ConfigType", "ChessmanConfig, Assembly-CSharp")
-            .Add("ConfigPath", "Config/Json/Chess/ChessmanJson")
             .Add("IsTable", true)
             .Add("IsEnable", true)
 
@@ -686,6 +716,12 @@ public class ConfigFile : MonoBehaviour
                 "GameWorld"
             })
             .Add("AllowUIOverlayPenetrate", true)          //是否可穿透UI
+            .Add("ListenState", new List<string>
+            {
+                "Down",
+                "Hold",
+                "Up"
+            })
 
             .Group("MoveDown")
             .Add("KeyBindCode", "S")
@@ -699,6 +735,12 @@ public class ConfigFile : MonoBehaviour
                 "GameWorld"
             })
             .Add("AllowUIOverlayPenetrate", true)
+            .Add("ListenState", new List<string>
+            {
+                "Down",
+                "Hold",
+                "Up"
+            })
 
             .Group("MoveLeft")
             .Add("KeyBindCode", "A")
@@ -712,6 +754,12 @@ public class ConfigFile : MonoBehaviour
                 "GameWorld"
             })
             .Add("AllowUIOverlayPenetrate", true)
+            .Add("ListenState", new List<string>
+            {
+                "Down",
+                "Hold",
+                "Up"
+            })
 
             .Group("MoveRight")
             .Add("KeyBindCode", "D")
@@ -725,6 +773,12 @@ public class ConfigFile : MonoBehaviour
                 "GameWorld"
             })
             .Add("AllowUIOverlayPenetrate", true)
+            .Add("ListenState", new List<string>
+            {
+                "Down",
+                "Hold",
+                "Up"
+            })
 
             .Group("SelectTarget")
             .Add("KeyBindCode", "None")
@@ -739,6 +793,10 @@ public class ConfigFile : MonoBehaviour
                 "SelSelectObject"
             })
             .Add("AllowUIOverlayPenetrate", false)
+            .Add("ListenState", new List<string>
+            {
+                "Down"
+            })
 
             .Group("CancelOperate")
             .Add("KeyBindCode", "Escape")
@@ -757,8 +815,225 @@ public class ConfigFile : MonoBehaviour
                 "UIPanelOnly",
                 "SelSelectObject"
             })
-            .Add("AllowUIOverlayPenetrate", false);
+            .Add("AllowUIOverlayPenetrate", false)
+            .Add("ListenState", new List<string>
+            {
+                "Down"
+            });
         inputKeyJson.ExportToFileFormat_Overwrite(InputKeyJson);
+        #endregion
+        #region 拦截器配置
+        string InputInterceptorJson = @"E:/JsonFile/Unity/ChessGame/InputInterceptorJson.json";
+        var inputInterceptorJson = new ConfigBuilder();
+        inputInterceptorJson
+            .Group("CutSceneGlobal")              //顶层名与枚举相同
+            .Add("Priority", 10)                  //优先级
+            .Add("IsEnable", true)                //是否启用
+
+            .Group("ContextLimit")
+            .Add("Priority", 100)
+            .Add("IsEnable", true);
+        inputInterceptorJson.ExportToFileFormat_Overwrite (InputInterceptorJson);
+        #endregion
+        #region 棋子属性配置
+        string Chess_Pawn = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessPawnJson.json";
+        var chessPawn = new ConfigBuilder();
+        chessPawn
+            .Group("Pawn")                                  //顶层名
+            .Add("DisplayName", "兵")                       //名字
+            .Add("ChessType", "Pawn")                       //类型
+            .Add("MaxHP", 1)                                //血量
+            .Add("Value", 1)                                //价值
+            .Add("MaxMoveRange", 2)                         //最大移动距离
+            .Add("CanJump", false)                          //是否可跳跃
+            .Add("CanMoveDiagonal", true)                   //是否斜走（吃子可斜走）
+            .Add("Moves", new List<List<int>>               //移动方向列表
+            {
+                new List<int> { 0, 1 }
+            })
+            .Add("CanCapture", true)                        //是否可以吃子        
+            .Add("CaptureMoves", new List<List<int>>        //吃子方向
+            {
+                new List<int> { 1, 1 },
+                new List<int> { -1, 1 }
+            })
+            .Add("EnPassantable", true)                      //是否可以吃过路兵
+            .Add("CanPromote", true)                         //是否可升变
+            .Add("PromoteOptions", new List<string>          //升变选项
+            {
+                "Queen",
+                "Rook",
+                "Bishop",
+                "Knight"
+            })
+            .Add("PromoteRankWhite", 7)                      //白方升变行
+            .Add("PromoteRankBlack", 0);                     //黑方升变行
+        chessPawn.ExportToFileFormat_Overwrite(Chess_Pawn);
+
+
+        string Chess_Rook = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessRookJson.json";
+        var chessRook = new ConfigBuilder();
+        chessRook
+            .Group("Rook")
+            .Add("DisplayName", "车")
+            .Add("ChessType", "Rook")
+            .Add("MaxHP", 1)
+            .Add("Value", 5)
+            .Add("MaxMoveRange", 7)
+            .Add("CanJump", false)
+            .Add("CanMoveDiagonal", true)
+            .Add("Moves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 }
+            })
+            .Add("CanCapture", true)
+            .Add("CaptureMoves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 }
+            });
+        chessRook.ExportToFileFormat_Overwrite(Chess_Rook);
+
+        string Chess_Knight = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessKnightJson.json";
+        var chessKnight = new ConfigBuilder();
+        chessKnight
+            .Group("Knight")
+            .Add("DisplayName", "马")
+            .Add("ChessType", "Knight")
+            .Add("MaxHP", 1)
+            .Add("Value", 3)
+            //.Add("MaxMoveRange", null)
+            .Add("CanJump", true)
+            .Add("CanMoveDiagonal", true)
+            .Add("Moves", new List<List<int>>
+            {
+                new List<int> { 1, 2 },
+                new List<int> { -1, 2 },
+                new List<int> { 1, -2 },
+                new List<int> { -1, -2 },
+                new List<int> { 2, 1 },
+                new List<int> { -2, 1 },
+                new List<int> { 2, -1 },
+                new List<int> { -2, -1 }
+            })
+            .Add("CanCapture", true)
+            .Add("CaptureMoves", new List<List<int>>
+            {
+                new List<int> { 1, 2 },
+                new List<int> { -1, 2 },
+                new List<int> { 1, -2 },
+                new List<int> { -1, -2 },
+                new List<int> { 2, 1 },
+                new List<int> { -2, 1 },
+                new List<int> { 2, -1 },
+                new List<int> { -2, -1 }
+            });
+        chessKnight.ExportToFileFormat_Overwrite(Chess_Knight);
+
+        string Chess_Bishop = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessBishopJson.json";
+        var chessBishop = new ConfigBuilder();
+        chessBishop
+            .Group("Bishop")
+            .Add("DisplayName", "象")
+            .Add("ChessType", "Bishop")
+            .Add("MaxHP", 1)
+            .Add("Value", 3)
+            .Add("MaxMoveRange", 7)
+            .Add("CanJump", false)
+            .Add("CanMoveDiagonal", true)
+            .Add("Moves", new List<List<int>>
+            {
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            })
+            .Add("CanCapture", true)
+            .Add("CaptureMoves", new List<List<int>>
+            {
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            });
+        chessBishop.ExportToFileFormat_Overwrite(Chess_Bishop);
+
+        string Chess_Queen = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessQueenJson.json";
+        var chessQueen = new ConfigBuilder();
+        chessQueen
+            .Group("Queen")
+            .Add("DisplayName", "后")
+            .Add("ChessType", "Queen")
+            .Add("MaxHP", 1)
+            .Add("Value", 9)
+            .Add("MaxMoveRange", 7)
+            .Add("CanJump", false)
+            .Add("CanMoveDiagonal", true)
+            .Add("Moves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 },
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            })
+            .Add("CanCapture", true)
+            .Add("CaptureMoves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 },
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            });
+        chessQueen.ExportToFileFormat_Overwrite(Chess_Queen);
+
+        string Chess_King = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessKingJson.json";
+        var chessKing = new ConfigBuilder();
+        chessKing
+            .Group("King")
+            .Add("DisplayName", "王")
+            .Add("ChessType", "King")
+            .Add("MaxHP", 1)
+            .Add("Value", 100)
+            .Add("MaxMoveRange", 1)
+            .Add("CanJump", false)
+            .Add("CanMoveDiagonal", true)
+            .Add("Moves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 },
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            })
+            .Add("CanCapture", true)
+            .Add("CaptureMoves", new List<List<int>>
+            {
+                new List<int> { 0, 1 },
+                new List<int> { 0, -1 },
+                new List<int> { -1, 0 },
+                new List<int> { 1, 0 },
+                new List<int> { 1, 1 },
+                new List<int> { 1, -1 },
+                new List<int> { -1, 1 },
+                new List<int> { -1, -1 }
+            });
+        chessKing.ExportToFileFormat_Overwrite(Chess_King);
         #endregion
     }
 

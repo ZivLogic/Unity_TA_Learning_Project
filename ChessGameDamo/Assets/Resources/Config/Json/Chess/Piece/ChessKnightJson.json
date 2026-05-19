@@ -1,0 +1,13 @@
+﻿{
+  "Knight": {
+    "DisplayName": "马",
+    "ChessType": "Knight",
+    "MaxHP": 1,
+    "Value": 3,
+    "CanJump": true,
+    "CanMoveDiagonal": true,
+    "Moves": [[1,2],[-1,2],[1,-2],[-1,-2],[2,1],[-2,1],[2,-1],[-2,-1]],
+    "CanCapture": true,
+    "CaptureMoves": [[1,2],[-1,2],[1,-2],[-1,-2],[2,1],[-2,1],[2,-1],[-2,-1]]
+  }
+}

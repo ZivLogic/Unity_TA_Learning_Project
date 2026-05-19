@@ -1,0 +1,14 @@
+﻿{
+  "King": {
+    "DisplayName": "王",
+    "ChessType": "King",
+    "MaxHP": 1,
+    "Value": 100,
+    "MaxMoveRange": 1,
+    "CanJump": false,
+    "CanMoveDiagonal": true,
+    "Moves": [[0,1],[0,-1],[-1,0],[1,0],[1,1],[1,-1],[-1,1],[-1,-1]],
+    "CanCapture": true,
+    "CaptureMoves": [[0,1],[0,-1],[-1,0],[1,0],[1,1],[1,-1],[-1,1],[-1,-1]]
+  }
+}

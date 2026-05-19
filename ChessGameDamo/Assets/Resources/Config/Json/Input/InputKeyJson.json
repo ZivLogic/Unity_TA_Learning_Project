@@ -7,7 +7,8 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld"],
-    "AllowUIOverlayPenetrate": true
+    "AllowUIOverlayPenetrate": true,
+    "ListenState": ["Down","Hold","Up"]
   },
   "MoveDown": {
     "KeyBindCode": "S",
@@ -17,7 +18,8 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld"],
-    "AllowUIOverlayPenetrate": true
+    "AllowUIOverlayPenetrate": true,
+    "ListenState": ["Down","Hold","Up"]
   },
   "MoveLeft": {
     "KeyBindCode": "A",
@@ -27,7 +29,8 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld"],
-    "AllowUIOverlayPenetrate": true
+    "AllowUIOverlayPenetrate": true,
+    "ListenState": ["Down","Hold","Up"]
   },
   "MoveRight": {
     "KeyBindCode": "D",
@@ -37,7 +40,8 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld"],
-    "AllowUIOverlayPenetrate": true
+    "AllowUIOverlayPenetrate": true,
+    "ListenState": ["Down","Hold","Up"]
   },
   "SelectTarget": {
     "KeyBindCode": "None",
@@ -47,7 +51,8 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld","SelSelectObject"],
-    "AllowUIOverlayPenetrate": false
+    "AllowUIOverlayPenetrate": false,
+    "ListenState": ["Down"]
   },
   "CancelOperate": {
     "KeyBindCode": "Escape",
@@ -57,6 +62,7 @@
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
     "AllowContext": ["GameWorld","BagPanel","ShopPanel","SettingPanel","DialogPanel","UIPanelOnly","SelSelectObject"],
-    "AllowUIOverlayPenetrate": false
+    "AllowUIOverlayPenetrate": false,
+    "ListenState": ["Down"]
   }
 }

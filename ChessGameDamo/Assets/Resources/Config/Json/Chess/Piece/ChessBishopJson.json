@@ -1,0 +1,14 @@
+﻿{
+  "Bishop": {
+    "DisplayName": "象",
+    "ChessType": "Bishop",
+    "MaxHP": 1,
+    "Value": 3,
+    "MaxMoveRange": 7,
+    "CanJump": false,
+    "CanMoveDiagonal": true,
+    "Moves": [[1,1],[1,-1],[-1,1],[-1,-1]],
+    "CanCapture": true,
+    "CaptureMoves": [[1,1],[1,-1],[-1,1],[-1,-1]]
+  }
+}

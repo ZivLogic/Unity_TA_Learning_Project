@@ -1,0 +1,19 @@
+﻿{
+  "Pawn": {
+    "DisplayName": "兵",
+    "ChessType": "Pawn",
+    "MaxHP": 1,
+    "Value": 1,
+    "MaxMoveRange": 2,
+    "CanJump": false,
+    "CanMoveDiagonal": true,
+    "Moves": [[0,1]],
+    "CanCapture": true,
+    "CaptureMoves": [[1,1],[-1,1]],
+    "EnPassantable": true,
+    "CanPromote": true,
+    "PromoteOptions": ["Queen","Rook","Bishop","Knight"],
+    "PromoteRankWhite": 7,
+    "PromoteRankBlack": 0
+  }
+}
