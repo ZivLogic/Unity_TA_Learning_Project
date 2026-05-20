@@ -1,0 +1,26 @@
+﻿{
+  "ChessMan_Pawn_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Rook_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Knight_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Bishop_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Queen_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_King_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  }
+}

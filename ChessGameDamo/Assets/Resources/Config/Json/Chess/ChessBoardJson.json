@@ -1,7 +1,7 @@
 {
 "ChessBoard" : {
-	"Length" : 5.46,
-	"Width" : 5.46,
+	"Length" : 6.24,
+	"Width" : 6.24,
 	"TileNumberX" : 8,
 	"TileNumberZ" : 8,
 	"BoardInitPosition" : {

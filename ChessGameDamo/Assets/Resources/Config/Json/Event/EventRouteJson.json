@@ -13,13 +13,6 @@
     "QueueType": "Logic",
     "IsEnable": "true"
   },
-  "ConfigLogic_InitEntityIDConfig_InitEntityID": {
-    "SystemID": "ConfigLogic",
-    "EventTypeFullName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
-    "HandlerMethodName": "InitEntityIDConfig",
-    "QueueType": "Logic",
-    "IsEnable": "true"
-  },
   "FactoryLogic_OnResponseChessConfig_InitChessConfig": {
     "SystemID": "FactoryLogic",
     "EventTypeFullName": "FactoryLogic_OnResponseChessConfig_InitChessConfig",
@@ -34,13 +27,6 @@
     "QueueType": "Logic",
     "IsEnable": "true"
   },
-  "FactoryLogic_OnEntityIDConfig_InitEntityID": {
-    "SystemID": "FactoryLogic",
-    "EventTypeFullName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
-    "HandlerMethodName": "OnEntityIDConfig",
-    "QueueType": "Logic",
-    "IsEnable": "true"
-  },
   "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs": {
     "SystemID": "AssetsLogic",
     "EventTypeFullName": "AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs",
@@ -52,6 +38,20 @@
     "SystemID": "InputLogic",
     "EventTypeFullName": "InputLogic_OnConfig_IsInputConfig",
     "HandlerMethodName": "OnConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryPublish_GetIdentityConfig_IdConfig": {
+    "SystemID": "ConfigLogic",
+    "EventTypeFullName": "FactoryPublish_GetIdentityConfig_IdConfig",
+    "HandlerMethodName": "InitEntityIDConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigPublish_OnIdentityConfig_IdConfig": {
+    "SystemID": "FactoryLogic",
+    "EventTypeFullName": "ConfigPublish_OnIdentityConfig_IdConfig",
+    "HandlerMethodName": "OnEntityIDConfig",
     "QueueType": "Logic",
     "IsEnable": "true"
   }

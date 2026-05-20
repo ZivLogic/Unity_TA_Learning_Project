@@ -1,0 +1,14 @@
+﻿{
+  "ChessBard_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnale": true
+  },
+  "ChessMan_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnale": true
+  },
+  "ChessTile_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnale": true
+  }
+}

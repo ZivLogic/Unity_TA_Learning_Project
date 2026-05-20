@@ -27,10 +27,12 @@ public class FactoryLogic : BaseBusinessSystem
         if (pack.Get<ChessBoardConfig>(EventPackName.CHESSBOARD_CONFIG, out var boardCfg)) { }
         if (pack.Get<GameObject[]>(EventPackName.CHESSMAN_ISPREFABS, out var manPfb)) { }
         if (pack.Get<Dictionary<string, ChessmanPositionConfig>>(EventPackName.CHESSMAN_POSITIONCONFIG, out var manPos)) { }
+        //if (pack.Get<GameObject>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePfb))
 
         if ( ! pack.ValidsteAll() )
         { Debug.LogError($"[FactoryLogic]某值为空！故障事件：{e}"); return; }
         var entityFactory = FactoryManager.Instance.GetFactory<EntityFactoryManager>("Entity");
+        var renderFactory = FactoryManager.Instance.GetFactory<RenderFactoryManager>("Render");
         entityFactory?.CreateChessBoard(boardPfb, boardCfg);
         //棋子生成
         entityFactory?.CreateChessman(manPfb, manPos, "Pawn", true, true, null);
@@ -46,21 +48,27 @@ public class FactoryLogic : BaseBusinessSystem
         entityFactory?.CreateChessman(manPfb, manPos, "Queen", false, true, null);
         entityFactory?.CreateChessman(manPfb, manPos, "King", false, true, null);
 
+        
+
     }
     private void OnEntityIDConfig(PackageEvent e)
     {
-        FactoryLogic_OnEntityIDConfig_InitEntityID evt = e as FactoryLogic_OnEntityIDConfig_InitEntityID;
+        ConfigPublish_OnIdentityConfig_IdConfig evt = e as ConfigPublish_OnIdentityConfig_IdConfig;
         var pack = evt.package;
         if (pack.Get<Dictionary<string, EntityIDConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfig, out var entityIDConfig)) { }
         if (pack.Get<Dictionary<string,EntityIDConfig_Special>>(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial, out var special)) { }
         if (pack.Get<Dictionary<string, PhysicsValueConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsValueConfig, out var physicsValueConfig)) { }
         if (pack.Get<Dictionary<string, PhysicsComponentConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig, out var physicsComponentConfig)) { }
+        if (pack.Get<Dictionary<string, RenderMajorIDConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_RenderMajor, out var renderMajorIDConfig)) { }
+        if (pack.Get<Dictionary<string, RenderMinorIDConfig>>(EventPackName.ConfigLogic_InitEntityIDConfig_RenderMinor, out var renderMinorIDConfig)) { }
         if ( ! pack.ValidsteAll())
         { Debug.LogError($"[FactoryLogic]某值为空！故障事件：{e}"); return; }
         var entityFactory = FactoryManager.Instance.GetFactory<EntityFactoryManager>("Entity");
+        var renderFactory = FactoryManager.Instance.GetFactory<RenderFactoryManager>("Render");
         entityFactory?.OnEntityIDConfig(entityIDConfig);
         entityFactory?.OnEntityIDSpecialConfig(special);
         entityFactory?.OnPhysicsConfig(physicsComponentConfig, physicsValueConfig);
+        renderFactory?.OnRenderIDConfig(renderMajorIDConfig, renderMinorIDConfig);
     }
 
     #endregion

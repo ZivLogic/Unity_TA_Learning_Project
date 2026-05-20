@@ -28,6 +28,7 @@ public class FactoryManager : MonoBehaviour
         CreateSystem<EntityFactoryManager>();   //创建实体工厂
         CreateSystem<LogicFactoryManager>();    //创建逻辑工厂
         CreateSystem<PhysicsFactoryManager>();  //创建物理工厂
+        CreateSystem<RenderFactoryManager>();   //创建渲染工厂
 
         //初始化事件器
         _logic = new FactoryLogic();
@@ -109,6 +110,7 @@ public class FactoryManager : MonoBehaviour
         var chessmanPosition = new ChessmanPositionConfig { IsPrefab = true };
         var chessBoardPrefab = new ChessBoardPrefabConfig { };
         var chessmanPrefabs = new ChessmanPrefabsConfig { IsList = true };
+        var chessTilePrefabs = new ChessTilePrefabsConfig { };
 
         //打包
         var pack = new Package();
@@ -117,6 +119,7 @@ public class FactoryManager : MonoBehaviour
         pack.Put(EventPackName.CHESSMAN_POSITIONCONFIG, chessmanPosition);
         pack.Put(EventPackName.CHESSBOARD_PREFAB, chessBoardPrefab);
         pack.Put(EventPackName.CHESSMAN_PREFABS, chessmanPrefabs);
+        pack.Put(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, chessTilePrefabs);
 
         //事件
         var pub = new ConfigLogic_InitChessConfig_InitChessEvent { package = pack };

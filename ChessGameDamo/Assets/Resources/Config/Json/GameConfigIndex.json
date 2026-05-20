@@ -65,6 +65,12 @@
     "IsTable": true,
     "IsEnable": true
   },
+  "ChessTilePrefabs": {
+    "ConfigType": "ChessTilePrefabsConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/Prefabs/ChessTilePrefabJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
   "InputKey": {
     "ConfigType": "InputKeyConfig, Assembly-CSharp",
     "ConfigPath": "Config/Json/Input/InputKeyJson",
@@ -116,6 +122,18 @@
   "PhysicsComponent": {
     "ConfigType": "PhysicsComponentConfig, Assembly-CSharp",
     "ConfigPath": "Config/Json/EntityID/PhysicsIDComponentJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "RenderMajorID": {
+    "ConfigType": "RenderMajorIDConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/RenderMajorJson",
+    "IsTable": true,
+    "IsEnable": true
+  },
+  "RenderMinorID": {
+    "ConfigType": "RenderMinorIDConfig, Assembly-CSharp",
+    "ConfigPath": "Config/Json/EntityID/RenderMinorJson",
     "IsTable": true,
     "IsEnable": true
   }

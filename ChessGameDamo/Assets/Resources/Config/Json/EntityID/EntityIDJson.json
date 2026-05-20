@@ -1,23 +1,23 @@
 ﻿{
   "ChessBoard": {
-    "AttrTable": {"Name":"棋盘"},
+    "AttrTable": {"Name":"棋盘","CanSelect":false},
     "ClassIDTable": ["TestCS"],
-    "WorldPosition": {"X":0,"Y":0,"Z":0},
-    "ModeLocalOffset": {"X":0,"Y":0.2,"Z":0},
+    "WorldPosition": {"X":0,"Y":0.2,"Z":0},
+    "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true
   },
   "ChessMan": {
-    "AttrTable": {"Name":"棋子"},
+    "AttrTable": {"Name":"棋子","CanSelect":true},
     "ClassIDTable": ["TestCS"],
     "WorldPosition": {"X":0,"Y":0,"Z":0},
-    "ModeLocalOffset": {"X":0,"Y":0,"Z":0},
+    "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true
   },
   "ChessTile": {
-    "AttrTable": {"Name":"棋盘格"},
+    "AttrTable": {"Name":"棋盘格","CanSelect":false},
     "ClassIDTable": ["TestCS"," ChessTileLogic"],
     "WorldPosition": {"X":0,"Y":0,"Z":0},
-    "ModeLocalOffset": {"X":0,"Y":0,"Z":0},
+    "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true
   }
 }

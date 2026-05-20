@@ -80,13 +80,6 @@ public class ConfigFile : MonoBehaviour
             .Add("IsEnable", "true")
             //.Add("ControlPublisher", "false")
 
-            .Group("ConfigLogic_InitEntityIDConfig_InitEntityID")
-            .Add("SystemID", "ConfigLogic")
-            .Add("EventTypeFullName", "ConfigLogic_InitEntityIDConfig_InitEntityID")
-            .Add("HandlerMethodName", "InitEntityIDConfig")
-            .Add("QueueType", "Logic")
-            .Add("IsEnable", "true")
-
             //FactoryLogic事件
             .Group("FactoryLogic_OnResponseChessConfig_InitChessConfig")
             .Add("SystemID", "FactoryLogic")
@@ -99,13 +92,6 @@ public class ConfigFile : MonoBehaviour
             .Add("SystemID", "FactoryLogic")
             .Add("EventTypeFullName", "FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll")
             .Add("HandlerMethodName", "OnResponseChessPrefabs")
-            .Add("QueueType", "Logic")
-            .Add("IsEnable", "true")
-
-            .Group("FactoryLogic_OnEntityIDConfig_InitEntityID")
-            .Add("SystemID", "FactoryLogic")
-            .Add("EventTypeFullName", "FactoryLogic_OnEntityIDConfig_InitEntityID")
-            .Add("HandlerMethodName", "OnEntityIDConfig")
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true")
 
@@ -123,6 +109,21 @@ public class ConfigFile : MonoBehaviour
             .Add("EventTypeFullName", "InputLogic_OnConfig_IsInputConfig")
             .Add("HandlerMethodName", "OnConfig")
             .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            //新
+            .Group("FactoryPublish_GetIdentityConfig_IdConfig")
+            .Add("SystemID", "ConfigLogic")
+            .Add("EventTypeFullName", "FactoryPublish_GetIdentityConfig_IdConfig")
+            .Add("HandlerMethodName", "InitEntityIDConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            .Group("ConfigPublish_OnIdentityConfig_IdConfig")
+            .Add("SystemID", "FactoryLogic")
+            .Add("EventTypeFullName", "ConfigPublish_OnIdentityConfig_IdConfig")
+            .Add("HandlerMethodName", "OnEntityIDConfig")
+            .Add("QueueType", "Logic")
             .Add("IsEnable", "true");
 
         eventRoute.ExportToFileFormat_Overwrite(EventRoutePath);
@@ -133,8 +134,8 @@ public class ConfigFile : MonoBehaviour
         var eventPublishAllow = new ConfigBuilder();
         eventPublishAllow
             //事件结构[系统]_[方法]_[事件名]
-            //系统：订阅事件的系统
-            //方法：订阅系统里的对应回调方法
+            //系统：发布事件的系统
+            //方法：发布系统里的对应回调方法
             //事件名；监听事件具体名称
 
             //ConfigPublish
@@ -159,25 +160,11 @@ public class ConfigFile : MonoBehaviour
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true")
 
-            .Group("FactoryLogic_OnEntityIDConfig_InitEntityID")
-            .Add("SystemID", "ConfigPublish")
-            .Add("EventTypeFullName", "FactoryLogic_OnEntityIDConfig_InitEntityID")
-            .Add("HandlerMethodName", "FactoryLogic_OnEntityIDConfig_InitEntityID")
-            .Add("QueueType", "Logic")
-            .Add("IsEnable", "true")
-
             //FactoryPublish
             .Group("ConfigLogic_InitChessConfig_InitChessEvent")
             .Add("SystemID", "FactoryPublish")
             .Add("EventTypeFullName", "ConfigLogic_InitChessConfig_InitChessEvent")
             .Add("HandlerMethodName", "ConfigLogic_InitChessConfig_InitChessEvent")
-            .Add("QueueType", "Logic")
-            .Add("IsEnable", "true")
-
-            .Group("ConfigLogic_InitEntityIDConfig_InitEntityID")
-            .Add("SystemID", "FactoryPublish")
-            .Add("EventTypeFullName", "ConfigLogic_InitEntityIDConfig_InitEntityID")
-            .Add("HandlerMethodName", "ConfigLogic_InitEntityIDConfig_InitEntityID")
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true")
 
@@ -194,6 +181,21 @@ public class ConfigFile : MonoBehaviour
             .Add("SystemID", "InputPublish")
             .Add("EventTypeFullName", "ConfigLogic_OnInputConfig_InitInputConfig")
             .Add("HandlerMethodName", "ConfigLogic_OnInputConfig_InitInputConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            //新
+            .Group("FactoryPublish_GetIdentityConfig_IdConfig")
+            .Add("SystemID", "FactoryPublish")
+            .Add("EventTypeFullName", "FactoryPublish_GetIdentityConfig_IdConfig")
+            .Add("HandlerMethodName", "GetIdentityConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            .Group("ConfigPublish_OnIdentityConfig_IdConfig")
+            .Add("SystemID", "ConfigPublish")
+            .Add("EventTypeFullName", "ConfigPublish_OnIdentityConfig_IdConfig")
+            .Add("HandlerMethodName", "OnIdentityConfig")
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true");
         eventPublishAllow.ExportToFileFormat_Overwrite(EventPublishAllowJson);
@@ -271,6 +273,12 @@ public class ConfigFile : MonoBehaviour
             .Add("IsTable", true)
             .Add("IsEnable", true)
 
+            .Group("ChessTilePrefabs")
+            .Add("ConfigType", "ChessTilePrefabsConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/Prefabs/ChessTilePrefabJson")
+            .Add("IsTable", true)
+            .Add("IsEnable", true)
+
             .Group("InputKey")
             .Add("ConfigType", "InputKeyConfig, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/Input/InputKeyJson")
@@ -319,11 +327,24 @@ public class ConfigFile : MonoBehaviour
             .Add("IsTable", true)
             .Add("IsEnable", true)
 
-             .Group("PhysicsComponent")
+            .Group("PhysicsComponent")
             .Add("ConfigType", "PhysicsComponentConfig, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/EntityID/PhysicsIDComponentJson")
             .Add("IsTable", true)
+            .Add("IsEnable", true)
+
+            .Group("RenderMajorID")
+            .Add("ConfigType", "RenderMajorIDConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/EntityID/RenderMajorJson")
+            .Add("IsTable", true)
+            .Add("IsEnable", true)
+
+            .Group("RenderMinorID")
+            .Add("ConfigType", "RenderMinorIDConfig, Assembly-CSharp")
+            .Add("ConfigPath", "Config/Json/EntityID/RenderMinorJson")
+            .Add("IsTable", true)
             .Add("IsEnable", true);
+
         Game.ExportToFileFormat_Overwrite(GameConfig);
         #endregion
         #region 预设体配置
@@ -363,13 +384,13 @@ public class ConfigFile : MonoBehaviour
             .Add("WorldPosition", new Dictionary<string, object>()               //父级空物体世界坐标
             {
                 {"X", 0.0f },
-                {"Y", 0.0f },
+                {"Y", 0.2f },
                 {"Z", 0.0f }
             })
-            .Add("ModeLocalOffset", new Dictionary<string, object>()             //偏移量
+            .Add("ParentRotAtion", new Dictionary<string, object>()             //偏移量
             {
                 {"X", 0.0f },
-                {"Y", 0.2f },
+                {"Y", 0.0f },
                 {"Z", 0.0f }
             })
             .Add("IsEnable", true)
@@ -390,7 +411,7 @@ public class ConfigFile : MonoBehaviour
                 {"Y", 0.0f },
                 {"Z", 0.0f }
             })
-            .Add("ModeLocalOffset", new Dictionary<string, object>()             //偏移量
+            .Add("ParentRotAtion", new Dictionary<string, object>()             //偏移量
             {
                 {"X", 0.0f },
                 {"Y", 0.0f },
@@ -415,7 +436,7 @@ public class ConfigFile : MonoBehaviour
                 {"Y", 0.0f },
                 {"Z", 0.0f }
             })
-            .Add("ModeLocalOffset", new Dictionary<string, object>()             //偏移量
+            .Add("ParentRotAtion", new Dictionary<string, object>()             //偏移量
             {
                 {"X", 0.0f },
                 {"Y", 0.0f },
@@ -686,6 +707,79 @@ public class ConfigFile : MonoBehaviour
                  } }
             });
         physicsID.ExportToFileFormat_Overwrite(PhysicsID);
+        #endregion
+        #region 渲染ID配置(大类)
+        string RenderMaajor = @"E:/JsonFile/Unity/ChessGame/RenderMajorJson.json";
+        var renderMajor = new ConfigBuilder();
+        renderMajor
+            .Group("ChessBard_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnale", true)
+
+            .Group("ChessMan_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnale", true)
+
+             .Group("ChessTile_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnale", true);
+        renderMajor.ExportToFileFormat_Overwrite (RenderMaajor);
+        #endregion
+        #region 渲染ID配置(中类)
+        string RenderMinor = @"E:/JsonFile/Unity/ChessGame/RenderMinorJson.json";
+        var renderMinor = new ConfigBuilder();
+        renderMinor
+            .Group("ChessMan_Pawn_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Rook_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Knight_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Bishop_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Queen_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_King_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true);
+        renderMinor.ExportToFileFormat_Overwrite (RenderMinor);
         #endregion
         #region 选中逻辑配置
         string SelectObjectJson = @"E:/JsonFile/Unity/ChessGame/SelectObjectJson.json";
@@ -1034,6 +1128,23 @@ public class ConfigFile : MonoBehaviour
                 new List<int> { -1, -1 }
             });
         chessKing.ExportToFileFormat_Overwrite(Chess_King);
+        #endregion
+        #region 新预设体位置
+        string BoardPrefab = @"E:/JsonFile/Unity/ChessGame/Prefabs/ChessBoardPrefabJson.json";
+        var boardPrefab = new ConfigBuilder();
+        boardPrefab
+            .Group("ChessBoardPrefab")
+            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Board")
+            .Add("ClassID", "ChessBoard");
+        boardPrefab.ExportToFileFormat_Overwrite (BoardPrefab);
+
+        string TilePrefab = @"E:/JsonFile/Unity/ChessGame/Prefabs/ChessTilePrefabJson.json";
+        var tilePrefab = new ConfigBuilder();
+        tilePrefab
+            .Group("ChessTilerefab")
+            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Tile")
+            .Add("ClassID", "ChessTile");
+        tilePrefab.ExportToFileFormat_Overwrite(TilePrefab);
         #endregion
     }
 

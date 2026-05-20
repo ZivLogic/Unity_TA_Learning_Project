@@ -31,7 +31,7 @@ public class ConfigPublish : BasePublishSystem
         //EventManager.Instance.EmitLogic<PackageEvent>(e);
         AutoPublish(e);
     }
-    public void FactoryLogic_OnEntityIDConfig_InitEntityID(PackageEvent e)
+    public void OnIdentityConfig(PackageEvent e)
     {
         AutoPublish(e);
     }

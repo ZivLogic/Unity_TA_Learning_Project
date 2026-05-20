@@ -36,17 +36,27 @@ public class InputMouseSelect : PackageEvent { }         //鼠标选中事件
 //配置系统监听
 public class ConfigLogic_InitChessConfig_InitChessEvent : PackageEvent { }
 public class ConfigLogic_OnInputConfig_InitInputConfig :  PackageEvent { }
-
 public class ConfigLogic_InitEntityIDConfig_InitEntityID : PackageEvent { }
 
 //工厂系统监听
 public class FactoryLogic_OnResponseChessConfig_InitChessConfig  : PackageEvent { }
 public class FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll  : PackageEvent { }
-
 public class FactoryLogic_OnEntityIDConfig_InitEntityID : PackageEvent { }
+
 
 //资源系统监听
 public class AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs  : PackageEvent { }
 
 //输入系统监听
 public class InputLogic_OnConfig_IsInputConfig  : PackageEvent { }
+
+//改为发布方发布事件名
+
+//实体系统发布(新)
+public class EntityPublish_GetChessManComponentConfig_GetChessManConfig  : PackageEvent { }
+
+//工厂系统发布
+public class FactoryPublish_GetIdentityConfig_IdConfig :  PackageEvent { }
+
+//配置系统发布
+public class ConfigPublish_OnIdentityConfig_IdConfig : PackageEvent { }

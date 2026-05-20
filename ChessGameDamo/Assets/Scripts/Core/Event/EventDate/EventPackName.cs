@@ -23,12 +23,24 @@ public class EventPackName
     public const string INPUT_MOUSESELECT = "INPUT_MOUSESELECT";                  //鼠标选中物体
     //规范用语，统一为：发布方_方法名_值名称
     public const string Test_string = "test";
-    public const string EntityManager_GetEntityConfigClassID_EntityIDConfig = "EntityManager_GetEntityConfigClassID_EntityIDConfig";
-    public const string EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig = "EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig";
-    public const string EntityManager_GetEntityConfigClassID_PhysicsValueConfig = "EntityManager_GetEntityConfigClassID_PhysicsValueConfig";
-    public const string EntityManager_GetEntityConfigClassID_PhysicsComponentConfig = "EntityManager_GetEntityConfigClassID_PhysicsComponentConfig";
+    public const string EntityFactoryManager_GetEntityConfigClassID_EntityIDConfig = "EntityFactoryManager_GetEntityConfigClassID_EntityIDConfig";
+    public const string EntityFactoryManager_GetEntityConfigClassID_EntityIDSpecialConfig = "EntityFactoryManager_GetEntityConfigClassID_EntityIDSpecialConfig";
+    public const string EntityFactoryManager_GetEntityConfigClassID_PhysicsValueConfig = "EntityFactoryManager_GetEntityConfigClassID_PhysicsValueConfig";
+    public const string EntityFactoryManager_GetEntityConfigClassID_PhysicsComponentConfig = "EntityFactoryManager_GetEntityConfigClassID_PhysicsComponentConfig";
+    public const string EntityFactoryManager_GetEntityConfigClassID_RenderMajor = "EntityFactoryManager_GetEntityConfigClassID_RenderMajor";
+    public const string EntityFactoryManager_GetEntityConfigClassID_RenderMinor = "EntityFactoryManager_GetEntityConfigClassID_RenderMinor";
     public const string ConfigLogic_InitEntityIDConfig_EntityIDConfig = "ConfigLogic_InitEntityIDConfig_EntityIDConfig";
     public const string ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial = "ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial";
     public const string ConfigLogic_InitEntityIDConfig_PhysicsValueConfig = "ConfigLogic_InitEntityIDConfig_PhysicsValueConfig";
     public const string ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig = "ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig";
+    public const string ConfigLogic_InitEntityIDConfig_RenderMajor = "ConfigLogic_InitEntityIDConfig_RenderMajor";
+    public const string ConfigLogic_InitEntityIDConfig_RenderMinor = "ConfigLogic_InitEntityIDConfig_RenderMinor";
+    public const string EntityComponentUtil_GetChessManComponentConfig_Pawn = "EntityComponentUtil_GetChessManComponentConfig_Pawn";
+    public const string EntityComponentUtil_GetChessManComponentConfig_Rook = "EntityComponentUtil_GetChessManComponentConfig_Rook";
+    public const string EntityComponentUtil_GetChessManComponentConfig_Knight = "EntityComponentUtil_GetChessManComponentConfig_Knight";
+    public const string EntityComponentUtil_GetChessManComponentConfig_Bnishop = "EntityComponentUtil_GetChessManComponentConfig_Bishop";
+    public const string EntityComponentUtil_GetChessManComponentConfig_Queen = "EntityComponentUtil_GetChessManComponentConfig_Queen";
+    public const string EntityComponentUtil_GetChessManComponentConfig_King = "EntityComponentUtil_GetChessManComponentConfig_King";
+
+    public const string FactoryManager_PackageChessConfigInit_ChessTile = "FactoryManager_PackageChessConfigInit_ChessTile";
 }

@@ -23,6 +23,7 @@ public class ConfigLogic : BaseBusinessSystem
         if (pack.Get<ChessBoardPrefabConfig>(EventPackName.CHESSBOARD_PREFAB, out var boardPrefabConfig)) { }
 
         if (pack.Get<ChessmanPrefabsConfig>(EventPackName.CHESSMAN_PREFABS, out var manPrefabsConfig)) { }
+        //if (pack.Get<ChessTilePrefabsConfig>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePrefabsConfig)) { }
 
         if ( ! pack.ValidsteAll())
         { Debug.LogError($"[ConfigLogic]某值为空！故障事件：{e}"); return; }
@@ -33,6 +34,7 @@ public class ConfigLogic : BaseBusinessSystem
         var posDict = ConfigManager.Instance.GetAllConfigsInTable<ChessmanPositionConfig>(positionConfig.ID);
         var boardPfb = ConfigManager.Instance.GetConfig<ChessBoardPrefabConfig>(boardPrefabConfig.ID);
         var manPfb = ConfigManager.Instance.GetConfig<ChessmanPrefabsConfig>(manPrefabsConfig.ID);
+        //var tilePfb = ConfigManager.Instance.GetConfig<ChessTilePrefabsConfig>(tilePrefabsConfig.ID);
 
         //打包
         var Pack = new Package();
@@ -41,6 +43,7 @@ public class ConfigLogic : BaseBusinessSystem
         Pack.Put(EventPackName.CHESSMAN_POSITIONCONFIG, posDict);
         Pack.Put(EventPackName.CHESSBOARD_PREFAB, boardPfb);
         Pack.Put(EventPackName.CHESSMAN_PREFABS, manPfb);
+        //Pack.Put(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, tilePfb);
 
         //if (manPfb == null) { Debug.LogError("man空"); }
 
@@ -81,13 +84,15 @@ public class ConfigLogic : BaseBusinessSystem
     //实体工厂要实体ID配置
     void InitEntityIDConfig(PackageEvent e)
     {
-        ConfigLogic_InitEntityIDConfig_InitEntityID evt = e as ConfigLogic_InitEntityIDConfig_InitEntityID;
+        FactoryPublish_GetIdentityConfig_IdConfig evt = e as FactoryPublish_GetIdentityConfig_IdConfig;
         //拆包
         var pack = evt.package;
-        if (pack.Get<EntityIDConfig>(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDConfig, out var entityClassID)) { }
-        if (pack.Get<EntityIDConfig_Special>(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig, out var specialConfig)) { }
-        if (pack.Get<PhysicsComponentConfig>(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsComponentConfig, out var physicComponentConfig)) { }
-        if (pack.Get<PhysicsValueConfig>(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsValueConfig, out var physicValueConfig)) { }
+        if (pack.Get<EntityIDConfig>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_EntityIDConfig, out var entityClassID)) { }
+        if (pack.Get<EntityIDConfig_Special>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_EntityIDSpecialConfig, out var specialConfig)) { }
+        if (pack.Get<PhysicsComponentConfig>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_PhysicsComponentConfig, out var physicComponentConfig)) { }
+        if (pack.Get<PhysicsValueConfig>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_PhysicsValueConfig, out var physicValueConfig)) { }
+        if (pack.Get<RenderMajorIDConfig>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_RenderMajor, out var renderMajorIDConfig)) { }
+        if (pack.Get<RenderMinorIDConfig>(EventPackName.EntityFactoryManager_GetEntityConfigClassID_RenderMinor, out var renderMinorIDConfig)) { }
         if ( ! pack.ValidsteAll())
         { Debug.LogError($"[ConfigLogic]某值为空！故障事件：{e}"); return; }
         if (physicValueConfig == null)
@@ -97,13 +102,17 @@ public class ConfigLogic : BaseBusinessSystem
         var speID = ConfigManager.Instance.GetAllConfigsInTable<EntityIDConfig_Special>(specialConfig.ID);
         var phyCom = ConfigManager.Instance.GetAllConfigsInTable<PhysicsComponentConfig>(physicComponentConfig.ID);
         var phyVal = ConfigManager.Instance.GetAllConfigsInTable<PhysicsValueConfig>(physicValueConfig.ID);
+        var renMaj = ConfigManager.Instance.GetAllConfigsInTable<RenderMajorIDConfig>(renderMajorIDConfig.ID);
+        var renMin = ConfigManager.Instance.GetAllConfigsInTable<RenderMinorIDConfig>(renderMinorIDConfig.ID);
         var newPack = new Package();
         newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfig, entID);
         newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_EntityIDConfigSpecial, speID);
         newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsComponentConfig, phyCom);
         newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_PhysicsValueConfig, phyVal);
-        var pub = new FactoryLogic_OnEntityIDConfig_InitEntityID { package = newPack };
-        ConfigManager.Instance._publish.FactoryLogic_OnEntityIDConfig_InitEntityID(pub);
+        newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_RenderMajor, renMaj);
+        newPack.Put(EventPackName.ConfigLogic_InitEntityIDConfig_RenderMinor, renMin);
+        var pub = new ConfigPublish_OnIdentityConfig_IdConfig { package = newPack };
+        ConfigManager.Instance._publish.OnIdentityConfig(pub);
     }
     #endregion
     //公开业务方法 给Mono壳子调用

@@ -22,5 +22,11 @@ public class FactoryPublish : BasePublishSystem
     {
         AutoPublish(e);
     }
+    
+
+    public void GetIdentityConfig(PackageEvent e)
+    { 
+        AutoPublish(e);
+    }
     #endregion
 }

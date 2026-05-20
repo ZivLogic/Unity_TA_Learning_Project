@@ -25,11 +25,12 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
     //初始化
     public void Initialize()
     {
+        EntityIdentityRedister.InitRegister();
         _EnableConfigCache.Clear();
         _SpecialConfigCache.Clear();
         PhysicsValueCache.Clear();
         PhysicsComponentCache.Clear();
-        GetEntityConfigClassID();
+        GetIdentityConfig();
     }
     #region 通用：创建空实体逻辑根物体
     //创建空物体逻辑根，固定坐标与旋转，统一命名规范
@@ -98,23 +99,26 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         return new Vector3(0, halfH, 0);
     }
     #endregion
-
-    //读取实体身份配置路由
-    private void GetEntityConfigClassID()
+    #region 获取实体配置
+    private void GetIdentityConfig()
     {
         var pack = new Package();
         var entityID = new EntityIDConfig { };
         var entityIDSpe = new EntityIDConfig_Special { };
         var physicsValue = new PhysicsValueConfig { };
         var physicsComponent = new PhysicsComponentConfig { };
-        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDConfig, entityID);
-        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_EntityIDSpecialConfig, entityIDSpe);
-        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsValueConfig, physicsValue);
-        pack.Put(EventPackName.EntityManager_GetEntityConfigClassID_PhysicsComponentConfig, physicsComponent);
-        var pub = new ConfigLogic_InitEntityIDConfig_InitEntityID { package = pack };
-        FactoryManager.Instance._publish.ConfigLogic_InitEntityIDConfig_InitEntityID(pub);
+        var renderMajor = new RenderMajorIDConfig { };
+        var renderMinor = new RenderMinorIDConfig { };
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_EntityIDConfig, entityID);
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_EntityIDSpecialConfig, entityIDSpe);
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_PhysicsValueConfig, physicsValue);
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_PhysicsComponentConfig, physicsComponent);
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_RenderMajor, renderMajor);
+        pack.Put(EventPackName.EntityFactoryManager_GetEntityConfigClassID_RenderMinor, renderMinor);
+        var pub = new FactoryPublish_GetIdentityConfig_IdConfig { package = pack };
+        FactoryManager.Instance._publish.GetIdentityConfig(pub);
+
     }
-    //处理配置
     public void OnEntityIDConfig(Dictionary<string, EntityIDConfig> entityIDConfig)
     {
         if (entityIDConfig == null)
@@ -162,6 +166,8 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         PhysicsComponentCache = phyCom;
         return;
     }
+    #endregion
+    
 
     public bool CreateChessBoard(GameObject boardPfg, ChessBoardConfig boardCfg)
     {
@@ -176,9 +182,13 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
 
         string name = "ChessBoard";
         //创建棋盘空父根
-        GameObject boardRoot = CreateEmptyEntityRoot(name,boardWorldPos,Quaternion.identity);
+        GameObject boardRoot = EntitySpawnUtil.CreateEmptyEntityRoot(name, boardWorldPos, Vector3.zero);
+        if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
+        {
+            EntitySpawnUtil.SetEntityFullIdentity(boardRoot, major, minor);
+        }
         //绑定身份
-        MarkEntityIdentity(boardRoot, EntityIdentityType.ChessBoard);
+        //MarkEntityIdentity(boardRoot, EntityIdentityType.ChessBoard);
         //实例化棋盘，并绑定到父根
         GameObject boardModel = BindModelToParent(boardPfg, boardRoot.transform, name, Vector3.zero);
         //生成后自动打标 棋盘身份
@@ -354,4 +364,72 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
     {
         
     }
+
+    //#region 通用：创建空实体逻辑根物体
+    ////创建空物体逻辑根，固定坐标与旋转，统一命名规范
+    //private GameObject CreateEmptyEntityRoot(string rootName, Vector3 worldPos, Quaternion rotation)
+    //{
+    //    GameObject entityRoot = new GameObject(rootName);
+    //    entityRoot.transform.position = worldPos;
+    //    entityRoot.transform.rotation = rotation;
+    //    return entityRoot;
+    //}
+    //#endregion
+    //#region 核心：给生成的实体自动打上身份标识（泛类）
+    //private void MarkEntityIdentity(GameObject entity, EntityIdentityType identityType)
+    //{
+    //    //如果已有就直接赋值，没有就添加
+    //    EntityIdentityTag tag = entity.GetComponent<EntityIdentityTag>();
+    //    if (tag == null)
+    //    {
+    //        tag = entity.AddComponent<EntityIdentityTag>();
+    //    }
+    //    tag.IdentityType = identityType;
+    //}
+    //#endregion
+    //#region 核心：给生成的实体自动打上身份标识（特殊）
+    //private void MarkEntityIdentitySpecial(GameObject entity, EntitySpecialIdentityType specialType)
+    //{
+    //    EntitySpecialIdentityTag tag = entity.GetComponent<EntitySpecialIdentityTag>();
+    //    if (tag == null)
+    //    {
+    //        tag = entity.AddComponent<EntitySpecialIdentityTag>();
+    //    }
+    //    tag.SpecialType = specialType;
+    //}
+    //#endregion
+    //#region 通用：绑定特殊身份标识
+    //private void MarkSpecialIdentityType(GameObject entity, EntitySpecialIdentityType specialType)
+    //{
+    //    EntitySpecialIdentityTag tag = entity.GetComponent<EntitySpecialIdentityTag>();
+    //    if (tag == null)
+    //    {
+    //        tag = entity.AddComponent<EntitySpecialIdentityTag>();
+    //    }
+    //    tag.SpecialType = specialType;
+    //}
+    //#endregion
+    //#region 通用：模型绑定父级，自动命名，自动实例化模型，挂到父物体，自动命名为【原名_Model】，设置全局偏移
+    //private GameObject BindModelToParent(GameObject modelPrefab, Transform parent, string baseName, Vector3 localOffest)
+    //{
+    //    GameObject model = Instantiate(modelPrefab, parent);
+    //    model.name = $"{baseName}_Model";
+    //    model.transform.localPosition = localOffest;
+    //    model.transform.localRotation = Quaternion.identity;
+    //    return model;
+    //}
+    //#endregion
+    //#region 自动计算模型Y半高偏移，模型底部刚好贴父级地面
+    //private Vector3 CalcModelHalfHeightOffset(GameObject modelPrefab)
+    //{
+    //    //找模型里所有的渲染器
+    //    Renderer render = modelPrefab.GetComponentInChildren<Renderer>();
+    //    if (render == null)
+    //    {
+    //        return new Vector3(0, 0.1f, 0);  //默认兜底偏移
+    //    }
+    //    float halfH = render.bounds.extents.y;
+    //    return new Vector3(0, halfH, 0);
+    //}
+    //#endregion
 }

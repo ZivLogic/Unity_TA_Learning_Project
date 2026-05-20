@@ -20,24 +20,10 @@
     "QueueType": "Logic",
     "IsEnable": "true"
   },
-  "FactoryLogic_OnEntityIDConfig_InitEntityID": {
-    "SystemID": "ConfigPublish",
-    "EventTypeFullName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
-    "HandlerMethodName": "FactoryLogic_OnEntityIDConfig_InitEntityID",
-    "QueueType": "Logic",
-    "IsEnable": "true"
-  },
   "ConfigLogic_InitChessConfig_InitChessEvent": {
     "SystemID": "FactoryPublish",
     "EventTypeFullName": "ConfigLogic_InitChessConfig_InitChessEvent",
     "HandlerMethodName": "ConfigLogic_InitChessConfig_InitChessEvent",
-    "QueueType": "Logic",
-    "IsEnable": "true"
-  },
-  "ConfigLogic_InitEntityIDConfig_InitEntityID": {
-    "SystemID": "FactoryPublish",
-    "EventTypeFullName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
-    "HandlerMethodName": "ConfigLogic_InitEntityIDConfig_InitEntityID",
     "QueueType": "Logic",
     "IsEnable": "true"
   },
@@ -52,6 +38,20 @@
     "SystemID": "InputPublish",
     "EventTypeFullName": "ConfigLogic_OnInputConfig_InitInputConfig",
     "HandlerMethodName": "ConfigLogic_OnInputConfig_InitInputConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "FactoryPublish_GetIdentityConfig_IdConfig": {
+    "SystemID": "FactoryPublish",
+    "EventTypeFullName": "FactoryPublish_GetIdentityConfig_IdConfig",
+    "HandlerMethodName": "GetIdentityConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigPublish_OnIdentityConfig_IdConfig": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "ConfigPublish_OnIdentityConfig_IdConfig",
+    "HandlerMethodName": "OnIdentityConfig",
     "QueueType": "Logic",
     "IsEnable": "true"
   }
