@@ -10,10 +10,16 @@ public static class ChessBoardLayoutCalc
         ChessBoardConfig boardCfg,
         ChessBoardTileConfig tileCfg,
         out Dictionary<Vector2Int, Vector3> tilePositions,
-        out Dictionary<Vector2Int, bool> isWhiteTile)
+        out Dictionary<Vector2Int, bool> isWhiteTile,
+        out List<Vector3> worList,
+        out Dictionary<Vector3, Vector2Int> fin2dPos,
+        out Dictionary<Vector3, bool> posWhiteDict)
     {
         tilePositions = new Dictionary<Vector2Int, Vector3>();
         isWhiteTile = new Dictionary<Vector2Int, bool>();
+        worList = new List<Vector3>();
+        fin2dPos = new Dictionary<Vector3, Vector2Int> ();
+        posWhiteDict = new Dictionary<Vector3, bool>();
 
         Vector3 start = boardCfg.TileInitPosition;
         int TileX = boardCfg.TileNumberX;
@@ -38,6 +44,9 @@ public static class ChessBoardLayoutCalc
                 Vector2Int key = new Vector2Int(x, z);
                 tilePositions[key] = worldPos;
                 isWhiteTile[key] = white;
+                worList.Add(worldPos);
+                fin2dPos[worldPos] = key;
+                posWhiteDict[worldPos] = white;
             }
         }
     }

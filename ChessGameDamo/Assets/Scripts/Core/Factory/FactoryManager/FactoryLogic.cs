@@ -27,9 +27,9 @@ public class FactoryLogic : BaseBusinessSystem
         if (pack.Get<ChessBoardConfig>(EventPackName.CHESSBOARD_CONFIG, out var boardCfg)) { }
         if (pack.Get<GameObject[]>(EventPackName.CHESSMAN_ISPREFABS, out var manPfb)) { }
         if (pack.Get<Dictionary<string, ChessmanPositionConfig>>(EventPackName.CHESSMAN_POSITIONCONFIG, out var manPos)) { }
-        //if (pack.Get<GameObject>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePfb))
+        if (pack.Get<GameObject>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePfb))
 
-        if ( ! pack.ValidsteAll() )
+            if ( ! pack.ValidsteAll() )
         { Debug.LogError($"[FactoryLogic]某值为空！故障事件：{e}"); return; }
         var entityFactory = FactoryManager.Instance.GetFactory<EntityFactoryManager>("Entity");
         var renderFactory = FactoryManager.Instance.GetFactory<RenderFactoryManager>("Render");
@@ -47,6 +47,7 @@ public class FactoryLogic : BaseBusinessSystem
         entityFactory?.CreateChessman(manPfb, manPos, "Bishop", false, true, null);
         entityFactory?.CreateChessman(manPfb, manPos, "Queen", false, true, null);
         entityFactory?.CreateChessman(manPfb, manPos, "King", false, true, null);
+        entityFactory?.CreateChessBoardTile(tilePfb);
 
         
 

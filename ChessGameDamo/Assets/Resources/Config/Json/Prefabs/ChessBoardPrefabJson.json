@@ -1,6 +1,5 @@
-{
-"ChessBoardPrefab" : {
-	"Path" : "Config/Prefabs/Entity/ChessBoard/ChessBoardTest2"
-	}
-
+﻿{
+  "ChessBoardPrefab": {
+    "Path": "Config/Prefabs/Entity/ChessBoard/Board"
+  }
 }

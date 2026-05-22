@@ -21,7 +21,7 @@ public class RenderSpawnUtil
         //model.transform.localPosition = localOffset;
         //model.transform.localRotation = Quaternion.Euler(localEuler);
         //自动适配模型原点高度
-        AdaptModelOriginHeight(model);
+        //AdaptModelOriginHeight(model);
         return model;
     }
     #endregion

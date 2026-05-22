@@ -23,10 +23,9 @@ public class ConfigLogic : BaseBusinessSystem
         if (pack.Get<ChessBoardPrefabConfig>(EventPackName.CHESSBOARD_PREFAB, out var boardPrefabConfig)) { }
 
         if (pack.Get<ChessmanPrefabsConfig>(EventPackName.CHESSMAN_PREFABS, out var manPrefabsConfig)) { }
-        //if (pack.Get<ChessTilePrefabsConfig>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePrefabsConfig)) { }
 
-        if ( ! pack.ValidsteAll())
-        { Debug.LogError($"[ConfigLogic]某值为空！故障事件：{e}"); return; }
+        if (pack.Get<ChessTilePrefabsConfig>(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, out var tilePrefabsConfig)) { }
+
 
         //读配置
         var board = ConfigManager.Instance.GetConfig<ChessBoardConfig>(boardConfig.ID);
@@ -34,7 +33,7 @@ public class ConfigLogic : BaseBusinessSystem
         var posDict = ConfigManager.Instance.GetAllConfigsInTable<ChessmanPositionConfig>(positionConfig.ID);
         var boardPfb = ConfigManager.Instance.GetConfig<ChessBoardPrefabConfig>(boardPrefabConfig.ID);
         var manPfb = ConfigManager.Instance.GetConfig<ChessmanPrefabsConfig>(manPrefabsConfig.ID);
-        //var tilePfb = ConfigManager.Instance.GetConfig<ChessTilePrefabsConfig>(tilePrefabsConfig.ID);
+        var tilePfb = ConfigManager.Instance.GetConfig<ChessTilePrefabsConfig>(tilePrefabsConfig.ID);
 
         //打包
         var Pack = new Package();
@@ -43,7 +42,7 @@ public class ConfigLogic : BaseBusinessSystem
         Pack.Put(EventPackName.CHESSMAN_POSITIONCONFIG, posDict);
         Pack.Put(EventPackName.CHESSBOARD_PREFAB, boardPfb);
         Pack.Put(EventPackName.CHESSMAN_PREFABS, manPfb);
-        //Pack.Put(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, tilePfb);
+        Pack.Put(EventPackName.FactoryManager_PackageChessConfigInit_ChessTile, tilePfb);
 
         //if (manPfb == null) { Debug.LogError("man空"); }
 

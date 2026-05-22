@@ -7,7 +7,9 @@ using UnityEngine;
 public class ChessTilePrefabsConfig
 {
     public string Path;
+
     public string ClassID;
+    public bool IsList = false;
 
     public string ID = "ChessTilePrefabs";
 }

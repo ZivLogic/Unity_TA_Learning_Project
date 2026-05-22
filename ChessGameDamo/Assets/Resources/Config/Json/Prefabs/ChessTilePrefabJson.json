@@ -1,6 +1,5 @@
 ﻿{
-  "ChessTilerefab": {
-    "Path": "Config/Prefabs/Entity/ChessBoard/Tile",
-    "ClassID": "ChessTile"
+  "ChessTilePrefabs": {
+    "Path": "Config/Prefabs/Entity/ChessBoard/Tile"
   }
 }

@@ -18,13 +18,13 @@ public static class RenderIdentityRegister
     {
         _RenderIdentityMapDict.Clear();
         //大类
-        RegisterItem("ChessBard_Model", RenderMajorType.ChessBoard_Model, RenderMinorType.None);
+        RegisterItem("ChessBoard_Model", RenderMajorType.ChessBoard_Model, RenderMinorType.None);
         RegisterItem("ChessMan_Model", RenderMajorType.ChessMan_Model, RenderMinorType.None);
         RegisterItem("ChessTile_Model", RenderMajorType.ChessTile_Model, RenderMinorType.None);
         //中类
         RegisterItem("ChessMan_Pawn_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Pawn_Model);
         RegisterItem("ChessMan_Rook_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Rook_Model);
-        RegisterItem("ChessMan_Kinght_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Knight_Model);
+        RegisterItem("ChessMan_Knight_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Knight_Model);
         RegisterItem("ChessMan_Bishop_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Bishop_Model);
         RegisterItem("ChessMan_Queen_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Queen_Model);
         RegisterItem("ChessMan_King_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_King_Model);

@@ -13,6 +13,7 @@ public class RenderFactoryManager : MonoBehaviour, IFactory
     {
         //注册自己到中央工厂
         FactoryManager.Instance.RegisterFactory(this);
+        EventManager.Instance.Listen<EntityRender_TestEvent>(TestEvent);
     }
 
     public void Initialize()
@@ -32,7 +33,7 @@ public class RenderFactoryManager : MonoBehaviour, IFactory
 
     //业务方法
     
-    public void CreateChessTile(string modelKey, GameObject model, GameObject parent)
+    public void CreatePrefab(string modelKey, GameObject model, GameObject parent)
     {
         if ( ! RenderIdentityRegister.TryGetIdentity(modelKey, out var renderMajorType, out var renderMinorType))
         {
@@ -60,6 +61,17 @@ public class RenderFactoryManager : MonoBehaviour, IFactory
             }
         }
     }
+
+    private void TestEvent(PackageEvent e)
+    {
+        EntityRender_TestEvent evt = e as EntityRender_TestEvent;
+        var pack = evt.package;
+        if (pack.Get<GameObject>("1", out var model)) { }
+        if (pack.Get<GameObject>("2", out var parent)) { }
+        if (pack.Get<string>("3", out var name)) { }
+        CreatePrefab(name, model, parent);
+    }
+    
 
     // Start is called before the first frame update
     void Start()

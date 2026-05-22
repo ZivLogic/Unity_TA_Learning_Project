@@ -2,6 +2,9 @@
   "ChessBoard": {
     "ComponentTable": {"Box":{"Center":[0,0.04,0],"Size":[6.24,0.16,6.24],"IsTrigger":false}}
   },
+  "ChessTile": {
+    "ComponentTable": {"Box":{"Center":[0,0.02,0],"Size":[0.78,0.04,0.78],"IsTrigger":false}}
+  },
   "ChessMan_Pawn": {
     "ComponentTable": {"Capsule":{"Center":[0,0.35,0],"Radius":0.2,"Height":0.7,"IsTrigger":false},"Rigidbody":{"Mass":1,"UseGravity":true,"IsKinematic":false}}
   },

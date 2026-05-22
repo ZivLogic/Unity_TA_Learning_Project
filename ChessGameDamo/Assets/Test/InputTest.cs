@@ -5,6 +5,7 @@ using UnityEngine;
 public class InputTest : MonoBehaviour
 {
     private GameObject selectedObj;
+    
     public void Event()
     {
         EventManager.Instance.Listen<InputMouseSelect>(Test001);
@@ -45,7 +46,8 @@ public class InputTest : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.W) && selectedObj != null)
         {
-            selectedObj.transform.position = Vector3.zero;
+            Vector3 pos = new Vector3(0, 0.3f, 0);
+            selectedObj.transform.position = pos;
             Debug.Log("น้มใ");
         }
         if (Input.GetKeyDown(KeyCode.W))

@@ -6,6 +6,11 @@
   },
   "Test2": {
     "Priority": 1,
+    "IDTable": ["ChessTile"],
+    "IsEnable": true
+  },
+  "Test3": {
+    "Priority": 2,
     "IDTable": ["ChessMan_Pawn","ChessMan_Rook","ChessMan_Knight","ChessMan_Bishop","ChessMan_Queen","ChessMan_King"],
     "IsEnable": true
   }

@@ -542,6 +542,14 @@ public class ConfigFile : MonoBehaviour
             .Add("Priority", 1)
             .Add("IDTable", new List<string>()
             {
+                "ChessTile"
+            })
+            .Add("IsEnable", true)
+
+            .Group("Test3")
+            .Add("Priority", 2)
+            .Add("IDTable", new List<string>()
+            {
                 "ChessMan_Pawn",
                 "ChessMan_Rook",
                 "ChessMan_Knight",
@@ -570,6 +578,25 @@ public class ConfigFile : MonoBehaviour
                         6.24f,
                         0.16f,
                         6.24f
+                    } },
+                    {"IsTrigger", false }
+                }}
+            })
+
+            .Group("ChessTile")                                             
+            .Add("ComponentTable", new Dictionary<string, object>()          
+            {
+                {"Box", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.02f,
+                        0f
+                    } },
+                    {"Size", new List<float>{
+                        0.78f,
+                        0.04f,
+                        0.78f
                     } },
                     {"IsTrigger", false }
                 }}
@@ -1133,17 +1160,15 @@ public class ConfigFile : MonoBehaviour
         string BoardPrefab = @"E:/JsonFile/Unity/ChessGame/Prefabs/ChessBoardPrefabJson.json";
         var boardPrefab = new ConfigBuilder();
         boardPrefab
-            .Group("ChessBoardPrefab")
-            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Board")
-            .Add("ClassID", "ChessBoard");
+            .Group("ChessBoardPrefab")                                     //单个配置顶层名与元配置名相同
+            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Board");
         boardPrefab.ExportToFileFormat_Overwrite (BoardPrefab);
 
         string TilePrefab = @"E:/JsonFile/Unity/ChessGame/Prefabs/ChessTilePrefabJson.json";
         var tilePrefab = new ConfigBuilder();
         tilePrefab
-            .Group("ChessTilerefab")
-            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Tile")
-            .Add("ClassID", "ChessTile");
+            .Group("ChessTilePrefabs")
+            .Add("Path", "Config/Prefabs/Entity/ChessBoard/Tile");
         tilePrefab.ExportToFileFormat_Overwrite(TilePrefab);
         #endregion
     }

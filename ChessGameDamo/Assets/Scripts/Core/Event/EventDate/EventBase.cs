@@ -51,12 +51,16 @@ public class AssetsLogic_OnInitCrateChessPrefabs_CreateInitChessPrefabs  : Packa
 public class InputLogic_OnConfig_IsInputConfig  : PackageEvent { }
 
 //改为发布方发布事件名
+//测试事件
+public class Test_Event : PackageEvent { }
 
 //实体系统发布(新)
 public class EntityPublish_GetChessManComponentConfig_GetChessManConfig  : PackageEvent { }
 
 //工厂系统发布
 public class FactoryPublish_GetIdentityConfig_IdConfig :  PackageEvent { }
+
+public class EntityRender_TestEvent : PackageEvent { }
 
 //配置系统发布
 public class ConfigPublish_OnIdentityConfig_IdConfig : PackageEvent { }

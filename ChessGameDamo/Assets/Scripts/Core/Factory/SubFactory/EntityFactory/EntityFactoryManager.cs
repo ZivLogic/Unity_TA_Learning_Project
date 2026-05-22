@@ -32,73 +32,7 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         PhysicsComponentCache.Clear();
         GetIdentityConfig();
     }
-    #region 通用：创建空实体逻辑根物体
-    //创建空物体逻辑根，固定坐标与旋转，统一命名规范
-    private GameObject CreateEmptyEntityRoot(string rootName, Vector3 worldPos, Quaternion rotation)
-    {
-        GameObject entityRoot = new GameObject(rootName);
-        entityRoot.transform.position = worldPos;
-        entityRoot.transform.rotation = rotation;
-        return entityRoot;
-    }
-    #endregion
-    #region 核心：给生成的实体自动打上身份标识（泛类）
-    private void MarkEntityIdentity(GameObject entity, EntityIdentityType identityType)
-    {
-        //如果已有就直接赋值，没有就添加
-        EntityIdentityTag tag = entity.GetComponent<EntityIdentityTag>();
-        if (tag == null)
-        {
-            tag = entity.AddComponent<EntityIdentityTag>();
-        }
-        tag.IdentityType = identityType;
-    }
-    #endregion
-    #region 核心：给生成的实体自动打上身份标识（特殊）
-    private void MarkEntityIdentitySpecial(GameObject entity, EntitySpecialIdentityType specialType)
-    {
-        EntitySpecialIdentityTag tag = entity.GetComponent<EntitySpecialIdentityTag>();
-        if (tag == null)
-        {
-            tag = entity.AddComponent<EntitySpecialIdentityTag>();
-        }
-        tag.SpecialType = specialType;
-    }
-    #endregion
-    #region 通用：绑定特殊身份标识
-    private void MarkSpecialIdentityType(GameObject entity, EntitySpecialIdentityType specialType)
-    {
-        EntitySpecialIdentityTag tag = entity.GetComponent<EntitySpecialIdentityTag>();
-        if (tag == null)
-        {
-            tag = entity.AddComponent<EntitySpecialIdentityTag>();
-        }
-        tag.SpecialType = specialType;
-    }
-    #endregion
-    #region 通用：模型绑定父级，自动命名，自动实例化模型，挂到父物体，自动命名为【原名_Model】，设置全局偏移
-    private GameObject BindModelToParent(GameObject modelPrefab, Transform parent, string baseName, Vector3 localOffest)
-    {
-        GameObject model = Instantiate(modelPrefab, parent);
-        model.name = $"{baseName}_Model";
-        model.transform.localPosition = localOffest;
-        model.transform.localRotation = Quaternion.identity;
-        return model;
-    }
-    #endregion
-    #region 自动计算模型Y半高偏移，模型底部刚好贴父级地面
-    private Vector3 CalcModelHalfHeightOffset(GameObject modelPrefab)
-    {
-        //找模型里所有的渲染器
-        Renderer render = modelPrefab.GetComponentInChildren<Renderer>();
-        if (render == null)
-        {
-            return new Vector3(0, 0.1f, 0);  //默认兜底偏移
-        }
-        float halfH = render.bounds.extents.y;
-        return new Vector3(0, halfH, 0);
-    }
-    #endregion
+    
     #region 获取实体配置
     private void GetIdentityConfig()
     {
@@ -167,8 +101,18 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         return;
     }
     #endregion
-    
-
+    #region 通用事件（测试版）
+    private void RenderEvent(string name, GameObject model, GameObject parent)
+    {
+        var pack = new Package();
+        pack.Put("1", model);
+        pack.Put("2", parent);
+        pack.Put("3", name);
+        var pub = new EntityRender_TestEvent { package = pack };
+        EventManager.Instance.EmitLogic(pub);
+    }
+    #endregion
+    #region 棋盘
     public bool CreateChessBoard(GameObject boardPfg, ChessBoardConfig boardCfg)
     {
         //根据布局生成棋盘对象
@@ -187,24 +131,15 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         {
             EntitySpawnUtil.SetEntityFullIdentity(boardRoot, major, minor);
         }
-        //绑定身份
-        //MarkEntityIdentity(boardRoot, EntityIdentityType.ChessBoard);
-        //实例化棋盘，并绑定到父根
-        GameObject boardModel = BindModelToParent(boardPfg, boardRoot.transform, name, Vector3.zero);
-        //生成后自动打标 棋盘身份
-        //给棋盘父物体 自动挂上容器脚本（身份资料先执行，后续属性查找基底）
-        ChessBoardTileContainer container = boardRoot.GetComponent<ChessBoardTileContainer>();
-        if (container == null)
-        {
-            container = boardRoot.AddComponent<ChessBoardTileContainer>();
-        }
-        //全自动：找 TileRoot > 遍历格子 > 坐标匹配 > 打身份加绑数据
-        container.AutoBindAllTile();
+        //发布事件
+        string modelName = $"{name}_Model";
+        RenderEvent(modelName, boardPfg, boardRoot);
         Debug.Log("[EntityFactoryManager]棋盘预设生成");
 
         return true;
     }
-
+    #endregion
+    #region 棋子
     public bool CreateChessman(GameObject[] chessPfbs, Dictionary<string,ChessmanPositionConfig> position, string name, bool isWhite, bool isInit, Vector2Int? pos)
     {
         if (chessPfbs == null)
@@ -240,7 +175,7 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
     {
         //获取对应坐标表
         var posList = isWhite ? config.positionWhite : config.positionBlack;
-        Vector3 rotEuler = isWhite ? config.rotationWhite : config.rotationBlack;
+        Vector3 rotEuler = isWhite ? config.rotationBlack : config.rotationWhite;
         Quaternion rot = Quaternion.Euler(rotEuler);
 
 
@@ -264,25 +199,15 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             {
                 string rootName = $"{name}_{logicPos.x}_{logicPos.y}";
                 //创建空父级
-                GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
-                //绑定全局基础身份
-                MarkEntityIdentity(chessRoot, EntityIdentityType.ChessMan);
-                if (name == "Pawn")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Pawn);
-                if (name == "Rook")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Rook);
-                if (name == "Knight")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Knight);
-                if (name == "Bishop")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Bishop);
-                if (name == "Queen")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Queen);
-                if (name == "King")
-                    MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_King);
-                //计算偏移
-                Vector3 offset = CalcModelHalfHeightOffset(prefab);
-                //模型绑父级
-                BindModelToParent(prefab, chessRoot.transform, rootName, Vector3.zero);
+                //GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
+                GameObject chessRoot = EntitySpawnUtil.CreateEmptyEntityRoot(rootName, worldPos, rotEuler);
+                if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
+                {
+                    EntitySpawnUtil.SetEntityFullIdentity(chessRoot, major, minor);
+                }
+                string CHE = $"ChessMan_{name}_Model";
+                //发布渲染事件
+                RenderEvent(CHE, prefab, chessRoot);
                 Debug.Log($"[EntityFactoryManager]棋子预设体生成，名字{chessRoot.name}");
                 
             }
@@ -324,22 +249,11 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
         if (ChessBoardLayoutData.tilePositions.TryGetValue(realPos, out Vector3 worldPos))
         {
             string rootName = $"{name}_{realPos.x}_{realPos.y}";
-            GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
-            MarkEntityIdentity(chessRoot, EntityIdentityType.ChessMan);
-            if (name == "Pawn")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Pawn);
-            if (name == "Rook")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Rook);
-            if (name == "Knight")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Knight);
-            if (name == "Bishop")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Bishop);
-            if (name == "Queen")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_Queen);
-            if (name == "King")
-                MarkEntityIdentitySpecial(chessRoot, EntitySpecialIdentityType.ChessMan_King);
-            Vector3 offset = CalcModelHalfHeightOffset(prefab);
-            BindModelToParent(prefab, chessRoot.transform, rootName, Vector3.zero);
+            GameObject chessRoot = EntitySpawnUtil.CreateEmptyEntityRoot(rootName, worldPos, rotEuler);
+            if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
+            {
+                EntitySpawnUtil.SetEntityFullIdentity(chessRoot, major, minor);
+            }
             
         }
         else
@@ -347,7 +261,29 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             Debug.LogWarning("找不到棋盘坐标" + realPos);
         }
     }
-
+    #endregion
+    #region 棋盘格
+    public void CreateChessBoardTile( GameObject tile)
+    {
+        if (ChessBoardLayoutData.tilePositions == null)
+        {
+            Debug.LogError("[EntityFactoryManager]地图为空");
+            return;
+        }
+        var worList = ChessBoardLayoutData.worldPositionsList;
+        string name = "ChessTile";
+        foreach ( var wor in worList )
+        {
+            GameObject tileRoot = EntitySpawnUtil.CreateEmptyEntityRoot(name, wor, Vector3.zero);
+            if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
+            {
+                EntitySpawnUtil.SetEntityFullIdentity(tileRoot, major, minor);
+            }
+            string modelName = $"{name}_Model";
+            RenderEvent(modelName, tile, tileRoot);
+        }
+    }
+    #endregion
 
 
 

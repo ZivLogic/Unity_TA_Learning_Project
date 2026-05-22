@@ -24,10 +24,10 @@ public class MapFactoryManager : MonoBehaviour, IFactory
         //Debug.Log($"[MapFactory]创建棋盘布局：{configID}");
 
         //获取布局（自动计算加缓存）
-        ChessBoardLayoutCalc.CalculateLayout(boardCfg, tileCfg, out var positions, out var isWhiteTile);
+        ChessBoardLayoutCalc.CalculateLayout(boardCfg, tileCfg, out var positions, out var isWhiteTile, out var worList, out var fin2dPos, out var posWhit);
 
         //存入缓存
-        ChessBoardLayoutData.Initialize(positions, isWhiteTile);
+        ChessBoardLayoutData.Initialize(positions, isWhiteTile, worList, fin2dPos, posWhit);
 
         Debug.Log("棋盘布局已加载：ChessBoardLayoutData");
 
