@@ -206,6 +206,8 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
                     EntitySpawnUtil.SetEntityFullIdentity(chessRoot, major, minor);
                 }
                 string CHE = $"ChessMan_{name}_Model";
+                //逻辑体ID事件
+                //GlobalIDManager.Instance.EventToAddLogicID(chessRoot);
                 //发布渲染事件
                 RenderEvent(CHE, prefab, chessRoot);
                 Debug.Log($"[EntityFactoryManager]棋子预设体生成，名字{chessRoot.name}");
