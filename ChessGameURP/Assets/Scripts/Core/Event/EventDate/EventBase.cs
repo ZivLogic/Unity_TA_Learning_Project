@@ -56,6 +56,7 @@ public class Test_Event : PackageEvent { }
 
 //实体系统发布(新)
 public class EntityPublish_GetChessManComponentConfig_GetChessManConfig  : PackageEvent { }
+public class ConfigPulish_GetChessManComponentConfig_GetChessManConfig : PackageEvent { }
 
 //工厂系统发布
 public class FactoryPublish_GetIdentityConfig_IdConfig :  PackageEvent { }
@@ -64,3 +65,11 @@ public class EntityRender_TestEvent : PackageEvent { }
 
 //配置系统发布
 public class ConfigPublish_OnIdentityConfig_IdConfig : PackageEvent { }
+
+
+//硬逻辑快速迭代
+public class ChessComponentCfg :  PackageEvent { }
+
+public class MoveChessTest :  PackageEvent { }
+
+public class GetTileObj :  PackageEvent { }

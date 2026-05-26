@@ -20,5 +20,13 @@ public enum RenderMinorType
     ChessMan_Knight_Model,
     ChessMan_Bishop_Model,
     ChessMan_Queen_Model,
-    ChessMan_King_Model
+    ChessMan_King_Model,
+    
+}
+
+public enum RenderThreeType
+{
+    None,
+    ChessMan_White,
+    ChessMan_Black,
 }

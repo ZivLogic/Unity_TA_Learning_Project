@@ -7,7 +7,7 @@ using UnityEngine;
 public class Chess_RookConfig
 {
     public string DisplayName;                //中文名
-    public string Type;                       //类型（一般为棋子名字）
+    public string ChessType;                       //类型（一般为棋子名字）
     public int MaxHp;                         //最大血量
     public int Value;                         //棋子价值
     public int MaxMoveRange;                 //最大移动距离

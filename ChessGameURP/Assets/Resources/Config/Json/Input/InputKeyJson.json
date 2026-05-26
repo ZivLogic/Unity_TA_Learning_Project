@@ -50,7 +50,18 @@
     "ClickCdThreshold": 0.3,
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
-    "AllowContext": ["GameWorld","SelSelectObject"],
+    "AllowContext": ["GameWorld","SelectObject"],
+    "AllowUIOverlayPenetrate": false,
+    "ListenState": ["Down"]
+  },
+  "SelectTile": {
+    "KeyBindCode": "None",
+    "MouseButtonIndex": 0,
+    "IsEnable": true,
+    "ClickCdThreshold": 0.3,
+    "HoldInterval": 0.05,
+    "DeviceType": "KeyboardMouse",
+    "AllowContext": ["SelectChessTile"],
     "AllowUIOverlayPenetrate": false,
     "ListenState": ["Down"]
   },
@@ -61,7 +72,7 @@
     "ClickCdThreshold": 0.3,
     "HoldInterval": 0.05,
     "DeviceType": "KeyboardMouse",
-    "AllowContext": ["GameWorld","BagPanel","ShopPanel","SettingPanel","DialogPanel","UIPanelOnly","SelSelectObject"],
+    "AllowContext": ["GameWorld","BagPanel","ShopPanel","SettingPanel","DialogPanel","UIPanelOnly","SelectObject"],
     "AllowUIOverlayPenetrate": false,
     "ListenState": ["Down"]
   }

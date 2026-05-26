@@ -26,6 +26,8 @@ public class EntityManager : MonoBehaviour
         _logic = new EntityLogic();
         _publish = new EntityPublish();
 
+        CreateSystem<GlobalIDManager>();   //创建ID系统
+
         //订阅全局事件
         SubscribeAllEvents();
 
@@ -33,7 +35,13 @@ public class EntityManager : MonoBehaviour
         Debug.Log("[EntityManager]初始化完成");
     }
 
-
+    //创建子集
+    private void CreateSystem<T>() where T : MonoBehaviour
+    {
+        GameObject sysObj = new GameObject("[" + typeof(T).Name + "]");
+        sysObj.AddComponent<T>();
+        DontDestroyOnLoad(sysObj);
+    }
 
 
     //获取棋子组件配置

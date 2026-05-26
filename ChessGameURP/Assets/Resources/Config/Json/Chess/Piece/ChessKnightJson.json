@@ -1,5 +1,5 @@
 ﻿{
-  "Knight": {
+  "ChessKnight": {
     "DisplayName": "马",
     "ChessType": "Knight",
     "MaxHP": 1,

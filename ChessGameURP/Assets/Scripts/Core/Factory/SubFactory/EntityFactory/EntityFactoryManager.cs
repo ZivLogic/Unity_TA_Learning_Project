@@ -201,13 +201,28 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
                 //创建空父级
                 //GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
                 GameObject chessRoot = EntitySpawnUtil.CreateEmptyEntityRoot(rootName, worldPos, rotEuler);
+                //手动添加阵营组件
+                var tag = chessRoot.AddComponent<ChessManType>();
+                tag.IsWhite = isWhite;
+                if (isWhite)
+                {
+                    tag.CampType = CampType.White;
+                    tag.LogicPos = logicPos;
+                    tag.ChessName = name;
+                }
+                if (!isWhite)
+                {
+                    tag.CampType = CampType.Black;
+                    tag.LogicPos = logicPos;
+                    tag.ChessName = name;
+                }
                 if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
                 {
                     EntitySpawnUtil.SetEntityFullIdentity(chessRoot, major, minor);
                 }
                 string CHE = $"ChessMan_{name}_Model";
                 //逻辑体ID事件
-                //GlobalIDManager.Instance.EventToAddLogicID(chessRoot);
+                GlobalIDManager.Instance.EventToAddLogicID(chessRoot);
                 //发布渲染事件
                 RenderEvent(CHE, prefab, chessRoot);
                 Debug.Log($"[EntityFactoryManager]棋子预设体生成，名字{chessRoot.name}");

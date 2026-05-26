@@ -1,5 +1,5 @@
 ﻿{
-  "Pawn": {
+  "ChessPawn": {
     "DisplayName": "兵",
     "ChessType": "Pawn",
     "MaxHP": 1,

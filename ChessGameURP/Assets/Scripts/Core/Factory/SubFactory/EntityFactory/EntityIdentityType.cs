@@ -23,5 +23,20 @@ public enum EntitySpecialIdentityType
     ChessMan_Knight,
     ChessMan_Bishop,
     ChessMan_Queen,
-    ChessMan_King
+    ChessMan_King,
+    
+}
+
+public enum EntityIDThreeType
+{
+    None,
+    Chess_White,
+    Chess_Black,
+}
+
+public enum CampType
+{
+    None,
+    White,
+    Black,
 }

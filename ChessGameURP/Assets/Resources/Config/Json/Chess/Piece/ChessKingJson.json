@@ -1,5 +1,5 @@
 ﻿{
-  "King": {
+  "ChessKing": {
     "DisplayName": "王",
     "ChessType": "King",
     "MaxHP": 1,

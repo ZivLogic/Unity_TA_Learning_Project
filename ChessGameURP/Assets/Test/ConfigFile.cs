@@ -112,6 +112,7 @@ public class ConfigFile : MonoBehaviour
             .Add("IsEnable", "true")
 
             //新
+            //配置系统监听
             .Group("FactoryPublish_GetIdentityConfig_IdConfig")
             .Add("SystemID", "ConfigLogic")
             .Add("EventTypeFullName", "FactoryPublish_GetIdentityConfig_IdConfig")
@@ -119,10 +120,26 @@ public class ConfigFile : MonoBehaviour
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true")
 
+            .Group("EntityPublish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("SystemID", "ConfigLogic")
+            .Add("EventTypeFullName", "EntityPublish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("HandlerMethodName", "GetChessManComponentConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            //工厂系统监听
             .Group("ConfigPublish_OnIdentityConfig_IdConfig")
             .Add("SystemID", "FactoryLogic")
             .Add("EventTypeFullName", "ConfigPublish_OnIdentityConfig_IdConfig")
             .Add("HandlerMethodName", "OnEntityIDConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            //实体系统监听
+            .Group("ConfigPulish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("SystemID", "EntityLogic")
+            .Add("EventTypeFullName", "ConfigPulish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("HandlerMethodName", "GetChessManConfig")
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true");
 
@@ -185,6 +202,7 @@ public class ConfigFile : MonoBehaviour
             .Add("IsEnable", "true")
 
             //新
+            //工厂系统发布
             .Group("FactoryPublish_GetIdentityConfig_IdConfig")
             .Add("SystemID", "FactoryPublish")
             .Add("EventTypeFullName", "FactoryPublish_GetIdentityConfig_IdConfig")
@@ -192,10 +210,26 @@ public class ConfigFile : MonoBehaviour
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true")
 
+            //配置系统发布
             .Group("ConfigPublish_OnIdentityConfig_IdConfig")
             .Add("SystemID", "ConfigPublish")
             .Add("EventTypeFullName", "ConfigPublish_OnIdentityConfig_IdConfig")
             .Add("HandlerMethodName", "OnIdentityConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            .Group("ConfigPulish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("SystemID", "ConfigPublish")
+            .Add("EventTypeFullName", "ConfigPulish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("HandlerMethodName", "GetChessManComponentConfig")
+            .Add("QueueType", "Logic")
+            .Add("IsEnable", "true")
+
+            //实体系统发布
+            .Group("EntityPublish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("SystemID", "EntityPublish")
+            .Add("EventTypeFullName", "EntityPublish_GetChessManComponentConfig_GetChessManConfig")
+            .Add("HandlerMethodName", "GetChessManComponentConfig")
             .Add("QueueType", "Logic")
             .Add("IsEnable", "true");
         eventPublishAllow.ExportToFileFormat_Overwrite(EventPublishAllowJson);
@@ -232,7 +266,7 @@ public class ConfigFile : MonoBehaviour
             .Add("IsEnable", true)
 
             .Group("ChessKnight")
-            .Add("ConfigType", "Chess_PawnConfig, Assembly-CSharp")
+            .Add("ConfigType", "Chess_KnightConfig, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/Chess/Piece/ChessKnightJson")
             .Add("IsTable", false)
             .Add("IsEnable", true)
@@ -818,6 +852,10 @@ public class ConfigFile : MonoBehaviour
 
             .Group("ChessMan")
             .Add("CanSelect", true)
+            .Add("IsEnable", true)
+
+            .Group("ChessTile")
+            .Add("CanSelect", true)
             .Add("IsEnable", true);
         selectObjectJson.ExportToFileFormat_Overwrite(SelectObjectJson);
         #endregion
@@ -911,7 +949,24 @@ public class ConfigFile : MonoBehaviour
             .Add("AllowContext", new List<string>
             {
                 "GameWorld",
-                "SelSelectObject"
+                "SelectObject"
+            })
+            .Add("AllowUIOverlayPenetrate", false)
+            .Add("ListenState", new List<string>
+            {
+                "Down"
+            })
+
+            .Group("SelectTile")
+            .Add("KeyBindCode", "None")
+            .Add("MouseButtonIndex", 0)
+            .Add("IsEnable", true)
+            .Add("ClickCdThreshold", 0.3)
+            .Add("HoldInterval", 0.05f)
+            .Add("DeviceType", "KeyboardMouse")
+            .Add("AllowContext", new List<string>
+            {
+                "SelectChessTile"
             })
             .Add("AllowUIOverlayPenetrate", false)
             .Add("ListenState", new List<string>
@@ -934,7 +989,7 @@ public class ConfigFile : MonoBehaviour
                 "SettingPanel",
                 "DialogPanel",
                 "UIPanelOnly",
-                "SelSelectObject"
+                "SelectObject"
             })
             .Add("AllowUIOverlayPenetrate", false)
             .Add("ListenState", new List<string>
@@ -960,7 +1015,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_Pawn = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessPawnJson.json";
         var chessPawn = new ConfigBuilder();
         chessPawn
-            .Group("Pawn")                                  //顶层名
+            .Group("ChessPawn")                                  //顶层名
             .Add("DisplayName", "兵")                       //名字
             .Add("ChessType", "Pawn")                       //类型
             .Add("MaxHP", 1)                                //血量
@@ -995,7 +1050,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_Rook = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessRookJson.json";
         var chessRook = new ConfigBuilder();
         chessRook
-            .Group("Rook")
+            .Group("ChessRook")
             .Add("DisplayName", "车")
             .Add("ChessType", "Rook")
             .Add("MaxHP", 1)
@@ -1023,7 +1078,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_Knight = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessKnightJson.json";
         var chessKnight = new ConfigBuilder();
         chessKnight
-            .Group("Knight")
+            .Group("ChessKnight")
             .Add("DisplayName", "马")
             .Add("ChessType", "Knight")
             .Add("MaxHP", 1)
@@ -1059,7 +1114,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_Bishop = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessBishopJson.json";
         var chessBishop = new ConfigBuilder();
         chessBishop
-            .Group("Bishop")
+            .Group("ChessBishop")
             .Add("DisplayName", "象")
             .Add("ChessType", "Bishop")
             .Add("MaxHP", 1)
@@ -1087,7 +1142,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_Queen = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessQueenJson.json";
         var chessQueen = new ConfigBuilder();
         chessQueen
-            .Group("Queen")
+            .Group("ChessQueen")
             .Add("DisplayName", "后")
             .Add("ChessType", "Queen")
             .Add("MaxHP", 1)
@@ -1123,7 +1178,7 @@ public class ConfigFile : MonoBehaviour
         string Chess_King = @"E:/JsonFile/Unity/ChessGame/ChessJson/ChessKingJson.json";
         var chessKing = new ConfigBuilder();
         chessKing
-            .Group("King")
+            .Group("ChessKing")
             .Add("DisplayName", "王")
             .Add("ChessType", "King")
             .Add("MaxHP", 1)

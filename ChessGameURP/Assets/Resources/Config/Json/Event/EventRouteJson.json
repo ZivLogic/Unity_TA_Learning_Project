@@ -48,10 +48,24 @@
     "QueueType": "Logic",
     "IsEnable": "true"
   },
+  "EntityPublish_GetChessManComponentConfig_GetChessManConfig": {
+    "SystemID": "ConfigLogic",
+    "EventTypeFullName": "EntityPublish_GetChessManComponentConfig_GetChessManConfig",
+    "HandlerMethodName": "GetChessManComponentConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
   "ConfigPublish_OnIdentityConfig_IdConfig": {
     "SystemID": "FactoryLogic",
     "EventTypeFullName": "ConfigPublish_OnIdentityConfig_IdConfig",
     "HandlerMethodName": "OnEntityIDConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "ConfigPulish_GetChessManComponentConfig_GetChessManConfig": {
+    "SystemID": "EntityLogic",
+    "EventTypeFullName": "ConfigPulish_GetChessManComponentConfig_GetChessManConfig",
+    "HandlerMethodName": "GetChessManConfig",
     "QueueType": "Logic",
     "IsEnable": "true"
   }

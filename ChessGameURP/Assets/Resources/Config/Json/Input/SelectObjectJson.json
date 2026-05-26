@@ -6,5 +6,9 @@
   "ChessMan": {
     "CanSelect": true,
     "IsEnable": true
+  },
+  "ChessTile": {
+    "CanSelect": true,
+    "IsEnable": true
   }
 }

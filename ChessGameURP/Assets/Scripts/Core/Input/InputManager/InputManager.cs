@@ -61,7 +61,6 @@ public class InputManager : MonoBehaviour
     public InputContext CurrentContext { get; private set; } = InputContext.GameWorld;
 
     #endregion
-
     #region 双帧快照 键盘加鼠标
     //原始快照层：帧硬件状态缓存
     private Dictionary<KeyCode, bool> _keySnapshotCurr = new Dictionary<KeyCode, bool>();
@@ -366,10 +365,16 @@ public class InputManager : MonoBehaviour
             }
             //解析行为枚举
             if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
+            {
+                Debug.LogWarning($"[InputManager]鼠标解析枚举失败，值：{kv.Key}");
                 continue;
+            }
             //拦截层校验
             if (!PassAllInterceptorCheeck(action))
+            {
+                Debug.LogWarning($"[InputManager]鼠标拦截层生效，拦截：{action}");
                 continue;
+            }
             //路由层分发业务
             InputBizRouter.Dispatch(action, cfg, mouseState);
         }

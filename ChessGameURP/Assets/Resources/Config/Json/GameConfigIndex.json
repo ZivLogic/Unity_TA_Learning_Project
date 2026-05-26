@@ -24,7 +24,7 @@
     "IsEnable": true
   },
   "ChessKnight": {
-    "ConfigType": "Chess_PawnConfig, Assembly-CSharp",
+    "ConfigType": "Chess_KnightConfig, Assembly-CSharp",
     "ConfigPath": "Config/Json/Chess/Piece/ChessKnightJson",
     "IsTable": false,
     "IsEnable": true

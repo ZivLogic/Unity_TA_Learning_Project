@@ -1,5 +1,5 @@
 ﻿{
-  "Queen": {
+  "ChessQueen": {
     "DisplayName": "后",
     "ChessType": "Queen",
     "MaxHP": 1,

@@ -25,6 +25,7 @@ public enum InputAction
     MoveLeft,             //向左
     MoveRight,            //向右
     SelectTarget,         //选择状态
+    SelectTile,           //选择棋格
     CancelOperate,        //取消操作
     CameraViewRotate      //摄像机视角旋转
 }
@@ -48,7 +49,8 @@ public enum InputContext
     DialogPanel,          //弹窗/对话
     UIPanelOnly,          //纯UI置顶
     SettingPanel,         //设计面板
-    SelSelectObject       //选择物体
+    SelectObject,         //选择物体
+    SelectChessTile,      //选择格子
 }
 #endregion
 #region 拦截器

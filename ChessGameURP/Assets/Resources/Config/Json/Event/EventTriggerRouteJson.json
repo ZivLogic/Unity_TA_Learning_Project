@@ -54,5 +54,19 @@
     "HandlerMethodName": "OnIdentityConfig",
     "QueueType": "Logic",
     "IsEnable": "true"
+  },
+  "ConfigPulish_GetChessManComponentConfig_GetChessManConfig": {
+    "SystemID": "ConfigPublish",
+    "EventTypeFullName": "ConfigPulish_GetChessManComponentConfig_GetChessManConfig",
+    "HandlerMethodName": "GetChessManComponentConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
+  },
+  "EntityPublish_GetChessManComponentConfig_GetChessManConfig": {
+    "SystemID": "EntityPublish",
+    "EventTypeFullName": "EntityPublish_GetChessManComponentConfig_GetChessManConfig",
+    "HandlerMethodName": "GetChessManComponentConfig",
+    "QueueType": "Logic",
+    "IsEnable": "true"
   }
 }

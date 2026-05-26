@@ -1,5 +1,5 @@
 ﻿{
-  "Rook": {
+  "ChessRook": {
     "DisplayName": "车",
     "ChessType": "Rook",
     "MaxHP": 1,

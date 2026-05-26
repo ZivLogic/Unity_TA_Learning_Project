@@ -113,6 +113,36 @@ public class ConfigLogic : BaseBusinessSystem
         var pub = new ConfigPublish_OnIdentityConfig_IdConfig { package = newPack };
         ConfigManager.Instance._publish.OnIdentityConfig(pub);
     }
+    //实体系统要组件配置
+    void GetChessManComponentConfig(PackageEvent e)
+    {
+        EntityPublish_GetChessManComponentConfig_GetChessManConfig evt = e as EntityPublish_GetChessManComponentConfig_GetChessManConfig;
+        var pack = evt.package;
+        if (pack.Get<Chess_PawnConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Pawn, out var pawn)) { }
+        if (pack.Get<Chess_RookConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Rook, out var rook)) { }
+        if (pack.Get<Chess_KnightConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Knight, out var knight)) { }
+        if (pack.Get<Chess_BishopConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Bnishop, out var bishop)) { }
+        if (pack.Get<Chess_QueenConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Queen, out var queen)) { }
+        if (pack.Get<Chess_KingConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_King, out var king)) { }
+        if (!pack.ValidsteAll())
+        { Debug.LogError($"[ConfigLogic]某值为空！故障事件：{e}"); return; }
+        var com1 = ConfigManager.Instance.GetConfig<Chess_PawnConfig>(pawn.ID);
+        var com2 = ConfigManager.Instance.GetConfig<Chess_RookConfig>(rook.ID);
+        var com3 = ConfigManager.Instance.GetConfig<Chess_KnightConfig>(knight.ID);
+        if (com3 == null) { Debug.LogError("kong"); }
+        var com4 = ConfigManager.Instance.GetConfig<Chess_BishopConfig>(bishop.ID);
+        var com5 = ConfigManager.Instance.GetConfig<Chess_QueenConfig> (queen.ID);
+        var com6 = ConfigManager.Instance.GetConfig<Chess_KingConfig> (king.ID);
+        var newPack = new Package();
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Pawn, com1);
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Rook, com2);
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Knight, com3);
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Bnishop, com4);
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Queen, com5);
+        newPack.Put(EventPackName.EntityComponentUtil_GetChessManComponentConfig_King, com6);
+        var pub = new ConfigPulish_GetChessManComponentConfig_GetChessManConfig { package = newPack };
+        ConfigManager.Instance._publish.GetChessManComponentConfig(pub);
+    }
     #endregion
     //公开业务方法 给Mono壳子调用
     public void Init()

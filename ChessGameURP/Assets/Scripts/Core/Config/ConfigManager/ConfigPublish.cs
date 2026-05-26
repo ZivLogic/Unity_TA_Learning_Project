@@ -35,6 +35,10 @@ public class ConfigPublish : BasePublishSystem
     {
         AutoPublish(e);
     }
+    public void GetChessManComponentConfig(PackageEvent e)
+    {
+        AutoPublish(e);
+    }
     #endregion
 
 }
