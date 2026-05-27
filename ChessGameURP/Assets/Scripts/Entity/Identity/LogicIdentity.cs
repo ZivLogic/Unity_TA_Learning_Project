@@ -19,7 +19,7 @@ public class LogicIdentity : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Debug.Log($"[LogicIdentity]全局ID：{LogicID},物体名称：{gameObject.name}");
+        Debug.Log($"[LogicIdentity]全局ID：{LogicID},物体名称：{gameObject.name}");
     }
 
     // Update is called once per frame

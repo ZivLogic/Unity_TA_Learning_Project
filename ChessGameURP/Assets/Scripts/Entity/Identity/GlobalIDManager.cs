@@ -26,6 +26,7 @@ public class GlobalIDManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        Debug.Log("[GlobalIDManager]ID系统初始化完成");
     }
 
     #region 事件挂载ID

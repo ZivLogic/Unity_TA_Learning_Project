@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -89,6 +90,12 @@ public class InputManager : MonoBehaviour
     {InterceptorType.ContextLimit, () => new ContextLimitInterceptor() },
 };
 
+    #endregion
+    #region 按键分组缓存（物理键 -> 对应所有绑定配置）
+    //键盘：KeyCode -> 该按键所有绑定的配置项
+    private Dictionary<KeyCode, List<(string ActionKey, InputKeyConfig Config)>> _keyBindGroup = new();
+    //鼠标：鼠标索引(0/1/2) -> 该鼠标键所有的绑定配置项
+    private Dictionary<int, List<(string ActionKey, InputKeyConfig Config)>> _mouseBindGroup = new();
     #endregion
     #region 改建系统临时配置
     //改建系统专用
@@ -281,42 +288,46 @@ public class InputManager : MonoBehaviour
     #region  键盘输入检测，阈值，拦截，发布
     private void CheckKeyboardInput()
     {
-        foreach (var kv in InputConfigCache.InputBindDict)
+        foreach (var keyGroup in _keyBindGroup)
         {
-            var cfg = kv.Value;
-            if (!cfg.IsEnable || cfg.MouseButtonIndex != -1)
-                continue;
-            KeyCode bindKey = InputHelper.StringToKeyCode(cfg.KeyBindCode);
-            if (bindKey == KeyCode.None)
-                continue;
+            KeyCode bindKey = keyGroup.Key;
+            var bindList = keyGroup.Value;           
             //获取三态
             InputKeyState keyState = GetKeyCodeState(bindKey);
             if (keyState == InputKeyState.None)
                 continue;
-            //配置过滤：只分发配置里允许的状态
-            var allowStates = GetAllowListenStates(cfg);
-            if ( ! allowStates.Contains(keyState) )
-                continue;
-            //按下抬起 走点击冷却
-            if (keyState is InputKeyState.Down or InputKeyState.Up )
+            //同组按键内，筛选当前上下文合法的配置
+            var validBindList = bindList.Where(item => item.Config.AllowContext.Contains(CurrentContext)).ToList();
+            if (validBindList.Count == 0) continue;
+            foreach (var item in validBindList)
             {
-                if ( ! IsInputCdValid(bindKey, cfg.ClickCdThreshold))
+                string actionKey = item.ActionKey;
+                InputKeyConfig cfg = item.Config;
+                //配置过滤：只分发配置里允许的状态
+                var allowStates = GetAllowListenStates(cfg);
+                if (!allowStates.Contains(keyState))
                     continue;
-            }
-            //长按 走时间节流
-            else if (keyState == InputKeyState.Hold)
-            {
-                if (!IsHoldIntervalValid(bindKey, cfg.HoldInterval))
+                //按下抬起 走点击冷却
+                if (keyState is InputKeyState.Down or InputKeyState.Up)
+                {
+                    if (!IsInputCdValid(bindKey, cfg.ClickCdThreshold))
+                        continue;
+                }
+                //长按 走时间节流
+                else if (keyState == InputKeyState.Hold)
+                {
+                    if (!IsHoldIntervalValid(bindKey, cfg.HoldInterval))
+                        continue;
+                }
+                //解析行为枚举
+                if (!Enum.TryParse<InputAction>(actionKey, out InputAction action))
                     continue;
-            }
-            //解析行为枚举
-            if ( ! Enum.TryParse<InputAction>(kv.Key, out InputAction action))
-                continue;
-            //拦截层校验
-            if (!PassAllInterceptorCheeck(action))
-                continue;
-            //路由发到业务层
-            InputBizRouter.Dispatch(action, cfg, keyState);
+                //拦截层校验
+                if (!PassAllInterceptorCheeck(action))
+                    continue;
+                //路由发到业务层
+                InputBizRouter.Dispatch(action, cfg, keyState);
+            }            
         }
     }
     #endregion
@@ -324,59 +335,62 @@ public class InputManager : MonoBehaviour
     private void CheckMouseAllInput()
     {
         //遍历所有输入配置，筛选鼠标绑定的行为
-        foreach (var kv in InputConfigCache.InputBindDict)
+        foreach (var mouseGroup in _mouseBindGroup)
         {
-            string actionName = kv.Key;
-            var cfg = kv.Value;
-            //未启用 / 不是鼠标绑定，直接跳过
-            if (!cfg.IsEnable || cfg.MouseButtonIndex < 0)
-                continue;
-            int mouseIndex = cfg.MouseButtonIndex;
-            //越界保护
-            if (mouseIndex < 0 || mouseIndex >= _mouseSnapshotCurr.Length)
-                continue;
+            int mouseIdx = mouseGroup.Key;
+            var bindList = mouseGroup.Value;
             //鼠标三态
-            InputKeyState mouseState = GetMouseBtnState(mouseIndex);
+            InputKeyState mouseState = GetMouseBtnState(mouseIdx);
             if (mouseState == InputKeyState.None)
                 continue;
-            //配置状态过滤
-            var allowStates = GetAllowListenStates(cfg);
-            if ( ! allowStates.Contains(mouseState))
-                continue;
-            //鼠标对应KeyCode
-            KeyCode mouseKey = mouseIndex switch
+            //同组鼠标键组内：筛选当前上下文合法的配置
+            var validBindList = bindList.Where(item => item.Config.AllowContext.Contains(CurrentContext)).ToList();
+            if (validBindList.Count == 0) continue;
+            //遍历该鼠标键下所有合法上下文的Action
+            foreach (var item in validBindList)
             {
-                0 => KeyCode.Mouse0,
-                1 => KeyCode.Mouse1,
-                2 => KeyCode.Mouse2,
-                _ => KeyCode.None
-            };
-            //抬起按下冷却
-            if (mouseState is InputKeyState.Down or InputKeyState.Up)
-            {
-                if ( ! IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
+                string actionKey = item.ActionKey;
+                InputKeyConfig cfg = item.Config;
+                //配置状态过滤
+                var allowStates = GetAllowListenStates(cfg);
+                if (!allowStates.Contains(mouseState))
                     continue;
-            }
-            //长按节流
-            else if (mouseState == InputKeyState.Hold)
-            {
-                if ( ! IsHoldIntervalValid(mouseKey, cfg.HoldInterval))
+                //鼠标对应KeyCode
+                KeyCode mouseKey = mouseIdx switch
+                {
+                    0 => KeyCode.Mouse0,
+                    1 => KeyCode.Mouse1,
+                    2 => KeyCode.Mouse2,
+                    _ => KeyCode.None
+                };
+                //抬起按下冷却
+                if (mouseState is InputKeyState.Down or InputKeyState.Up)
+                {
+                    if (!IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
+                        continue;
+                }
+                //长按节流
+                else if (mouseState == InputKeyState.Hold)
+                {
+                    if (!IsHoldIntervalValid(mouseKey, cfg.HoldInterval))
+                        continue;
+                }
+                //解析行为枚举
+                if (!Enum.TryParse<InputAction>(actionKey, out InputAction action))
+                {
+                    Debug.LogWarning($"[InputManager]鼠标解析枚举失败，值：{actionKey}");
                     continue;
+                }
+                //拦截层校验
+                if (!PassAllInterceptorCheeck(action))
+                {
+                    Debug.LogWarning($"[InputManager]鼠标拦截层生效，拦截：{action}");
+                    continue;
+                }
+                //路由层分发业务
+                InputBizRouter.Dispatch(action, cfg, mouseState);
             }
-            //解析行为枚举
-            if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
-            {
-                Debug.LogWarning($"[InputManager]鼠标解析枚举失败，值：{kv.Key}");
-                continue;
-            }
-            //拦截层校验
-            if (!PassAllInterceptorCheeck(action))
-            {
-                Debug.LogWarning($"[InputManager]鼠标拦截层生效，拦截：{action}");
-                continue;
-            }
-            //路由层分发业务
-            InputBizRouter.Dispatch(action, cfg, mouseState);
+            
         }
     }
     #endregion
@@ -445,6 +459,37 @@ public class InputManager : MonoBehaviour
         IsRecordingKey = false;
     }
     #endregion
+    #region 上下文分流 按物理按键/鼠标键重组绑定配置
+    public void RebindKeyGroup()
+    {
+        _keyBindGroup.Clear();
+        _mouseBindGroup.Clear();
+        foreach (var kv in InputConfigCache.InputBindDict)
+        {
+            string actionKey = kv.Key;
+            InputKeyConfig cfg = kv.Value;
+            if ( ! cfg.IsEnable)continue;
+            //按键分组
+            if (cfg.MouseButtonIndex == -1)
+            {
+                KeyCode key = InputHelper.StringToKeyCode(cfg.KeyBindCode);
+                if (key == KeyCode.None)continue;
+                if ( ! _keyBindGroup.ContainsKey(key))
+                    _keyBindGroup[key] = new List<(string, InputKeyConfig)>();
+                _keyBindGroup[key].Add((actionKey, cfg));
+            }
+            //鼠标按键分组
+            else
+            {
+                int mouseIdx = cfg.MouseButtonIndex;
+                if (mouseIdx < 0 || mouseIdx >= 3) continue;
+                if ( ! _mouseBindGroup.ContainsKey(mouseIdx))
+                    _mouseBindGroup[mouseIdx] = new List<(string, InputKeyConfig)>();
+                _mouseBindGroup[mouseIdx].Add((actionKey, cfg));
+            }
+        }
+    }
+    #endregion
 
     //切换上下文快捷方法
     public void SwitchInputContext(InputContext ctx)
@@ -486,6 +531,9 @@ public class InputManager : MonoBehaviour
     {
         LoadInterceptorDictConfig();
         _businessLogic.Init();
+        RebindKeyGroup();
+
+
     }
 
 
@@ -540,4 +588,106 @@ public class InputManager : MonoBehaviour
     //    InputConfigCache.InterceptorDict = interceptorCfg;
     //    Debug.Log("[InputManager]输入配置初始化完成");
     //}
+    //#region  键盘输入检测，阈值，拦截，发布
+    //private void CheckKeyboardInput()
+    //{
+    //    foreach (var kv in InputConfigCache.InputBindDict)
+    //    {
+    //        var cfg = kv.Value;
+    //        if (!cfg.IsEnable || cfg.MouseButtonIndex != -1)
+    //            continue;
+    //        KeyCode bindKey = InputHelper.StringToKeyCode(cfg.KeyBindCode);
+    //        if (bindKey == KeyCode.None)
+    //            continue;
+    //        //获取三态
+    //        InputKeyState keyState = GetKeyCodeState(bindKey);
+    //        if (keyState == InputKeyState.None)
+    //            continue;
+    //        //配置过滤：只分发配置里允许的状态
+    //        var allowStates = GetAllowListenStates(cfg);
+    //        if (!allowStates.Contains(keyState))
+    //            continue;
+    //        //按下抬起 走点击冷却
+    //        if (keyState is InputKeyState.Down or InputKeyState.Up)
+    //        {
+    //            if (!IsInputCdValid(bindKey, cfg.ClickCdThreshold))
+    //                continue;
+    //        }
+    //        //长按 走时间节流
+    //        else if (keyState == InputKeyState.Hold)
+    //        {
+    //            if (!IsHoldIntervalValid(bindKey, cfg.HoldInterval))
+    //                continue;
+    //        }
+    //        //解析行为枚举
+    //        if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
+    //            continue;
+    //        //拦截层校验
+    //        if (!PassAllInterceptorCheeck(action))
+    //            continue;
+    //        //路由发到业务层
+    //        InputBizRouter.Dispatch(action, cfg, keyState);
+    //    }
+    //}
+    //#endregion
+    //#region  鼠标输入统一总入口
+    //private void CheckMouseAllInput()
+    //{
+    //    //遍历所有输入配置，筛选鼠标绑定的行为
+    //    foreach (var kv in InputConfigCache.InputBindDict)
+    //    {
+    //        string actionName = kv.Key;
+    //        var cfg = kv.Value;
+    //        //未启用 / 不是鼠标绑定，直接跳过
+    //        if (!cfg.IsEnable || cfg.MouseButtonIndex < 0)
+    //            continue;
+    //        int mouseIndex = cfg.MouseButtonIndex;
+    //        //越界保护
+    //        if (mouseIndex < 0 || mouseIndex >= _mouseSnapshotCurr.Length)
+    //            continue;
+    //        //鼠标三态
+    //        InputKeyState mouseState = GetMouseBtnState(mouseIndex);
+    //        if (mouseState == InputKeyState.None)
+    //            continue;
+    //        //配置状态过滤
+    //        var allowStates = GetAllowListenStates(cfg);
+    //        if (!allowStates.Contains(mouseState))
+    //            continue;
+    //        //鼠标对应KeyCode
+    //        KeyCode mouseKey = mouseIndex switch
+    //        {
+    //            0 => KeyCode.Mouse0,
+    //            1 => KeyCode.Mouse1,
+    //            2 => KeyCode.Mouse2,
+    //            _ => KeyCode.None
+    //        };
+    //        //抬起按下冷却
+    //        if (mouseState is InputKeyState.Down or InputKeyState.Up)
+    //        {
+    //            if (!IsInputCdValid(mouseKey, cfg.ClickCdThreshold))
+    //                continue;
+    //        }
+    //        //长按节流
+    //        else if (mouseState == InputKeyState.Hold)
+    //        {
+    //            if (!IsHoldIntervalValid(mouseKey, cfg.HoldInterval))
+    //                continue;
+    //        }
+    //        //解析行为枚举
+    //        if (!Enum.TryParse<InputAction>(kv.Key, out InputAction action))
+    //        {
+    //            Debug.LogWarning($"[InputManager]鼠标解析枚举失败，值：{kv.Key}");
+    //            continue;
+    //        }
+    //        //拦截层校验
+    //        if (!PassAllInterceptorCheeck(action))
+    //        {
+    //            Debug.LogWarning($"[InputManager]鼠标拦截层生效，拦截：{action}");
+    //            continue;
+    //        }
+    //        //路由层分发业务
+    //        InputBizRouter.Dispatch(action, cfg, mouseState);
+    //    }
+    //}
+    //#endregion
 }

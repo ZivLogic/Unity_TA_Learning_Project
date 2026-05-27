@@ -19,8 +19,9 @@ public class GameManager : MonoBehaviour
         //初始化核心单例
         CreateSystem<EventManager>();          //创建事件系统
         CreateSystem<ConfigManager>();         //创建配置系统
-        CreateSystem<EntityManager>();         //创建实体系统
+        CreateSystem<GlobalIDManager>();       //创建ID系统
         CreateSystem<FactoryManager>();        //创建工厂系统
+        CreateSystem<EntityManager>();         //创建实体系统
         CreateSystem<AssetsManager>();         //创建资源系统
         CreateSystem<InputManager>();          //创建输入系统
 

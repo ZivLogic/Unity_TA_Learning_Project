@@ -26,7 +26,7 @@ public class EntityManager : MonoBehaviour
         _logic = new EntityLogic();
         _publish = new EntityPublish();
 
-        CreateSystem<GlobalIDManager>();   //创建ID系统
+        //CreateSystem<GlobalIDManager>();   //创建ID系统
 
         //订阅全局事件
         SubscribeAllEvents();

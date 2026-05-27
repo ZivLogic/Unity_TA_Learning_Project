@@ -437,7 +437,9 @@ public class ConfigFile : MonoBehaviour
             })
             .Add("ClassIDTable", new List<string>()
             {
-                "TestCS"
+                "TestCS",
+                "BaseChess",
+                "ModelMove"
             })
             .Add("WorldPosition", new Dictionary<string, object>()               //如果类为复数则不计算坐标，外部定义新坐标
             {

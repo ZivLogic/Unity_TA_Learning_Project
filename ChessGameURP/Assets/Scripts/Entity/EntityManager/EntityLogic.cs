@@ -19,8 +19,10 @@ public class EntityLogic : BaseBusinessSystem
         if (!pack.ValidsteAll())
         { Debug.LogError($"[EntityLogic]某值为空！故障事件：{e}"); return; }
         //再调用具体方法
-        var pub = new ChessComponentCfg { package = pack };
-        EventManager.Instance.EmitLogic(pub);
+        MoveConfigCache.GetComponentConfig(pack);
+        //var pub = new ChessComponentCfg { package = pack };
+        //EventManager.Instance.EmitLogic(pub);
+        Debug.Log("[EntityLogic]组件配置加载完成");
         
     }
 

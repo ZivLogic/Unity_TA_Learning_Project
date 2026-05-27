@@ -8,7 +8,7 @@
   },
   "ChessMan": {
     "AttrTable": {"Name":"棋子","CanSelect":true},
-    "ClassIDTable": ["TestCS"],
+    "ClassIDTable": ["TestCS","BaseChess","ModelMove"],
     "WorldPosition": {"X":0,"Y":0,"Z":0},
     "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true

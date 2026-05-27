@@ -24,15 +24,15 @@ public class BaseChess : MonoBehaviour
     //订阅配置事件
     private void Awake()
     {
-        EventManager.Instance.Listen<ChessComponentCfg>(OnReceiveConfig);
+        //EventManager.Instance.Listen<ChessComponentCfg>(OnReceiveConfig);
         EventManager.Instance.Listen<MoveChessTest>(OnReceiveMoveCommand);
     }
     #endregion
     #region 初始化：接收配置，绑定规则，注册棋盘
-    private void OnReceiveConfig(PackageEvent e)
+    private void OnReceiveConfig(Package p)
     {
-        ChessComponentCfg evt = e as ChessComponentCfg;
-        var pack = evt.package;
+        //ChessComponentCfg evt = e as ChessComponentCfg;
+        var pack = p;
         if (pack.Get<Chess_PawnConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Pawn, out var pawn)) { }
         if (pack.Get<Chess_RookConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Rook, out var rook)) { }
         if (pack.Get<Chess_KnightConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Knight, out var knight)) { }
@@ -40,7 +40,7 @@ public class BaseChess : MonoBehaviour
         if (pack.Get<Chess_QueenConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_Queen, out var queen)) { }
         if (pack.Get<Chess_KingConfig>(EventPackName.EntityComponentUtil_GetChessManComponentConfig_King, out var king)) { }
         if (!pack.ValidsteAll())
-        { Debug.LogError($"[BaseChess]某值为空！故障事件：{e}"); return; }
+        { Debug.LogError($"[BaseChess]某值为空"); return; }
         _PawnConfig = pawn;
         _RookConfig = rook;
         _KnightConfig = knight;
@@ -188,6 +188,12 @@ public class BaseChess : MonoBehaviour
     private void OnMoveComplete(Vector2Int oldPos, Vector2Int newPos)
     {
         //发布事件
+        var pack = new Package();
+        pack.Put("1", newPos);
+        pack.Put("2", _logicID);
+        var pub = new ChessManModelMove { package = pack };
+        EventManager.Instance.EmitLogic(pub);
+        Debug.Log($"[{_logicID}]移动完成，新坐标：{newPos}");
     }
     #endregion
     #region 销毁清理
@@ -198,7 +204,7 @@ public class BaseChess : MonoBehaviour
         //注销逻辑ID
         GlobalIDManager.Instance.UnregisterLogic(_logicID);
         //取消事件订阅
-        EventManager.Instance.Unlisten<ChessComponentCfg>(OnReceiveConfig);
+        //EventManager.Instance.Unlisten<ChessComponentCfg>(OnReceiveConfig);
         EventManager.Instance.Unlisten<MoveChessTest>(OnReceiveMoveCommand);
     }
     #endregion
@@ -210,6 +216,8 @@ public class BaseChess : MonoBehaviour
     {
         GetLogicID();
         GetInitPos();
+        var pack = MoveConfigCache.movePack;
+        OnReceiveConfig(pack);
     }
 
     // Update is called once per frame

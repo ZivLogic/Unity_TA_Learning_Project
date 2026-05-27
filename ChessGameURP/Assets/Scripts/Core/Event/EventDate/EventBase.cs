@@ -73,3 +73,5 @@ public class ChessComponentCfg :  PackageEvent { }
 public class MoveChessTest :  PackageEvent { }
 
 public class GetTileObj :  PackageEvent { }
+
+public class ChessManModelMove :  PackageEvent { }
