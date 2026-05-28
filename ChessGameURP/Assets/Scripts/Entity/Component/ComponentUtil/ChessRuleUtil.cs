@@ -95,4 +95,20 @@ public static class ChessRuleUtil
         }
         return false;
     }
+    //根据阵营反转方向数组（兵专用）
+    public static int[][] ReverseDirByCamp(int[][] originDir, CampType camp)
+    {
+        //白方：使用原方向
+        if (camp == CampType.White)
+            return originDir;
+        //黑方：所有方向向量整体取反
+        int[][] newDir = new int[originDir.Length][];
+        for (int i = 0; i < originDir.Length; i++)
+        {
+            int x = originDir[i][0];
+            int y = originDir[i][1];
+            newDir[i] = new int[] {-x, -y};
+        }
+        return newDir;
+    }
 }

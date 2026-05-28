@@ -154,9 +154,14 @@ public class BaseChess : MonoBehaviour
             OnMoveFailed(_curLogicPos, tilePos);
             return;
         }
+        //检测吃子
+        if (ChessBoardState.IsEnemy(x, y, CampType))
+        {
+            OnChessComplete(tilePos);
+        }
         //更新全局棋盘状态
         bool updateSuccess = ChessBoardState.UpdateChessPos(_curLogicPos.x, _curLogicPos.y, x, y, CampType);
-        if ( ! updateSuccess )
+        if (!updateSuccess)
         {
             OnMoveFailed(_curLogicPos, tilePos);
             return;
@@ -165,11 +170,6 @@ public class BaseChess : MonoBehaviour
         Vector2Int oldPos = _curLogicPos;
         _curLogicPos = tilePos;
         tag2.LogicPos = tilePos;
-        //检测吃子
-        if (ChessBoardState.IsEnemy(x, y, CampType))
-        {
-            OnChessComplete(tilePos);
-        }
         //推送移动完成事件
         OnMoveComplete(oldPos, tilePos);
     }

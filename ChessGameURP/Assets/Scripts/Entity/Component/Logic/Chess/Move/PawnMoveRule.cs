@@ -44,8 +44,12 @@ public static class PawnMoveRule
         //Debug.LogWarning($"实际范围：{realStep}");
         if (realStep > cfg.MaxMoveRange ) 
             return false;
-        bool isNormalMove = ChessRuleUtil.IsDirMatch(curPos, tarPos, cfg.Moves);
-        bool isCaptureMove = ChessRuleUtil.IsDirMatch(curPos, tarPos, cfg.CaptureMoves);
+        //根据阵营反转方向
+        int[][] normalDir = ChessRuleUtil.ReverseDirByCamp(cfg.Moves, selfCamp);
+        int[][] captureDir = ChessRuleUtil.ReverseDirByCamp(cfg.CaptureMoves, selfCamp);
+
+        bool isNormalMove = ChessRuleUtil.IsDirMatch(curPos, tarPos, normalDir);
+        bool isCaptureMove = ChessRuleUtil.IsDirMatch(curPos, tarPos, captureDir);
         //分支：普通移动/吃子
         if (isNormalMove )
         {
