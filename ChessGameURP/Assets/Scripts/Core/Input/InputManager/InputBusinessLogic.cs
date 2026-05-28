@@ -42,7 +42,7 @@ public class InputBusinessLogic
     }
     private void OnSelectChessTile(InputKeyConfig cfg, InputKeyState state)
     {
-        Debug.Log("运行到这");
+        //Debug.Log("运行到这");
         //鼠标在摄像机成像画面的坐标
         Vector2 mousePos = Input.mousePosition;
         //鼠标世界坐标

@@ -65,22 +65,23 @@ public class BaseChess : MonoBehaviour
         switch (chrssType)
         {
             case "Pawn":
-                _ruleChecker = (cur, tar, camp) => PawnMoveRule.CeckLegal(cur, tar, camp, _PawnConfig);
+                PawnMoveRule.InitID(_logicID, true);
+                _ruleChecker = (cur, tar, camp) => PawnMoveRule.CheckLegal(cur, tar, camp, _PawnConfig, _logicID);
                 break;
             case "Rook":
-
+                _ruleChecker = (cur, tar, camp) => RookMoveRule.CheckLegal(cur, tar, camp, _RookConfig);
                 break;
             case "Knight":
-
+                _ruleChecker = (cur, tar, camp) => KnightMoveRule.CheckLegal(cur, tar, camp, _KnightConfig);
                 break ;
             case "Bishop":
-
+                _ruleChecker = (cur, tar, camp) => BishopMoveRule.CheckLegal(cur, tar, camp, _BishopConfig);
                 break ;
             case "Queen":
-
+                _ruleChecker = (cur, tar, camp) => QueenMoveRule.CheckLegal(cur, tar, camp, _QueenConfig);
                 break ;
             case "King":
-
+                _ruleChecker = (cur, tar, camp) => KingMoveRule.CheckLegal(cur, tar, camp, _KingConfig);
                 break ;
             default:
                 Debug.LogWarning($"[BaseChess]未知棋子类型：{chrssType}");
@@ -150,14 +151,14 @@ public class BaseChess : MonoBehaviour
         bool canMove = _ruleChecker.Invoke(_curLogicPos, tilePos, CampType);
         if ( ! canMove )
         {
-            OnMoveComplete();
+            OnMoveFailed(_curLogicPos, tilePos);
             return;
         }
         //更新全局棋盘状态
         bool updateSuccess = ChessBoardState.UpdateChessPos(_curLogicPos.x, _curLogicPos.y, x, y, CampType);
         if ( ! updateSuccess )
         {
-            OnMoveComplete();
+            OnMoveFailed(_curLogicPos, tilePos);
             return;
         }
         //更新本地当前坐标
@@ -173,10 +174,10 @@ public class BaseChess : MonoBehaviour
         OnMoveComplete(oldPos, tilePos);
     }
     //移动失败回调
-    private void OnMoveComplete()
+    private void OnMoveFailed(Vector2Int oldPos, Vector2Int newPos)
     {
         //自行触发移动失败事件
-        Debug.LogError("移动非法！");
+        Debug.LogError($"移动非法！原始位置{oldPos}, 目标位置：{newPos}");
     }
     //吃子回调
     private void OnChessComplete(Vector2Int capturePos)
@@ -206,6 +207,8 @@ public class BaseChess : MonoBehaviour
         //取消事件订阅
         //EventManager.Instance.Unlisten<ChessComponentCfg>(OnReceiveConfig);
         EventManager.Instance.Unlisten<MoveChessTest>(OnReceiveMoveCommand);
+        //注销对应棋子ID
+        PawnMoveRule.RemovePawn(_logicID);
     }
     #endregion
 
