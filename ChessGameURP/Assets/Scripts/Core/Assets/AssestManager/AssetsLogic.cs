@@ -30,11 +30,40 @@ public class AssetsLogic : BaseBusinessSystem
         AssetsManager.Instance._publish.FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll(pub);
         //EventManager.Instance.EmitLogic(new FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll { package = pack });
     }
+    //获取Shader资源，硬编码
+    void LoadChessShader(PackageEvent e)
+    {
+        LoadShader evt = e as LoadShader;
+        var pack = evt.package;
+        if (pack.Get<string>("1", out var phth)) { }
+        if (!pack.ValidsteAll())
+        { Debug.LogError($"[AssetsLogic]某值为空！故障事件：{e}"); return; }
+        //异步测试
+        AssetsManager.Instance.LoadAsync<Material>(phth, (mat) =>
+        {
+            if (mat == null)
+            {
+                Debug.LogError($"[AssetsLogic]材质异步加载失败，路径：{phth}");
+                return;
+            }
+            pack.Put("3", mat);
+            var pub = new GetChessShader { package = pack };
+            EventManager.Instance.EmitLogic(pub);
+        });
 
+
+
+
+        //var shader = AssetsManager.Instance.Load<Material>(phth);
+        //pack.Put("3", shader);
+        //var pub = new GetChessShader { package = pack };
+        //EventManager.Instance.EmitLogic(pub);
+    }
     #endregion
     //公开业务方法 给Mono壳子调用
     public void Init()
     {
-
+        //硬编码事件快速迭代验证
+        EventManager.Instance.Listen<LoadShader>(LoadChessShader);
     }
 }

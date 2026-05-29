@@ -3,11 +3,19 @@
     "CanSelect": false,
     "IsEnable": true
   },
-  "ChessMan": {
+  "ChessMan_White": {
     "CanSelect": true,
     "IsEnable": true
   },
-  "ChessTile": {
+  "ChessMan_Black": {
+    "CanSelect": true,
+    "IsEnable": true
+  },
+  "ChessTile_White": {
+    "CanSelect": true,
+    "IsEnable": true
+  },
+  "ChessTile_Black": {
     "CanSelect": true,
     "IsEnable": true
   }

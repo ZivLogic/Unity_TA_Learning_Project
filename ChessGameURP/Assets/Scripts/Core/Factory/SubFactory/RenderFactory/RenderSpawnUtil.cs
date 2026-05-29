@@ -119,4 +119,15 @@ public class RenderSpawnUtil
         return result;
     }
     #endregion
+    #region 替换物体及子物体所有渲染材质
+    public static void SwapObjectMaterial(GameObject target, Material mat)
+    {
+        if (target == null || mat == null) return;
+        Renderer[] renders = target.GetComponentsInChildren<Renderer>();
+        foreach (var rd in renders)
+        {
+            rd.material = mat;
+        }
+    }
+    #endregion
 }

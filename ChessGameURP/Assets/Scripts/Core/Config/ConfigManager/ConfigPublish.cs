@@ -40,5 +40,8 @@ public class ConfigPublish : BasePublishSystem
         AutoPublish(e);
     }
     #endregion
+    public void Init()
+    {
 
+    }
 }

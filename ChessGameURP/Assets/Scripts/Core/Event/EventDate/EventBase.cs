@@ -75,3 +75,13 @@ public class MoveChessTest :  PackageEvent { }
 public class GetTileObj :  PackageEvent { }
 
 public class ChessManModelMove :  PackageEvent { }
+
+public class InitShaderCfg : PackageEvent { }
+
+public class OnShaderCfg  : PackageEvent { }
+
+public class LoadShader :  PackageEvent { }
+
+public class GetChessShader :  PackageEvent { }
+
+public class ChessBeCapturedEvent : PackageEvent { }

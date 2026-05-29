@@ -9,7 +9,11 @@ public enum EntityIdentityType
     None,               //无
     ChessBoard,         //棋盘
     ChessTile,          //棋盘格
+    ChessTile_White,
+    ChessTile_Black,
     ChessMan,           //棋子
+    ChessMan_White,
+    ChessMan_Black,
     Ground,             //地面
     NPC                 //角色
 

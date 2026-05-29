@@ -1,0 +1,44 @@
+﻿{
+  "ChessTile_White_Model": {
+    "Path": "Shaders/Chess/ChessTileWhiteShader"
+  },
+  "ChessTile_Black_Model": {
+    "Path": "Shaders/Chess/ChessTileBlackShader"
+  },
+  "ChessMan_Pawn_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_Rook_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_Knight_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_Bishop_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_Queen_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_King_White_Model": {
+    "Path": "Shaders/Chess/ChessManWhiteShader"
+  },
+  "ChessMan_Pawn_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  },
+  "ChessMan_Rook_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  },
+  "ChessMan_Knight_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  },
+  "ChessMan_Bishop_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  },
+  "ChessMan_Queen_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  },
+  "ChessMan_King_Black_Model": {
+    "Path": "Shaders/Chess/ChessManBlackShader"
+  }
+}

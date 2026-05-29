@@ -3,11 +3,19 @@
     "ComponentID": ["TestCS"],
     "IsEnale": true
   },
-  "ChessMan_Model": {
+  "ChessMan_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnale": true
   },
-  "ChessTile_Model": {
+  "ChessMan_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnale": true
+  },
+  "ChessTile_White_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnale": true
+  },
+  "ChessTile_Black_Model": {
     "ComponentID": ["TestCS"],
     "IsEnale": true
   }

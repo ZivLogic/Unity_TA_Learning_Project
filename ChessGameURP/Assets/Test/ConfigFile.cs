@@ -377,6 +377,12 @@ public class ConfigFile : MonoBehaviour
             .Add("ConfigType", "RenderMinorIDConfig, Assembly-CSharp")
             .Add("ConfigPath", "Config/Json/EntityID/RenderMinorJson")
             .Add("IsTable", true)
+            .Add("IsEnable", true)
+
+            .Group("ChessShade")
+            .Add("ConfigType", "ChessShaderConfig, Assembly-CSharp")
+            .Add("ConfigPath", "ShaderJson/ChessShaderPathJson")
+            .Add("IsTable", true)
             .Add("IsEnable", true);
 
         Game.ExportToFileFormat_Overwrite(GameConfig);
@@ -429,7 +435,7 @@ public class ConfigFile : MonoBehaviour
             })
             .Add("IsEnable", true)
             //棋子实体
-            .Group("ChessMan")
+            .Group("ChessMan_White")
             .Add("AttrTable", new Dictionary<string, object>()
             {
                 {"Name", "棋子"},
@@ -454,8 +460,60 @@ public class ConfigFile : MonoBehaviour
                 {"Z", 0.0f }
             })
             .Add("IsEnable", true)
+
+            .Group("ChessMan_Black")
+            .Add("AttrTable", new Dictionary<string, object>()
+            {
+                {"Name", "棋子"},
+                {"CanSelect", true}
+            })
+            .Add("ClassIDTable", new List<string>()
+            {
+                "TestCS",
+                "BaseChess",
+                "ModelMove"
+            })
+            .Add("WorldPosition", new Dictionary<string, object>()               //如果类为复数则不计算坐标，外部定义新坐标
+            {
+                {"X", 0.0f },
+                {"Y", 0.0f },
+                {"Z", 0.0f }
+            })
+            .Add("ParentRotAtion", new Dictionary<string, object>()             //偏移量
+            {
+                {"X", 0.0f },
+                {"Y", 0.0f },
+                {"Z", 0.0f }
+            })
+            .Add("IsEnable", true)
+
             //棋盘格
-            .Group("ChessTile")
+            .Group("ChessTile_White")
+            .Add("AttrTable", new Dictionary<string, object>()
+            {
+                {"Name", "棋盘格"},
+                {"CanSelect", false}
+            })
+            .Add("ClassIDTable", new List<string>()
+            {
+                "TestCS",
+                " ChessTileLogic"
+            })
+            .Add("WorldPosition", new Dictionary<string, object>()               //如果类为复数则不计算坐标，外部定义新坐标
+            {
+                {"X", 0.0f },
+                {"Y", 0.0f },
+                {"Z", 0.0f }
+            })
+            .Add("ParentRotAtion", new Dictionary<string, object>()             //偏移量
+            {
+                {"X", 0.0f },
+                {"Y", 0.0f },
+                {"Z", 0.0f }
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessTile_Black")
             .Add("AttrTable", new Dictionary<string, object>()
             {
                 {"Name", "棋盘格"},
@@ -578,7 +636,8 @@ public class ConfigFile : MonoBehaviour
             .Add("Priority", 1)
             .Add("IDTable", new List<string>()
             {
-                "ChessTile"
+                "ChessTile_White",
+                "ChessTile_Black"
             })
             .Add("IsEnable", true)
 
@@ -619,8 +678,27 @@ public class ConfigFile : MonoBehaviour
                 }}
             })
 
-            .Group("ChessTile")                                             
+            .Group("ChessTile_White")                                             
             .Add("ComponentTable", new Dictionary<string, object>()          
+            {
+                {"Box", new Dictionary<string , object>()
+                {
+                    {"Center", new List<float> {
+                        0f,
+                        0.02f,
+                        0f
+                    } },
+                    {"Size", new List<float>{
+                        0.78f,
+                        0.04f,
+                        0.78f
+                    } },
+                    {"IsTrigger", false }
+                }}
+            })
+
+            .Group("ChessTile_Black")
+            .Add("ComponentTable", new Dictionary<string, object>()
             {
                 {"Box", new Dictionary<string , object>()
                 {
@@ -782,14 +860,28 @@ public class ConfigFile : MonoBehaviour
             })
             .Add("IsEnale", true)
 
-            .Group("ChessMan_Model")
+            .Group("ChessMan_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnale", true)
 
-             .Group("ChessTile_Model")
+            .Group("ChessMan_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnale", true)
+
+            .Group("ChessTile_White_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnale", true)
+
+            .Group("ChessTile_Black_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
@@ -801,48 +893,138 @@ public class ConfigFile : MonoBehaviour
         string RenderMinor = @"E:/JsonFile/Unity/ChessGame/RenderMinorJson.json";
         var renderMinor = new ConfigBuilder();
         renderMinor
-            .Group("ChessMan_Pawn_Model")
+            .Group("ChessMan_Pawn_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true)
 
-            .Group("ChessMan_Rook_Model")
+            .Group("ChessMan_Rook_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true)
 
-            .Group("ChessMan_Knight_Model")
+            .Group("ChessMan_Knight_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true)
 
-            .Group("ChessMan_Bishop_Model")
+            .Group("ChessMan_Bishop_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true)
 
-            .Group("ChessMan_Queen_Model")
+            .Group("ChessMan_Queen_White_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true)
 
-            .Group("ChessMan_King_Model")
+            .Group("ChessMan_King_White_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Pawn_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Rook_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Knight_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Bishop_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_Queen_Black_Model")
+            .Add("ComponentID", new List<string>
+            {
+                "TestCS"
+            })
+            .Add("IsEnable", true)
+
+            .Group("ChessMan_King_Black_Model")
             .Add("ComponentID", new List<string>
             {
                 "TestCS"
             })
             .Add("IsEnable", true);
         renderMinor.ExportToFileFormat_Overwrite (RenderMinor);
+        #endregion
+        #region 渲染材质路径
+        string ChessShaderPath = @"E:/JsonFile/Unity/ChessGame/ShaderPath/ChessShaderPathJson.json";
+        var chessShaderPath = new ConfigBuilder();
+        chessShaderPath
+
+            .Group("ChessTile_White_Model")
+            .Add("Path", "Shaders/Chess/ChessTileWhiteShader")
+
+            .Group("ChessTile_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessTileBlackShader")
+
+            .Group("ChessMan_Pawn_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_Rook_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_Knight_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_Bishop_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_Queen_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_King_White_Model")
+            .Add("Path", "Shaders/Chess/ChessManWhiteShader")
+
+            .Group("ChessMan_Pawn_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader")
+
+            .Group("ChessMan_Rook_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader")
+
+            .Group("ChessMan_Knight_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader")
+
+            .Group("ChessMan_Bishop_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader")
+
+            .Group("ChessMan_Queen_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader")
+
+            .Group("ChessMan_King_Black_Model")
+            .Add("Path", "Shaders/Chess/ChessManBlackShader");
+        chessShaderPath.ExportToFileFormat_Overwrite(ChessShaderPath);
         #endregion
         #region 选中逻辑配置
         string SelectObjectJson = @"E:/JsonFile/Unity/ChessGame/SelectObjectJson.json";
@@ -852,11 +1034,19 @@ public class ConfigFile : MonoBehaviour
             .Add("CanSelect", false)                    //是否可被选中
             .Add("IsEnable", true)                      //是否启用
 
-            .Group("ChessMan")
+            .Group("ChessMan_White")
             .Add("CanSelect", true)
             .Add("IsEnable", true)
 
-            .Group("ChessTile")
+            .Group("ChessMan_Black")
+            .Add("CanSelect", true)
+            .Add("IsEnable", true)
+
+            .Group("ChessTile_White")
+            .Add("CanSelect", true)
+            .Add("IsEnable", true)
+
+            .Group("ChessTile_Black")
             .Add("CanSelect", true)
             .Add("IsEnable", true);
         selectObjectJson.ExportToFileFormat_Overwrite(SelectObjectJson);

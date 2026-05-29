@@ -1,25 +1,49 @@
 ﻿{
-  "ChessMan_Pawn_Model": {
+  "ChessMan_Pawn_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   },
-  "ChessMan_Rook_Model": {
+  "ChessMan_Rook_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   },
-  "ChessMan_Knight_Model": {
+  "ChessMan_Knight_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   },
-  "ChessMan_Bishop_Model": {
+  "ChessMan_Bishop_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   },
-  "ChessMan_Queen_Model": {
+  "ChessMan_Queen_White_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   },
-  "ChessMan_King_Model": {
+  "ChessMan_King_White_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Pawn_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Rook_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Knight_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Bishop_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_Queen_Black_Model": {
+    "ComponentID": ["TestCS"],
+    "IsEnable": true
+  },
+  "ChessMan_King_Black_Model": {
     "ComponentID": ["TestCS"],
     "IsEnable": true
   }

@@ -6,14 +6,28 @@
     "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true
   },
-  "ChessMan": {
+  "ChessMan_White": {
     "AttrTable": {"Name":"棋子","CanSelect":true},
     "ClassIDTable": ["TestCS","BaseChess","ModelMove"],
     "WorldPosition": {"X":0,"Y":0,"Z":0},
     "ParentRotAtion": {"X":0,"Y":0,"Z":0},
     "IsEnable": true
   },
-  "ChessTile": {
+  "ChessMan_Black": {
+    "AttrTable": {"Name":"棋子","CanSelect":true},
+    "ClassIDTable": ["TestCS","BaseChess","ModelMove"],
+    "WorldPosition": {"X":0,"Y":0,"Z":0},
+    "ParentRotAtion": {"X":0,"Y":0,"Z":0},
+    "IsEnable": true
+  },
+  "ChessTile_White": {
+    "AttrTable": {"Name":"棋盘格","CanSelect":false},
+    "ClassIDTable": ["TestCS"," ChessTileLogic"],
+    "WorldPosition": {"X":0,"Y":0,"Z":0},
+    "ParentRotAtion": {"X":0,"Y":0,"Z":0},
+    "IsEnable": true
+  },
+  "ChessTile_Black": {
     "AttrTable": {"Name":"棋盘格","CanSelect":false},
     "ClassIDTable": ["TestCS"," ChessTileLogic"],
     "WorldPosition": {"X":0,"Y":0,"Z":0},

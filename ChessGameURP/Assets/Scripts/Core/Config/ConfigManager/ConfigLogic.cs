@@ -143,10 +143,25 @@ public class ConfigLogic : BaseBusinessSystem
         var pub = new ConfigPulish_GetChessManComponentConfig_GetChessManConfig { package = newPack };
         ConfigManager.Instance._publish.GetChessManComponentConfig(pub);
     }
+    //渲染工厂要shader路径(硬编码验证逻辑)
+    void GetChessShaderConfig(PackageEvent e)
+    {
+        InitShaderCfg evt = e as InitShaderCfg;
+        var pack = evt.package;
+        if (pack.Get<ChessShaderConfig>("1", out var shader))
+        if (!pack.ValidsteAll())
+        { Debug.LogError($"[ConfigLogic]某值为空！故障事件：{e}"); return; }
+        var shderCfg = ConfigManager.Instance.GetAllConfigsInTable<ChessShaderConfig>(shader.ID);
+        var newPack = new Package();
+        newPack.Put("1", shderCfg);
+        var pub = new OnShaderCfg { package = newPack };
+        EventManager.Instance.EmitLogic(pub);
+    }
     #endregion
     //公开业务方法 给Mono壳子调用
     public void Init()
     {
-
+        //验证初期先硬编码逻辑
+        EventManager.Instance.Listen<InitShaderCfg>(GetChessShaderConfig);
     }
 }

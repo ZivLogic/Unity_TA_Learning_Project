@@ -38,6 +38,8 @@ public class AssetsManager : MonoBehaviour
         //初始化内部工具
         _loader = new AssetLoader();
         _cache = new AssetCache();
+        SystemInit();
+
         _isInitialized = true;
         Debug.Log("[AssetManager]初始化完成");
         SubscribeAllEvents();
@@ -48,6 +50,7 @@ public class AssetsManager : MonoBehaviour
     public void SystemInit()
     {
         _logic.Init();
+        _publish.Init();
     }
     #endregion
     #region 同步加载接口（对外公开）
@@ -200,7 +203,7 @@ public class AssetsManager : MonoBehaviour
     //订阅事件方法
     public void SubscribeAllEvents()
     {
-        //EventManager.Instance.Listen<CreateInitChessPrefabs>(OnInitCrateChessPrefabs);
+        
     }
 
 

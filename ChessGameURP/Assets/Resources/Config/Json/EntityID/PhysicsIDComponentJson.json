@@ -2,7 +2,10 @@
   "ChessBoard": {
     "ComponentTable": {"Box":{"Center":[0,0.04,0],"Size":[6.24,0.16,6.24],"IsTrigger":false}}
   },
-  "ChessTile": {
+  "ChessTile_White": {
+    "ComponentTable": {"Box":{"Center":[0,0.02,0],"Size":[0.78,0.04,0.78],"IsTrigger":false}}
+  },
+  "ChessTile_Black": {
     "ComponentTable": {"Box":{"Center":[0,0.02,0],"Size":[0.78,0.04,0.78],"IsTrigger":false}}
   },
   "ChessMan_Pawn": {

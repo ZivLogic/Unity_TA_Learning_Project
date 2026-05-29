@@ -23,6 +23,8 @@ public static class EntityIdentityRedister
         RegisterItem("ChessBoard", EntityIdentityType.ChessBoard, EntitySpecialIdentityType.None);
         RegisterItem("ChessMan", EntityIdentityType.ChessMan, EntitySpecialIdentityType.None);
         RegisterItem("ChessTile", EntityIdentityType.ChessTile, EntitySpecialIdentityType.None);
+        RegisterItem("ChessTile_White", EntityIdentityType.ChessTile_White, EntitySpecialIdentityType.None);
+        RegisterItem("ChessTile_Black", EntityIdentityType.ChessTile_Black, EntitySpecialIdentityType.None);
 
         // 棋子细分中类 同样按Key注册
         RegisterItem("Pawn", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Pawn);
@@ -32,12 +34,20 @@ public static class EntityIdentityRedister
         RegisterItem("Queen", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Queen);
         RegisterItem("King", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_King);
 
-        RegisterItemThree("Pawn_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Pawn, EntityIDThreeType.Chess_White);
-        RegisterItemThree("Rook_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Rook, EntityIDThreeType.Chess_White);
-        RegisterItemThree("Knight_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Knight, EntityIDThreeType.Chess_White);
-        RegisterItemThree("Bishop_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Bishop, EntityIDThreeType.Chess_White);
-        RegisterItemThree("Queen_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_Queen, EntityIDThreeType.Chess_White);
-        RegisterItemThree("King_White", EntityIdentityType.ChessMan, EntitySpecialIdentityType.ChessMan_King, EntityIDThreeType.Chess_White);
+        RegisterItem("Pawn_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_Pawn);
+        RegisterItem("Rook_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_Rook);
+        RegisterItem("Knight_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_Knight);
+        RegisterItem("Bishop_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_Bishop);
+        RegisterItem("Queen_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_Queen);
+        RegisterItem("King_White", EntityIdentityType.ChessMan_White, EntitySpecialIdentityType.ChessMan_King);
+
+        RegisterItem("Pawn_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_Pawn);
+        RegisterItem("Rook_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_Rook);
+        RegisterItem("Knight_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_Knight);
+        RegisterItem("Bishop_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_Bishop);
+        RegisterItem("Queen_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_Queen);
+        RegisterItem("King_Black", EntityIdentityType.ChessMan_Black, EntitySpecialIdentityType.ChessMan_King);
+
     }
     //注册一条映射关系
     private static void RegisterItem(string key, EntityIdentityType major, EntitySpecialIdentityType minor)

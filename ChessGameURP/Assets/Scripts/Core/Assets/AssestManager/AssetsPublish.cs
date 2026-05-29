@@ -14,4 +14,8 @@ public class AssetsPublish : BasePublishSystem
         AutoPublish(e);
     }
     #endregion
+    public void Init()
+    {
+        //硬编码事件快速迭代验证
+    }
 }

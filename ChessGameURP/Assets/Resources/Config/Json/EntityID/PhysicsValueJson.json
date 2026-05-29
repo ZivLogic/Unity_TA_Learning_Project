@@ -6,7 +6,7 @@
   },
   "Test2": {
     "Priority": 1,
-    "IDTable": ["ChessTile"],
+    "IDTable": ["ChessTile_White","ChessTile_Black"],
     "IsEnable": true
   },
   "Test3": {

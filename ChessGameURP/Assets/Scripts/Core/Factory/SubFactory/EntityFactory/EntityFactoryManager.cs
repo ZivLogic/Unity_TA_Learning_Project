@@ -201,6 +201,7 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
                 //创建空父级
                 //GameObject chessRoot = CreateEmptyEntityRoot(rootName, worldPos, rot);
                 GameObject chessRoot = EntitySpawnUtil.CreateEmptyEntityRoot(rootName, worldPos, rotEuler);
+                string newName = $"{name}_White";
                 //手动添加阵营组件
                 var tag = chessRoot.AddComponent<ChessManType>();
                 tag.IsWhite = isWhite;
@@ -209,18 +210,20 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
                     tag.CampType = CampType.White;
                     tag.LogicPos = logicPos;
                     tag.ChessName = name;
+                    newName = $"{name}_White";
                 }
                 if (!isWhite)
                 {
                     tag.CampType = CampType.Black;
                     tag.LogicPos = logicPos;
                     tag.ChessName = name;
+                    newName = $"{name}_Black";
                 }
-                if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
+                if (EntityIdentityRedister.TryGetIdentity(newName, out var major, out var minor))
                 {
                     EntitySpawnUtil.SetEntityFullIdentity(chessRoot, major, minor);
                 }
-                string CHE = $"ChessMan_{name}_Model";
+                string CHE = $"ChessMan_{newName}_Model";
                 //逻辑体ID事件
                 GlobalIDManager.Instance.EventToAddLogicID(chessRoot);
                 //发布渲染事件
@@ -288,9 +291,12 @@ public class EntityFactoryManager : MonoBehaviour, IFactory
             return;
         }
         var worList = ChessBoardLayoutData.worldPositionsList;
-        string name = "ChessTile";
+        var IsWhiteDict = ChessBoardLayoutData.pos3DIsWhiteDict;
         foreach ( var wor in worList )
         {
+            string name = $"ChessTile_White";
+            if (!IsWhiteDict[wor])
+                name = $"ChessTile_Black";
             GameObject tileRoot = EntitySpawnUtil.CreateEmptyEntityRoot(name, wor, Vector3.zero);
             if (EntityIdentityRedister.TryGetIdentity(name, out var major, out var minor))
             {

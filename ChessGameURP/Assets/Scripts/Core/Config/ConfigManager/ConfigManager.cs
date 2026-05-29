@@ -51,6 +51,9 @@ public class ConfigManager : MonoBehaviour
         _logic = new ConfigLogic();
         _publish = new ConfigPublish();
 
+        //事件器初始化
+        SystemInit();
+
         //订阅事件
         SubscribeAllEvents();
 
@@ -361,6 +364,7 @@ public class ConfigManager : MonoBehaviour
     public void SystemInit()
     {
         _logic.Init();
+        _publish.Init();
     }
     #endregion
     //事件订阅方法

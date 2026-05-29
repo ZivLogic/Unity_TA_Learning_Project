@@ -7,7 +7,11 @@ public enum RenderMajorType
     None,
     ChessBoard_Model,
     ChessTile_Model,
+    ChessTile_White_Model,
+    ChessTile_Black_Model,
     ChessMan_Model,
+    ChessMan_White_Model,
+    ChessMan_Black_Model,
     Ground_Model,
     NPC_Model
 }

@@ -26,6 +26,8 @@ public class BaseChess : MonoBehaviour
     {
         //EventManager.Instance.Listen<ChessComponentCfg>(OnReceiveConfig);
         EventManager.Instance.Listen<MoveChessTest>(OnReceiveMoveCommand);
+        //全局吃子事件监听
+        EventManager.Instance.Listen<ChessBeCapturedEvent>(OnChessBeCaptured);
     }
     #endregion
     #region 初始化：接收配置，绑定规则，注册棋盘
@@ -154,10 +156,11 @@ public class BaseChess : MonoBehaviour
             OnMoveFailed(_curLogicPos, tilePos);
             return;
         }
+        //先检测目标格是敌方才能触发吃子事件，全局状态更新后，原坐标阵营就变成了吃子棋子自己，会无法正确触发吃子逻辑
         //检测吃子
         if (ChessBoardState.IsEnemy(x, y, CampType))
         {
-            OnChessComplete(tilePos);
+            OnChessComplete(tilePos, CampType);
         }
         //更新全局棋盘状态
         bool updateSuccess = ChessBoardState.UpdateChessPos(_curLogicPos.x, _curLogicPos.y, x, y, CampType);
@@ -180,10 +183,16 @@ public class BaseChess : MonoBehaviour
         Debug.LogError($"移动非法！原始位置{oldPos}, 目标位置：{newPos}");
     }
     //吃子回调
-    private void OnChessComplete(Vector2Int capturePos)
+    private void OnChessComplete(Vector2Int capturePos, CampType camp)
     {
         //获取原坐标棋子，注销他
         Debug.Log($"[{_logicID}]吃子：{capturePos}");
+
+        var pack = new Package();
+        pack.Put("1", capturePos);
+        pack.Put("2", camp);
+        var pub = new ChessBeCapturedEvent { package = pack };
+        EventManager.Instance.EmitLogic(pub);
     }
     //移动完成回调
     private void OnMoveComplete(Vector2Int oldPos, Vector2Int newPos)
@@ -195,6 +204,24 @@ public class BaseChess : MonoBehaviour
         var pub = new ChessManModelMove { package = pack };
         EventManager.Instance.EmitLogic(pub);
         Debug.Log($"[{_logicID}]移动完成，新坐标：{newPos}");
+    }
+    #endregion
+    #region 检测被吃
+    private void OnChessBeCaptured(PackageEvent e)
+    {
+        ChessBeCapturedEvent evt = e as ChessBeCapturedEvent;
+        var pack = evt.package;
+        if (pack.Get<Vector2Int>("1", out var pos)) { }
+        if (pack.Get<CampType>("2", out var camp)) { }
+        if (!pack.ValidsteAll())
+        { Debug.LogError($"[AssetsLogic]某值为空！故障事件：{e}"); return; }
+        if (camp == CampType) return;
+        if (_curLogicPos != pos)return;
+        Debug.Log($"{pos}被吃，销毁");
+        //清理数据
+        ChessBoardState._gridCampDict.Remove((pos.x, pos.y));
+        //可选，执行动画逻辑
+        Destroy(gameObject);
     }
     #endregion
     #region 销毁清理

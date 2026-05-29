@@ -22,6 +22,8 @@ public static class RenderIdentityRegister
         RegisterItem("ChessBoard_Model", RenderMajorType.ChessBoard_Model, RenderMinorType.None);
         RegisterItem("ChessMan_Model", RenderMajorType.ChessMan_Model, RenderMinorType.None);
         RegisterItem("ChessTile_Model", RenderMajorType.ChessTile_Model, RenderMinorType.None);
+        RegisterItem("ChessTile_White_Model", RenderMajorType.ChessTile_White_Model, RenderMinorType.None);
+        RegisterItem("ChessTile_Black_Model", RenderMajorType.ChessTile_Black_Model, RenderMinorType.None);
         //中类
         RegisterItem("ChessMan_Pawn_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Pawn_Model);
         RegisterItem("ChessMan_Rook_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Rook_Model);
@@ -30,13 +32,19 @@ public static class RenderIdentityRegister
         RegisterItem("ChessMan_Queen_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Queen_Model);
         RegisterItem("ChessMan_King_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_King_Model);
 
-        RegisterItemThree("ChessMan_Pawn_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Pawn_Model, RenderThreeType.ChessMan_White);
-        RegisterItemThree("ChessMan_Rook_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Rook_Model, RenderThreeType.ChessMan_White);
-        RegisterItemThree("ChessMan_Knight_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Knight_Model, RenderThreeType.ChessMan_White);
-        RegisterItemThree("ChessMan_Bishop_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Bishop_Model, RenderThreeType.ChessMan_White);
-        RegisterItemThree("ChessMan_Queen_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_Queen_Model, RenderThreeType.ChessMan_White);
-        RegisterItemThree("ChessMan_King_White_Model", RenderMajorType.ChessMan_Model, RenderMinorType.ChessMan_King_Model, RenderThreeType.ChessMan_White);
+        RegisterItem("ChessMan_Pawn_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_Pawn_Model);
+        RegisterItem("ChessMan_Rook_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_Rook_Model);
+        RegisterItem("ChessMan_Knight_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_Knight_Model);
+        RegisterItem("ChessMan_Bishop_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_Bishop_Model);
+        RegisterItem("ChessMan_Queen_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_Queen_Model);
+        RegisterItem("ChessMan_King_White_Model", RenderMajorType.ChessMan_White_Model, RenderMinorType.ChessMan_King_Model);
 
+        RegisterItem("ChessMan_Pawn_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_Pawn_Model);
+        RegisterItem("ChessMan_Rook_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_Rook_Model);
+        RegisterItem("ChessMan_Knight_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_Knight_Model);
+        RegisterItem("ChessMan_Bishop_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_Bishop_Model);
+        RegisterItem("ChessMan_Queen_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_Queen_Model);
+        RegisterItem("ChessMan_King_Black_Model", RenderMajorType.ChessMan_Black_Model, RenderMinorType.ChessMan_King_Model);
     }
     //单次注册
     private static void RegisterItem(string modelKey, RenderMajorType major, RenderMinorType mindor)
