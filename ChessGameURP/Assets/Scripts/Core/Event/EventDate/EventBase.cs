@@ -85,3 +85,9 @@ public class LoadShader :  PackageEvent { }
 public class GetChessShader :  PackageEvent { }
 
 public class ChessBeCapturedEvent : PackageEvent { }
+
+public class GetChessMan_TestUI  : PackageEvent { }
+
+public class GetChessTile_TestUI  : PackageEvent { }
+
+public class MoveChessMan_TestUI : PackageEvent { }

@@ -17,13 +17,13 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         //初始化核心单例
-        CreateSystem<EventManager>();          //创建事件系统
-        CreateSystem<ConfigManager>();         //创建配置系统
-        CreateSystem<GlobalIDManager>();       //创建ID系统
-        CreateSystem<FactoryManager>();        //创建工厂系统
-        CreateSystem<EntityManager>();         //创建实体系统
-        CreateSystem<AssetsManager>();         //创建资源系统
-        CreateSystem<InputManager>();          //创建输入系统
+        //CreateSystem<EventManager>();          //创建事件系统
+        //CreateSystem<ConfigManager>();         //创建配置系统
+        //CreateSystem<GlobalIDManager>();       //创建ID系统
+        //CreateSystem<FactoryManager>();        //创建工厂系统
+        //CreateSystem<EntityManager>();         //创建实体系统
+        //CreateSystem<AssetsManager>();         //创建资源系统
+        //CreateSystem<InputManager>();          //创建输入系统
 
         
 
@@ -32,11 +32,11 @@ public class GameManager : MonoBehaviour
         //订阅事件
         SubscribeAllEvents();
 
-        //加载全局事件路由表
+        ////加载全局事件路由表
 
-        EventRouteRegistrar.InitFromConfigManagerPublish();
-        EventRouteRegistrar.InitFromConfigManager();
-        Debug.Log("[ConfigManager]事件路由表加载完成");
+        //EventRouteRegistrar.InitFromConfigManagerPublish();
+        //EventRouteRegistrar.InitFromConfigManager();
+        //Debug.Log("[ConfigManager]事件路由表加载完成");
 
        
     }
@@ -54,13 +54,40 @@ public class GameManager : MonoBehaviour
         
     }
 
+
+    //初始化事件
+    public void InitGame()
+    {
+
+        CreateSystem<EventManager>();          //创建事件系统
+        CreateSystem<ConfigManager>();         //创建配置系统
+        CreateSystem<GlobalIDManager>();       //创建ID系统
+        CreateSystem<FactoryManager>();        //创建工厂系统
+        CreateSystem<EntityManager>();         //创建实体系统
+        CreateSystem<AssetsManager>();         //创建资源系统
+        CreateSystem<InputManager>();          //创建输入系统
+
+        CreateSystem<InputTest>();             //测试输入业务
+
+        var pack = new Package();
+        var pub = new GameInit { package = pack };
+        EventManager.Instance.EmitLogic<GameInit>(pub);
+        //加载全局事件路由表
+
+        EventRouteRegistrar.InitFromConfigManagerPublish();
+        EventRouteRegistrar.InitFromConfigManager();
+        Debug.Log("[ConfigManager]事件路由表加载完成");
+    }
+
+
+
     // Start is called before the first frame update
     void Start()
     {
         //游戏启动自动初始化
-        var pack = new Package();
-        var pub = new GameInit { package = pack };
-        EventManager.Instance.EmitLogic<GameInit>(pub);
+        //var pack = new Package();
+        //var pub = new GameInit { package = pack };
+        //EventManager.Instance.EmitLogic<GameInit>(pub);
         //EventManager.Instance.EmitLogic(pub);
     }
 
