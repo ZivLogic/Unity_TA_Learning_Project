@@ -118,9 +118,9 @@ public class InputTest : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            InputManager.Instance.SwitchInputContext(InputContext.GameWorld);
-            InputManager.Instance.SwitchInputMode(InputRunMode.NormalOperate);
-            Debug.Log("开始");
+            //InputManager.Instance.SwitchInputContext(InputContext.GameWorld);
+            //InputManager.Instance.SwitchInputMode(InputRunMode.NormalOperate);
+            //Debug.Log("开始");
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -130,48 +130,48 @@ public class InputTest : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.W) && ChessMan != null)
         {
-            Vector3 pos = new Vector3(0, 0.3f, 0);
-            ChessMan.transform.position = pos;
-            Debug.Log("归零");
+            //Vector3 pos = new Vector3(0, 0.3f, 0);
+            //ChessMan.transform.position = pos;
+            //Debug.Log("归零");
         }
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Debug.Log("按下W键");
+            //Debug.Log("按下W键");
         }
         if (Input.GetKeyDown(KeyCode.F) && ChessMan != null)
         {
-            Debug.Log("按下F键");
-            InputManager.Instance.SwitchInputContext(InputContext.SelectChessTile);
-            //InputManager.Instance.SwitchInputMode(InputRunMode.NormalOperate);
-            Debug.Log("锁定选中体,切换到选择棋盘格模式");
+            //Debug.Log("按下F键");
+            //InputManager.Instance.SwitchInputContext(InputContext.SelectChessTile);
+            ////InputManager.Instance.SwitchInputMode(InputRunMode.NormalOperate);
+            //Debug.Log("锁定选中体,切换到选择棋盘格模式");
             
         }
         if (Input.GetKeyDown(KeyCode.G) && ChessMan != null && ChessTile != null)
         {
-            Debug.Log("按下G键");
-            if (ChessMan == null)
-            {
-                Debug.LogError("棋子为空，重新选择");
-                return;
-            }
-            var tag = ChessMan.GetComponent<LogicIdentity>();
-            if (tag == null)
-            {
-                Debug.LogError("身份组件为空");
-                return ;
-            }
-            string ID = tag.LogicID;
-            if ( ! GlobalIDManager.Instance.LogicIDIsValid(ID))
-            {
-                Debug.LogError("ID检验不通过");
-                return;
-            }
-            var pack = new Package();
-            pack.Put("1", ChessMan);
-            pack.Put("2", ChessTile);
-            var pub = new MoveChessTest { package = pack };
-            EventManager.Instance.EmitInput(pub);
-            Debug.Log("锁定棋盘格模型，发布移动事件");
+            //Debug.Log("按下G键");
+            //if (ChessMan == null)
+            //{
+            //    Debug.LogError("棋子为空，重新选择");
+            //    return;
+            //}
+            //var tag = ChessMan.GetComponent<LogicIdentity>();
+            //if (tag == null)
+            //{
+            //    Debug.LogError("身份组件为空");
+            //    return ;
+            //}
+            //string ID = tag.LogicID;
+            //if ( ! GlobalIDManager.Instance.LogicIDIsValid(ID))
+            //{
+            //    Debug.LogError("ID检验不通过");
+            //    return;
+            //}
+            //var pack = new Package();
+            //pack.Put("1", ChessMan);
+            //pack.Put("2", ChessTile);
+            //var pub = new MoveChessTest { package = pack };
+            //EventManager.Instance.EmitInput(pub);
+            //Debug.Log("锁定棋盘格模型，发布移动事件");
         }
         //if (Input.GetMouseButtonDown(0))
         //{
