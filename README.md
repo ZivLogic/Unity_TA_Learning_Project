@@ -28,7 +28,7 @@
 
 ##  🚀 架构图一览
 
-<img src="https://origin.picgo.net/2026/05/31/d53ad502879e78e704f262ff039a553f8e3c985d668ad1e6.jpg" style="zoom:25%;" />
+<img src="https://origin.picgo.net/2026/05/31/d53ad502879e78e704f262ff039a553f8e3c985d668ad1e6.jpg" style="zoom:10%;" />
 
 ## 📁 模块结构
 

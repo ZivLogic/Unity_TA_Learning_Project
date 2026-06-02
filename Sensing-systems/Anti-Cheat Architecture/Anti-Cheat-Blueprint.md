@@ -243,7 +243,7 @@
 
 所有检测模块通过一个**统一底层注册层**进行管理：
 
-<img src="https://origin.picgo.net/2026/06/02/43d0599c449e93c6ca3b78668e00ed60666c5a226446ec2b.jpg" style="zoom:50%;" />
+<img src="https://origin.picgo.net/2026/06/02/43d0599c449e93c6ca3b78668e00ed60666c5a226446ec2b.jpg" style="zoom: 25%;" />
 
 **设计优势**：
 - 便于后续扩展新的检测维度

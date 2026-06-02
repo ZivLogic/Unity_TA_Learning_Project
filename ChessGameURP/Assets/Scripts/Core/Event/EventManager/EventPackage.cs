@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using UnityEngine;
 
 // 全局通用·万能数据包
 [Serializable]
@@ -57,9 +57,28 @@ public class Package
         {
             if (!data.TryGetValue(key, out var value) || value == null)
             {
+                Debug.LogError($"打包检验：{key}为空！");
                 return false;
             }
         }
         return true;
+    }
+
+    //根据映射规则批量取值（运行时注入参数核心）
+    public object[] GetParmsByMapping(FieldMapItem[] maps)
+    {
+        List<object> paramList = new List<object>();
+        foreach (var map in maps)
+        {
+            if ( ! Has(map.packageKey))
+            {
+                if (map.isRequired)
+                    Debug.LogError($"数据包缺失必填字段：{map.packageKey}");
+                paramList.Add(null);
+                continue;
+            }
+            paramList.Add(data[map.packageKey]);
+        }
+        return paramList.ToArray();
     }
 }

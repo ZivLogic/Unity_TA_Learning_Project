@@ -27,6 +27,7 @@ public class AssetsLogic : BaseBusinessSystem
 
         //ÊÂ¼þ
         var pub = new FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll { package = pack };
+        
         AssetsManager.Instance._publish.FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll(pub);
         //EventManager.Instance.EmitLogic(new FactoryLogic_OnResponseChessPrefabs_AssetInitPrefabsLoadAll { package = pack });
     }
