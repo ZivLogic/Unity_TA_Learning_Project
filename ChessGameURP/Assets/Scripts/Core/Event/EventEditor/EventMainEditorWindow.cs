@@ -64,7 +64,7 @@ public class EventMainEditorWindow : EditorWindow
     private void OnGUI()
     {
         _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
-        string[] tabs = { "事件总览", "新建/编辑事件", "字段映射绑定", "操作日志" , "系统ID管理"};
+        string[] tabs = { "事件总览", "新建/编辑事件", "字段映射绑定", "操作日志", "系统ID管理" };
         _tabIndex = GUILayout.Toolbar(_tabIndex, tabs);
         EditorGUILayout.Space();
         switch (_tabIndex)
@@ -88,6 +88,7 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.BeginHorizontal("Box");
             EditorGUILayout.LabelField(evt.eventName, GUILayout.Width(130));
             EditorGUILayout.LabelField(evt.queueType.ToString(), GUILayout.Width(100));
+            //【修复：补上勾选绘制，之前缺失】
             evt.isGlobalEnable = EditorGUILayout.Toggle("启用", evt.isGlobalEnable, GUILayout.Width(60));
             if (GUI.changed)
             {
@@ -119,14 +120,12 @@ public class EventMainEditorWindow : EditorWindow
     private void DrawCreateEvent()
     {
         EditorGUILayout.LabelField("新建/编辑事件", EditorStyles.boldLabel);
-        //====缺失的关键两行补上，就能看到事件名、队列====
         _curEventName = EditorGUILayout.TextField("事件名称", _curEventName);
         _curQueue = (EventQueueType)EditorGUILayout.EnumPopup("目标队列", _curQueue);
         EditorGUILayout.Space();
 
         //发布配置
         EditorGUILayout.LabelField("【发布端配置】", EditorStyles.boldLabel);
-        //发布SystemID由全局注册表下拉选择，不用手动打字
         string[] sysArr = new string[_sysIdList.Count];
         for (int i = 0; i < _sysIdList.Count; i++) sysArr[i] = _sysIdList[i].sysId;
         if (sysArr.Length > 0)
@@ -141,7 +140,7 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.LabelField("暂无系统ID，请前往【系统ID管理】面板新增");
         }
 
-        //监听SystemID同理
+        //监听SystemID
         if (sysArr.Length > 0)
         {
             int lstSysIdx = Array.FindIndex(sysArr, s => s == _listenSysId);
@@ -158,7 +157,6 @@ public class EventMainEditorWindow : EditorWindow
         for (int i = 0; i < _allPubMethods.Count; i++)
             pubOpts[i] = $"{_allPubMethods[i].DeclaringType.Name}.{_allPubMethods[i].Name}";
 
-        //下标强制修正
         if (_selectPubIdx < 0 || _selectPubIdx >= pubOpts.Length) _selectPubIdx = 0;
         _selectPubIdx = EditorGUILayout.Popup("选择发布业务方法", _selectPubIdx, pubOpts);
 
@@ -176,7 +174,7 @@ public class EventMainEditorWindow : EditorWindow
         }
         EditorGUILayout.Space();
 
-        //监听配置同理
+        //监听配置
         EditorGUILayout.LabelField("【监听端配置】", EditorStyles.boldLabel);
         string[] lstOpts = new string[_allLstMethods.Count];
         for (int i = 0; i < _allLstMethods.Count; i++)
@@ -199,7 +197,6 @@ public class EventMainEditorWindow : EditorWindow
         }
         EditorGUILayout.Space();
 
-        //生成按钮
         if (GUILayout.Button("一键生成代码+注册配置", GUILayout.Height(32)))
         {
             if (string.IsNullOrWhiteSpace(_curEventName))
@@ -231,15 +228,13 @@ public class EventMainEditorWindow : EditorWindow
             EditorUtility.DisplayDialog("成功", "事件代码&基础配置生成完成，请前往字段绑定面板配置参数映射", "OK");
         }
     }
-    /// 【完整字段绑定UI】
+
     private void DrawFieldMapPanel()
     {
         EditorGUILayout.LabelField("数据包Key ↔ 监听入参 绑定配置", EditorStyles.boldLabel);
-        //1.选择已存在事件
         string[] evtNames = new string[_evtData.Count];
         for (int i = 0; i < _evtData.Count; i++) evtNames[i] = _evtData[i].eventName;
 
-        //下标边界保护
         if (_selectEvtIndex >= evtNames.Length) _selectEvtIndex = 0;
         _selectEvtIndex = EditorGUILayout.Popup("选择目标事件", _selectEvtIndex, evtNames);
 
@@ -249,12 +244,25 @@ public class EventMainEditorWindow : EditorWindow
             _selectedEvt = _evtData[_selectEvtIndex];
             _pkgKeyList = _selectedEvt.packageKeys;
         }
-
         EditorGUILayout.Space();
-        //====【挪到这里：选中事件之后再展示绑定列表】====
+
         EditorGUILayout.LabelField("当前事件已有绑定关系：", EditorStyles.boldLabel);
-        var targetMap = _mapData.Find(x => x.eventTypeFullName == (_selectedEvt != null ? _selectedEvt.eventTypeFullName : ""));
-        //关键：先判空，没有映射直接提示
+        EventFieldMapping targetMap = null;
+        if (_selectedEvt != null)
+        {
+            targetMap = _mapData.Find(x => x.eventTypeFullName == _selectedEvt.eventTypeFullName);
+            //无映射自动创建空配置，彻底杜绝空指针
+            if (targetMap == null)
+            {
+                targetMap = new EventFieldMapping();
+                targetMap.eventTypeFullName = _selectedEvt.eventTypeFullName;
+                targetMap.fieldMaps = new FieldMapItem[0];
+                _mapData.Add(targetMap);
+                SaveAllCfg();
+            }
+        }
+
+        //展示绑定列表+删除单条
         if (targetMap != null && targetMap.fieldMaps != null && targetMap.fieldMaps.Length > 0)
         {
             for (int i = 0; i < targetMap.fieldMaps.Length; i++)
@@ -276,17 +284,6 @@ public class EventMainEditorWindow : EditorWindow
         else
         {
             EditorGUILayout.LabelField("暂无任何字段绑定");
-            //没有映射就new一条空记录塞入mapData，后面添加绑定就不会空
-            if (_selectedEvt != null)
-            {
-                var newMap = new EventFieldMapping();
-                newMap.eventTypeFullName = _selectedEvt.eventTypeFullName;
-                newMap.fieldMaps = new FieldMapItem[0];
-                _mapData.Add(newMap);
-                SaveAllCfg();
-                //重新查找一次
-                targetMap = newMap;
-            }
         }
         EditorGUILayout.Space();
 
@@ -295,23 +292,18 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.LabelField("数据包现有Key:" + string.Join(",", _pkgKeyList));
             EditorGUILayout.Space();
 
-            //选择包Key
             string selKey = "";
             if (_pkgKeyList.Count > 0)
             {
-                //下标边界保护
                 if (_selectKeyIndex >= _pkgKeyList.Count) _selectKeyIndex = 0;
                 _selectKeyIndex = EditorGUILayout.Popup("选择数据包Key", _selectKeyIndex, _pkgKeyList.ToArray());
                 _selectKeyIndex = Mathf.Min(_selectKeyIndex, _pkgKeyList.Count - 1);
                 selKey = _pkgKeyList[_selectKeyIndex];
             }
 
-            //选择监听可注入参数
             MethodInfo lstMth = null;
             if (_allLstMethods.Count > 0 && _selectLstIdx < _allLstMethods.Count)
-            {
                 lstMth = _allLstMethods[_selectLstIdx];
-            }
 
             if (lstMth != null && !string.IsNullOrEmpty(selKey))
             {
@@ -321,22 +313,17 @@ public class EventMainEditorWindow : EditorWindow
 
                 if (_canInjectParamList.Count > 0 && _selectParamIndex >= _canInjectParamList.Count)
                     _selectParamIndex = 0;
-
                 _selectParamIndex = EditorGUILayout.Popup("绑定到监听参数", _selectParamIndex, _canInjectParamList.ToArray());
                 string selParam = _canInjectParamList[_selectParamIndex];
 
-                //取发布方法
                 MethodInfo pubMth = null;
                 if (_allPubMethods.Count > 0 && _selectPubIdx < _allPubMethods.Count)
-                {
                     pubMth = _allPubMethods[_selectPubIdx];
-                }
                 if (pubMth == null) return;
 
                 var pubSplit = EventEditorUtil.SplitPublishParam(pubMth);
                 ParameterInfo pkgParamInfo = pubSplit.OutArgs.Find(p => p.Name == selKey);
                 ParameterInfo argParamInfo = split.CanInjectArgs.Find(p => p.Name == selParam);
-
                 if (pkgParamInfo == null || argParamInfo == null) return;
 
                 FieldMapItem newMapItem = new FieldMapItem()
@@ -348,9 +335,9 @@ public class EventMainEditorWindow : EditorWindow
 
                 if (GUILayout.Button("添加绑定映射", GUILayout.Height(26)))
                 {
-                    //====新增：查重，禁止同一个Key重复绑定====
+                    //重复绑定拦截
                     bool keyAlreadyBind = false;
-                    if (targetMap != null && targetMap.fieldMaps != null)
+                    if (targetMap.fieldMaps != null)
                     {
                         foreach (var oldMap in targetMap.fieldMaps)
                         {
@@ -361,35 +348,25 @@ public class EventMainEditorWindow : EditorWindow
                             }
                         }
                     }
-                    //添加绑定里
-                    if (targetMap == null)
-                    {
-                        targetMap = new EventFieldMapping();
-                        targetMap.eventTypeFullName = _selectedEvt.eventTypeFullName;
-                        targetMap.fieldMaps = new FieldMapItem[0];
-                        _mapData.Add(targetMap);
-                        SaveAllCfg();
-                    }
                     if (keyAlreadyBind)
                     {
-                        EditorUtility.DisplayDialog("绑定失败", $"数据包Key【{newMapItem.packageKey}】已绑定过参数，一个Key只能绑定单个入参", "确定");
+                        EditorUtility.DisplayDialog("绑定失败", $"数据包Key【{newMapItem.packageKey}】已绑定参数，一个Key仅允许绑定单个入参", "确定");
                         return;
                     }
-
-                    //原有类型校验
                     bool pass = EventEditorUtil.CheckMapTypeSafe(newMapItem, pkgParamInfo.ParameterType, argParamInfo.ParameterType);
                     if (!pass) return;
 
-                    //后续原有添加逻辑不变
                     List<FieldMapItem> temp = new List<FieldMapItem>(targetMap.fieldMaps ?? new FieldMapItem[0]);
                     temp.Add(newMapItem);
                     targetMap.fieldMaps = temp.ToArray();
+                    SaveAllCfg();
                     AddLog(_selectedEvt.eventName, $"新增绑定:{selKey}→{selParam}", "", "字段绑定成功");
                 }
             }
         }
         EditorGUILayout.Space();
-        //保存映射 + 重新生成监听代码
+
+        //保存并刷新监听代码
         if (_selectedEvt != null && GUILayout.Button("保存全部映射+刷新监听代码", GUILayout.Height(32)))
         {
             var evt = _selectedEvt;
@@ -408,7 +385,6 @@ public class EventMainEditorWindow : EditorWindow
                 var lstSplit = EventEditorUtil.SplitListenParam(lstMth);
                 EventEditorUtil.GenListenSystemCode(evt, lstMth, lstSplit, _listenSysId, bindList);
             }
-
             SaveAllCfg();
             AddLog("字段配置", "批量保存映射+刷新监听代码", "", "已落地Json，监听代码已重新生成");
             EditorUtility.DisplayDialog("提示", "字段映射&监听代码刷新完成", "OK");
@@ -426,20 +402,18 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.EndHorizontal();
         }
     }
-    //新增绘制
+
     private void DrawSysIdManager()
     {
         EditorGUILayout.LabelField("全局SystemID注册表（新增/删除/备注，新建事件下拉可选ID，不用手写）", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        //新增区域
         EditorGUILayout.BeginHorizontal();
         _newSysId = EditorGUILayout.TextField("新增ID", _newSysId);
         _newSysRemark = EditorGUILayout.TextField("备注(模块名)", _newSysRemark);
         if (GUILayout.Button("添加ID", GUILayout.Width(80)))
         {
             if (string.IsNullOrWhiteSpace(_newSysId)) return;
-            //去重
             bool exist = _sysIdList.Exists(s => s.sysId == _newSysId);
             if (exist) { EditorUtility.DisplayDialog("提示", "ID已存在", "OK"); return; }
             _sysIdList.Add(new SystemIdItem() { sysId = _newSysId, remark = _newSysRemark });
@@ -450,7 +424,6 @@ public class EventMainEditorWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
 
-        //ID列表+删除
         string[] sysOpts = new string[_sysIdList.Count];
         for (int i = 0; i < _sysIdList.Count; i++) sysOpts[i] = $"{_sysIdList[i].sysId} | {_sysIdList[i].remark}";
         if (_selectSysIdx >= sysOpts.Length) _selectSysIdx = 0;
@@ -493,39 +466,29 @@ public class EventMainEditorWindow : EditorWindow
         SaveAllCfg();
     }
     #endregion
-    #region 内部工具追加：删除事件+物理删生成代码
+
+    #region 删除事件文件
     private void DeleteEventFileAndConfig(EventDefine evt)
     {
-        //1.删除4个自动生成的代码文件
         string autoPath = EventEditorUtil.AutoGenPath;
-        //①事件实体
         string evtCs = $"{autoPath}{evt.eventClassName}.cs";
-        //②Key常量
         string keyCs = $"{autoPath}EventKey_{evt.eventClassName}.cs";
-        //③发布Sys
-        var pubMap = _mapData.Find(x => x.eventTypeFullName == evt.eventTypeFullName);
         string pubCs = $"{autoPath}{_publishSysId}_PublishSys_Publish_{evt.eventName}.cs";
         string lstCs = $"{autoPath}{_listenSysId}_ListenSys_Listen_{evt.eventName}.cs";
 
-        //物理删文件
         DeleteFileIfExist(evtCs);
         DeleteFileIfExist(keyCs);
         DeleteFileIfExist(pubCs);
         DeleteFileIfExist(lstCs);
 
-        //2.移除内存事件配置
         _evtData.Remove(evt);
-        //3.移除该事件所有字段映射
         _mapData.RemoveAll(m => m.eventTypeFullName == evt.eventTypeFullName);
-
-        //4.落地保存JSON
         SaveAllCfg();
         AssetDatabase.Refresh();
     }
     private void DeleteFileIfExist(string path)
     {
-        if (File.Exists(path))
-            File.Delete(path);
+        if (File.Exists(path)) File.Delete(path);
     }
     #endregion
 }
