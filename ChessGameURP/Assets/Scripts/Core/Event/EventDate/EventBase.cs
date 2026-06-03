@@ -73,6 +73,8 @@ public class EventDefine
     public EventQueueType queueType;    //绑定事件队列枚举
     public bool isGlobalEnable = true;    //事件总开关
     public List<string> packageKeys;    //该事件所有数据包KEY
+    public string PublishSysId;
+    public string ListenSysId;
 }
 
 //操作日志模型

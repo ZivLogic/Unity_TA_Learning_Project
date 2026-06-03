@@ -10,7 +10,9 @@
         "packageKeys": [
           "test1",
           "test2"
-        ]
+        ],
+        "PublishSysId": null,
+        "ListenSysId": null
       }
     ]
   },
@@ -40,123 +42,11 @@
   "OperateLog": {
     "Items": [
       {
-        "operateTime": "2026-06-03 07:13:39",
-        "eventName": "系统ID",
-        "operateContent": "新增ID",
+        "operateTime": "2026-06-03 14:01:20",
+        "eventName": "系统",
+        "operateContent": "批量清空全部操作日志",
         "oldValue": "",
-        "newValue": "添加成功"
-      },
-      {
-        "operateTime": "2026-06-03 07:13:43",
-        "eventName": "系统ID",
-        "operateContent": "新增ID",
-        "oldValue": "",
-        "newValue": "添加成功"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:08",
-        "eventName": "Test_Event_001",
-        "operateContent": "新建事件",
-        "oldValue": "",
-        "newValue": "队列:Logic,发布系统:Test001,监听系统:Test001"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:29",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:36",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:44",
-        "eventName": "Test_Event_001",
-        "operateContent": "新增绑定:test1→test1",
-        "oldValue": "",
-        "newValue": "字段绑定成功"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:52",
-        "eventName": "Test_Event_001",
-        "operateContent": "新增绑定:test2→test2",
-        "oldValue": "",
-        "newValue": "字段绑定成功"
-      },
-      {
-        "operateTime": "2026-06-03 07:14:58",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:15:08",
-        "eventName": "字段配置",
-        "operateContent": "批量保存映射+刷新监听代码",
-        "oldValue": "",
-        "newValue": "已落地Json，监听代码已重新生成"
-      },
-      {
-        "operateTime": "2026-06-03 07:15:24",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:15:31",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:15:34",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:15:38",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:16:16",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:16:19",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:16:21",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
-      },
-      {
-        "operateTime": "2026-06-03 07:16:34",
-        "eventName": "Test_Event_001",
-        "operateContent": "修改启用状态",
-        "oldValue": "False",
-        "newValue": "True"
+        "newValue": "日志已清空"
       }
     ]
   },
@@ -168,6 +58,10 @@
       },
       {
         "sysId": "Test002",
+        "remark": ""
+      },
+      {
+        "sysId": "Test003",
         "remark": ""
       }
     ]

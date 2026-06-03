@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
+//事件编辑器窗口
 public class EventMainEditorWindow : EditorWindow
 {
     private Vector2 _scrollPos;
@@ -38,6 +39,9 @@ public class EventMainEditorWindow : EditorWindow
     private EventDefine _selectedEvt;
     private List<string> _pkgKeyList = new List<string>();
     private List<string> _canInjectParamList = new List<string>();
+
+    //标记：当前是否处于编辑已有事件模式，编辑缓存
+    private EventDefine _editingEvt = null;
 
     [MenuItem("EventTool/事件可视化编辑器")]
     public static void Open()
@@ -86,17 +90,21 @@ public class EventMainEditorWindow : EditorWindow
         {
             var evt = _evtData[i];
             EditorGUILayout.BeginHorizontal("Box");
+
             EditorGUILayout.LabelField(evt.eventName, GUILayout.Width(130));
             EditorGUILayout.LabelField(evt.queueType.ToString(), GUILayout.Width(100));
-            //【修复：补上勾选绘制，之前缺失】
-            evt.isGlobalEnable = EditorGUILayout.Toggle("启用", evt.isGlobalEnable, GUILayout.Width(60));
-            if (GUI.changed)
+            EditorGUILayout.LabelField(evt.isGlobalEnable ? "已启用" : "已禁用", GUILayout.Width(80));
+            GUILayout.FlexibleSpace();
+
+            //点击编辑：赋值编辑对象，自动跳转编辑页，回填所有数据
+            if (GUILayout.Button("编辑", GUILayout.Width(70)))
             {
-                SaveAllCfg();
-                AddLog(evt.eventName, "修改启用状态", $"{!evt.isGlobalEnable}", $"{evt.isGlobalEnable}");
+                _editingEvt = evt;
+                _curEventName = evt.eventName;
+                _curQueue = evt.queueType;
+                //后续创建页自动回填发布/监听SystemID
+                _tabIndex = 1;
             }
-            if (GUILayout.Button("编辑", GUILayout.Width(70))) _tabIndex = 1;
-            //新增删除按钮
             if (GUILayout.Button("删除", GUILayout.Width(70)))
             {
                 bool delOk = EditorUtility.DisplayDialog("确认删除", $"确定要删除事件【{evt.eventName}】？\n自动删除对应生成代码+配置", "删除", "取消");
@@ -109,25 +117,41 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.EndHorizontal();
         }
         EditorGUILayout.Space();
+        //手动新建清空编辑标识
+        if (GUILayout.Button("新建空白事件(清空编辑)", GUILayout.Height(30)))
+        {
+            _editingEvt = null;
+            _curEventName = "";
+            _curQueue = EventQueueType.Logic;
+            _tabIndex = 1;
+        }
         if (GUILayout.Button("保存配置到JSON", GUILayout.Height(30)))
         {
             SaveAllCfg();
-            AddLog("全局", "批量修改事件启用状态", "", "开关已同步");
+            AddLog("全局", "手动保存全部配置", "", "配置落地完成");
             EditorUtility.DisplayDialog("完成", "EventConfig.json已更新", "OK");
         }
     }
 
     private void DrawCreateEvent()
     {
-        EditorGUILayout.LabelField("新建/编辑事件", EditorStyles.boldLabel);
+        if (_editingEvt != null)
+            EditorGUILayout.LabelField("【编辑已有事件】", EditorStyles.boldLabel);
+        else
+            EditorGUILayout.LabelField("【新建事件】", EditorStyles.boldLabel);
+
         _curEventName = EditorGUILayout.TextField("事件名称", _curEventName);
         _curQueue = (EventQueueType)EditorGUILayout.EnumPopup("目标队列", _curQueue);
+        //启用开关挪到这里
+        bool tempEnable = _editingEvt != null ? _editingEvt.isGlobalEnable : true;
+        bool newEnable = EditorGUILayout.Toggle("全局启用事件", tempEnable);
         EditorGUILayout.Space();
 
         //发布配置
         EditorGUILayout.LabelField("【发布端配置】", EditorStyles.boldLabel);
         string[] sysArr = new string[_sysIdList.Count];
         for (int i = 0; i < _sysIdList.Count; i++) sysArr[i] = _sysIdList[i].sysId;
+
         if (sysArr.Length > 0)
         {
             int pubSysIdx = Array.FindIndex(sysArr, s => s == _publishSysId);
@@ -153,6 +177,7 @@ public class EventMainEditorWindow : EditorWindow
             EditorGUILayout.LabelField("暂无系统ID，请前往【系统ID管理】面板新增");
         }
 
+        //====后续SystemID绑定方法完善，当前先保留原有选择，预留扩展位====
         string[] pubOpts = new string[_allPubMethods.Count];
         for (int i = 0; i < _allPubMethods.Count; i++)
             pubOpts[i] = $"{_allPubMethods[i].DeclaringType.Name}.{_allPubMethods[i].Name}";
@@ -197,7 +222,7 @@ public class EventMainEditorWindow : EditorWindow
         }
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("一键生成代码+注册配置", GUILayout.Height(32)))
+        if (GUILayout.Button("保存配置+生成/刷新代码", GUILayout.Height(32)))
         {
             if (string.IsNullOrWhiteSpace(_curEventName))
             {
@@ -217,15 +242,45 @@ public class EventMainEditorWindow : EditorWindow
                 eventClassName = $"{_curEventName}Event",
                 eventTypeFullName = $"AutoGen.Event.{_curEventName}Event",
                 queueType = _curQueue,
-                isGlobalEnable = true,
+                isGlobalEnable = newEnable,
                 packageKeys = pkgKeys
             };
             List<FieldMapItem> emptyMap = new List<FieldMapItem>();
             EventEditorUtil.AutoGenAllCode(newEvt, selectPub, pubSplit, _publishSysId, selectLst, lstSplit, _listenSysId, emptyMap);
-            _evtData.Add(newEvt);
+
+            //编辑逻辑区分：名称/发布ID/监听ID没变=原地修改旧事件；任意一个变=新建事件
+            if (_editingEvt != null)
+            {
+                bool isDataChanged = (_editingEvt.eventName != _curEventName)
+                    || (_publishSysId != _editingEvt.PublishSysId)
+                    || (_listenSysId != _editingEvt.ListenSysId);
+
+                if (isDataChanged)
+                {
+                    //关键信息变动，生成新事件，旧事件保留不动
+                    _evtData.Add(newEvt);
+                    AddLog(_curEventName, "编辑改动关键信息→生成新事件", _editingEvt.eventName, newEvt.eventName);
+                }
+                else
+                {
+                    //仅修改启用/队列，原地覆盖
+                    int idx = _evtData.IndexOf(_editingEvt);
+                    newEvt.packageKeys = _editingEvt.packageKeys;
+                    _evtData[idx] = newEvt;
+                    AddLog(_curEventName, "编辑修改事件配置(队列/启用)", $"{_editingEvt.isGlobalEnable}", $"{newEnable}");
+                }
+            }
+            else
+            {
+                //纯新建
+                _evtData.Add(newEvt);
+                AddLog(_curEventName, "新建事件", "", $"队列:{_curQueue},发布系统:{_publishSysId},监听系统:{_listenSysId}");
+            }
             SaveAllCfg();
-            AddLog(_curEventName, "新建事件", "", $"队列:{_curQueue},发布系统:{_publishSysId},监听系统:{_listenSysId}");
-            EditorUtility.DisplayDialog("成功", "事件代码&基础配置生成完成，请前往字段绑定面板配置参数映射", "OK");
+            //保存后清空编辑标记，切回总览
+            _editingEvt = null;
+            _tabIndex = 0;
+            EditorUtility.DisplayDialog("成功", "事件代码&配置已处理完成", "OK");
         }
     }
 
@@ -393,6 +448,22 @@ public class EventMainEditorWindow : EditorWindow
 
     private void DrawLogPanel()
     {
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("操作日志列表", EditorStyles.boldLabel);
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("一键清空全部日志", GUILayout.Width(120)))
+        {
+            bool clean = EditorUtility.DisplayDialog("清空确认", "确定清空所有操作日志？无法恢复", "确认清空", "取消");
+            if (clean)
+            {
+                _logData.Clear();
+                SaveAllCfg();
+                AddLog("系统", "批量清空全部操作日志", "", "日志已清空");
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
+
         foreach (var log in _logData)
         {
             EditorGUILayout.BeginHorizontal("Box");
