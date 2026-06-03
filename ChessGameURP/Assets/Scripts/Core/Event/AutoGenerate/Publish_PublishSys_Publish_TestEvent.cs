@@ -1,11 +1,11 @@
 //AutoGen | 发布自动生成代码
         using System;
-        public partial class Test001_PublishSys : BasePublishSystem
+        public partial class Publish_PublishSys : BasePublishSystem
         {
-            public override string SystemID => "Test001";
+            public override string SystemID => "Publish";
 
             [EventAutoGenerateEntryAttribute]
-            public void Publish_Test_Event_001()
+            public void Publish_TestEvent()
             {
                 //实例化业务类
                 EventTest business = new EventTest();
@@ -16,9 +16,9 @@
                 business.TestPublishEvent(out test1,out test2);
 
                 //构造事件+打包
-                Test_Event_001Event evt = new Test_Event_001Event();
-                evt.package.Put(EventKey_Test_Event_001Event.test1, test1);
-  evt.package.Put(EventKey_Test_Event_001Event.test2, test2);
+                TestEventEvent evt = new TestEventEvent();
+                evt.package.Put(EventKey_TestEventEvent.test1, test1);
+  evt.package.Put(EventKey_TestEventEvent.test2, test2);
 
                 //推入对应队列
                 AutoPublish(evt);

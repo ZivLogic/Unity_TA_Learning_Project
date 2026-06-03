@@ -1,7 +1,7 @@
 //AutoGen | 禁止手动修改
-        public class Test_Event_001Event : PackageEvent
+        public class TestEventEvent : PackageEvent
         {
-            public Test_Event_001Event()
+            public TestEventEvent()
             {
                 QueueType = EventQueueType.Logic;
                 package = new Package();

@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
 
 //事件窗口静态工具层
 public static class EventEditorUtil
@@ -81,7 +80,7 @@ public static class EventEditorUtil
         {
             if (p.IsOut)
                 rst.OutArgs.Add(p);
-            else 
+            else
                 rst.InArgs.Add(p);
         }
         return rst;
@@ -117,27 +116,30 @@ public static class EventEditorUtil
 
     #region 4.全套自动生成代码【补齐：事件类、Key常量、发布转发、监听转发全模板】
     ///一键生成四类代码：事件实体+静态Key+发布系统代码+监听系统代码
-    ///sysPublishId：发布所属系统ID；sysListenId：监听所属系统ID
-    public static void AutoGenAllCode(EventDefine evtDef,
+    ///返回：本次生成的所有文件物理路径，用于编辑器回退删除
+    public static List<string> AutoGenAllCode(EventDefine evtDef,
         MethodInfo pubMethod, PublishParamSplitResult pubSplit, string pubSysId,
         MethodInfo lstMethod, ListenParamSplitResult lstSplit, string lstSysId,
         List<FieldMapItem> bindMaps)
     {
+        List<string> genFileList = new List<string>();
         //1.事件实体类
-        GenEventClass(evtDef);
+        genFileList.Add(GenEventClass(evtDef));
         //2.静态Key常量类
-        GenKeyConstClass(evtDef);
+        genFileList.Add(GenKeyConstClass(evtDef));
         //3.发布System代码(打包+调用业务+AutoPublish入队列)
-        GenPublishSystemCode(evtDef, pubMethod, pubSplit, pubSysId);
+        genFileList.Add(GenPublishSystemCode(evtDef, pubMethod, pubSplit, pubSysId));
         //4.监听System代码(开关拦截+拆包+按绑定注入参数+调用业务+注册)
-        GenListenSystemCode(evtDef, lstMethod, lstSplit, lstSysId, bindMaps);
-        AssetDatabase.Refresh();
+        genFileList.AddRange(GenListenSystemCode(evtDef, lstMethod, lstSplit, lstSysId, bindMaps));
+
+        return genFileList;
     }
 
-    //生成事件基类实例
-    private static void GenEventClass(EventDefine cfg)
+    //生成事件基类实例，返回文件路径
+    public static string GenEventClass(EventDefine cfg)
     {
-        string code = 
+        string filePath = $"{AutoGenPath}{cfg.eventClassName}.cs";
+        string code =
         $@"//AutoGen | 禁止手动修改
         public class {cfg.eventClassName} : PackageEvent
         {{
@@ -147,33 +149,37 @@ public static class EventEditorUtil
                 package = new Package();
             }}
         }}";
-        File.WriteAllText($"{AutoGenPath}{cfg.eventClassName}.cs", code);
+        File.WriteAllText(filePath, code);
+        return filePath;
     }
 
-    //生成数据包Key静态常量
-    private static void GenKeyConstClass(EventDefine cfg)
+    //生成数据包Key静态常量，返回文件路径
+    private static string GenKeyConstClass(EventDefine cfg)
     {
         string keyCls = $"EventKey_{cfg.eventClassName}";
+        string filePath = $"{AutoGenPath}{keyCls}.cs";
         StringBuilder sb = new StringBuilder();
         foreach (var key in cfg.packageKeys)
         {
             sb.AppendLine($"    public const string {key} = \"{key}\";");
         }
-        string code = 
+        string code =
         $@"//AutoGen
         public static class {keyCls}
         {{
             {sb.ToString()}
         }}";
-        File.WriteAllText($"{AutoGenPath}{keyCls}.cs", code);
+        File.WriteAllText(filePath, code);
+        return filePath;
     }
 
-    //生成发布System代码：接收外部传入in实参→调用业务→out打包→发布入对应队列
-    private static void GenPublishSystemCode(EventDefine cfg, MethodInfo pubMth, PublishParamSplitResult split, string sysId)
+    //生成发布System代码，返回文件路径
+    private static string GenPublishSystemCode(EventDefine cfg, MethodInfo pubMth, PublishParamSplitResult split, string sysId)
     {
         string clsName = $"{sysId}_PublishSys";
         string entryFuncName = $"Publish_{cfg.eventName}";
         string keyCls = $"EventKey_{cfg.eventClassName}";
+        string filePath = $"{AutoGenPath}{clsName}_{entryFuncName}.cs";
 
         //拼接方法入参（全部普通in参数作为转发方法入参，由外部注入）
         List<string> inputParamStr = new List<string>();
@@ -192,7 +198,7 @@ public static class EventEditorUtil
         {
             putCode.Add($"evt.package.Put({keyCls}.{outP.Name}, {outP.Name});");
         }
-        string inArgStr = callArgStr.Count > 0 ? string.Join(",", callArgStr) : "";
+        string inArgStr = callArg.Length > 0 ? string.Join(",", callArgStr) : "";
         string outArgStr = split.OutArgs.Count > 0 ? GenOutCallArg(split.OutArgs) : "";
 
         List<string> callAll = new List<string>();
@@ -201,7 +207,7 @@ public static class EventEditorUtil
 
         string fullCall = string.Join(",", callAll);
 
-        string code = 
+        string code =
         $@"//AutoGen | 发布自动生成代码
         using System;
         public partial class {clsName} : BasePublishSystem
@@ -220,13 +226,14 @@ public static class EventEditorUtil
 
                 //构造事件+打包
                 {cfg.eventClassName} evt = new {cfg.eventClassName}();
-                {string.Join("\r\n  ",putCode)}
+                {string.Join("\r\n  ", putCode)}
 
                 //推入对应队列
                 AutoPublish(evt);
             }}
         }}";
-        File.WriteAllText($"{AutoGenPath}{clsName}_{entryFuncName}.cs", code);
+        File.WriteAllText(filePath, code);
+        return filePath;
     }
 
     //辅助：out变量定义
@@ -255,13 +262,15 @@ public static class EventEditorUtil
         return t;
     }
 
-
-    //生成监听System代码：开关拦截→拆包→按绑定映射填充可选参数→调用业务
-    public static void GenListenSystemCode(EventDefine cfg, MethodInfo lstMth, ListenParamSplitResult split, string sysId, List<FieldMapItem> maps)
+    ///生成监听代码，返回生成的文件路径列表
+    public static List<string> GenListenSystemCode(EventDefine cfg, MethodInfo lstMth, ListenParamSplitResult split, string sysId, List<FieldMapItem> maps)
     {
+        List<string> res = new List<string>();
         string clsName = $"{sysId}_ListenSys";
         string entryFunc = $"Listen_{cfg.eventName}";
         string evtType = cfg.eventClassName;
+        string filePath = $"{AutoGenPath}{clsName}_{entryFunc}.cs";
+        res.Add(filePath);
 
         //根据绑定映射，从包取值
         List<string> paramVarCode = new List<string>();
@@ -289,7 +298,7 @@ public static class EventEditorUtil
         string varBody = string.Join("\r\n        ", paramVarCode);
         string invokeArgStr = string.Join(",", invokeArgs);
 
-        string code = 
+        string code =
         $@"//AutoGen | 监听自动生成代码
         using System;
         public partial class {clsName} : BaseBusinessSystem
@@ -314,7 +323,8 @@ public static class EventEditorUtil
                 business.{lstMth.Name}({invokeArgStr});
              }}
         }}";
-        File.WriteAllText($"{AutoGenPath}{clsName}_{entryFunc}.cs", code);
+        File.WriteAllText(filePath, code);
+        return res;
     }
     #endregion
 }
