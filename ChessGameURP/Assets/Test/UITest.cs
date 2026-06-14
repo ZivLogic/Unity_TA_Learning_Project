@@ -25,9 +25,19 @@ public class UITest : MonoBehaviour
         EventManager.Instance.EmitLogic(pub);
     }
 
+    [EventPublishMethod]
+    public void TestEventUI(out int EventTest1)
+    {
+        Debug.Log("事件正常发送");
+        EventTest1 = 1;
+    }
 
-
-
+    public void TestEvent()
+    {
+        Debug.Log("UI正常按下");
+        int EventTest1 = 0;
+        TestEventUI(out EventTest1);
+    }
 
     // Start is called before the first frame update
     void Start()

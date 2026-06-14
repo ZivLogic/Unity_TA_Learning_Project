@@ -102,6 +102,12 @@ public class InputTest : MonoBehaviour
         ChessTile = null;
     }
 
+    [EventListenMethod]
+    public void TestEvent(int EventTest1)
+    {
+        Debug.Log($"[InputTest]接收到事件值：{EventTest1}");
+    }
+
     private void OnEvent(PackageEvent e)
     {
         

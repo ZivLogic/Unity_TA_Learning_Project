@@ -1,0 +1,80 @@
+{
+  "EventDefine": {
+    "Items": [
+      {
+        "eventName": "TestEvent",
+        "eventClassName": "TestEventEvent",
+        "eventTypeFullName": "AutoGen.Event.TestEventEvent",
+        "queueType": 0,
+        "isGlobalEnable": true,
+        "packageKeys": [
+          "test1",
+          "test2"
+        ],
+        "PublishSysId": "Publish",
+        "ListenSysId": "Listen"
+      }
+    ]
+  },
+  "FieldMapping": {
+    "Items": [
+      {
+        "eventTypeFullName": "AutoGen.Event.TestEventEvent",
+        "entryMethodName": null,
+        "businessMethodName": null,
+        "fieldMaps": [
+          {
+            "packageKey": "test1",
+            "paramName": "test1",
+            "typeFullName": null,
+            "isRequired": true
+          },
+          {
+            "packageKey": "test2",
+            "paramName": "test2",
+            "typeFullName": null,
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  },
+  "OperateLog": {
+    "Items": [
+      {
+        "operateTime": "2026-06-04 03:02:30",
+        "eventName": "系统",
+        "operateContent": "批量清空全部操作日志",
+        "oldValue": "",
+        "newValue": "日志已清空"
+      },
+      {
+        "operateTime": "2026-06-04 03:02:38",
+        "eventName": "TestEvent",
+        "operateContent": "修改事件配置",
+        "oldValue": "True",
+        "newValue": "True"
+      }
+    ]
+  },
+  "SystemIdList": {
+    "Items": [
+      {
+        "sysId": "Listen",
+        "remark": ""
+      },
+      {
+        "sysId": "Publish",
+        "remark": ""
+      },
+      {
+        "sysId": "EventListen",
+        "remark": ""
+      },
+      {
+        "sysId": "EventPublish",
+        "remark": ""
+      }
+    ]
+  }
+}

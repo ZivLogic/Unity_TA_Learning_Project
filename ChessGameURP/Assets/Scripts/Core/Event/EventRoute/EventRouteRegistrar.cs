@@ -323,6 +323,89 @@ public class EventRouteRegistrar
     }
 
     #endregion
+
+    //工具化注册层
+    //强类型回调注册池;Type = 事件类型，List = 监听委托
+    public static Dictionary<Type, List<Action<PackageEvent>>> EventRoutes = new();
+    //系统-事件绑定关系
+    public static Dictionary<string, List<Type>> SystemBindEvents = new();
+    //事件全局启用开关
+    public static Dictionary<Type, bool> EventEnableState = new();
+    //全局字段映射表（存所有注册规则）
+    public static readonly List<EventFieldMapping> GlobalFieldMappings = new();
+
+    #region 基础路由方法
+    public static void ReisterEvent(Type eventType, Action<PackageEvent> callback)
+    {
+        if ( ! EventRoutes.ContainsKey(eventType) )
+            EventRoutes[eventType] = new List<Action<PackageEvent>>();
+        EventRoutes[eventType].Add(callback);
+        EventEnableState[eventType] = true;
+        //反射注册
+        EventReflectionUtil.CallListen(eventType, callback);
+    }
+    public static void UnRegisterEvent(Type eventType, Action<PackageEvent> callback)
+    {
+        if (EventRoutes.TryGetValue(eventType, out var list))
+            list.Remove(callback);
+        EventReflectionUtil.CallUnListen(eventType, callback);
+    }
+    public static void DispatchEvent(PackageEvent evt)
+    {
+        Type evtType = evt.GetType();
+        //全局开关拦截
+        if (EventEnableState.TryGetValue(evtType, out bool state) && !state) return;
+        if (!EventRoutes.TryGetValue(evtType, out var callbacks)) return;
+        foreach (var cb in callbacks)
+            cb?.Invoke(evt);
+    }
+    //系统批量级注销
+    public static void UnListenAllBySystem(string systemId)
+    {
+        if ( ! SystemBindEvents.TryGetValue(systemId, out var eventTypes)) return;
+        foreach (var type in eventTypes)
+            EventRoutes.Remove(type);
+        SystemBindEvents.Remove(systemId);
+    }
+    #endregion
+    #region 字段映射管理
+    public static EventFieldMapping GetFieldMapping(Type eventType, string entryName)
+    {
+        string fullName = eventType.FullName;
+        return GlobalFieldMappings.Find(m => 
+        m.eventTypeFullName == fullName && m.entryMethodName == entryName);
+    }
+    public static void ClaerAllMapping()
+    {
+        GlobalFieldMappings.Clear();
+    }
+    #endregion
+    #region 事件启停控制（三级开关）
+    //全局禁用/启用某个事件
+    public static void SetEventEnable(Type eventType, bool enable)
+    {
+        if (EventEnableState.ContainsKey(eventType)) 
+            EventEnableState[eventType] = enable;
+    }
+    //禁用/启用整个系统的所有事件
+    public static void SetSystemAllEventEnable(string  systemId, bool enable)
+    {
+        if ( ! SystemBindEvents.TryGetValue(systemId, out var types)) return;
+        foreach (var t in types)
+            SetEventEnable(t, enable);
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
     //发布字典安全查询
     public static bool IsEventCanPublish(PackageEvent e)
     {
