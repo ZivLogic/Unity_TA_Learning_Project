@@ -28,6 +28,11 @@ public class TestMono : MonoBehaviour
         _publish.TestCLASS003();
     }
 
+    public void Test_GameObj()
+    {
+        _publish.Test_GameObj();
+    }
+
     public void Awake()
     {
 

@@ -16,10 +16,12 @@
       "SysId": "TestID002",
       "Remark": "测试ID002",
       "PublishEvent": {
-        "E_EventBoolTest002": true
+        "E_EventBoolTest002": true,
+        "E_TestGameObj": true
       },
       "ListenEvent": {
-        "E_EventBoolTest002": true
+        "E_EventBoolTest002": true,
+        "E_TestGameObj": true
       }
     }
   },
@@ -30,7 +32,8 @@
       "TestPublish.Test_CLASSevnt"
     ],
     "TestID002": [
-      "TestPublish.TestEventPublish002"
+      "TestPublish.TestEventPublish002",
+      "TestPublish.GameOBJ"
     ]
   },
   "SysIDToListenMethod": {
@@ -39,7 +42,8 @@
       "TestListen.TestEventlISTEN_CLASS_003"
     ],
     "TestID002": [
-      "TestListen.TestEvent002"
+      "TestListen.TestEvent002",
+      "TestListen.TestLisenGameObj"
     ]
   }
 }

@@ -6,6 +6,8 @@ using EventSystemV2;
 
 public class TestPublish
 {
+    public GameObject Obj = null;
+
     [EventPublishAttr]
     public void TestEventPublish(int Value, string Message)
     {
@@ -25,6 +27,19 @@ public class TestPublish
     {
         Debug.Log("测试自定义类");
         EventUtil.EmitEventFromMethod(this, nameof(Test_CLASSevnt), Test_cfg);
+    }
+
+    [EventPublishAttr]
+    public void GameOBJ(GameObject Pawn)
+    {
+        Debug.Log("尝试传递GameObject");
+        EventUtil.EmitEventFromMethod(this, nameof (GameOBJ), Pawn);
+    }
+
+    public void Test_GameObj()
+    {
+        Obj = Resources.Load<GameObject>("TestGameObject/Pawn");
+        GameOBJ(Obj);
     }
 
     public void TestEvent()

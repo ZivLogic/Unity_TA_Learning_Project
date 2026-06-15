@@ -738,7 +738,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 260959515}
         m_TargetAssemblyTypeName: TestMono, Assembly-CSharp
-        m_MethodName: TestCLassEvent_003
+        m_MethodName: Test_GameObj
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

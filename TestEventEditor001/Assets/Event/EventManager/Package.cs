@@ -26,12 +26,19 @@ namespace EventSystemV2
         // 按名字取
         public bool Get<T>(string key, out T result)
         {
-            if (data.TryGetValue(key, out var obj) && obj is T t)
+            result = default;
+            if (!data.TryGetValue(key, out var obj))
+                return false;
+            if (obj is T)
             {
-                result = t;
+                result = (T)obj;
                 return true;
             }
-            result = default;
+            if (obj is UnityEngine.Object unityObj && typeof(T).IsAssignableFrom(unityObj.GetType()))
+            {
+                result = (T)(object)unityObj;
+                return true;
+            }
             return false;
         }
 
@@ -45,7 +52,7 @@ namespace EventSystemV2
         public bool Has(string key) => data.ContainsKey(key);
 
         //验证整个包，如果任何一个值为null，返回false
-        public bool ValidsteAll()
+        public bool ValidateAll()
         {
             foreach (var kv in data)
             {

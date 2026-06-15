@@ -43,14 +43,18 @@ namespace EventSystemV2
                 {
                     pack.Put(key, arg);
                 }
-                else if (!IsSimpleType(argType) && arg != null)
+                else if (IsSimpleType(argType) || typeof(UnityEngine.Object).IsAssignableFrom(argType))
+                {
+                    pack.Put(key, arg);
+                }
+                else if (arg != null) 
                 {
                     string json = SerializeObject(arg);
                     pack.Put(key, json);
                 }
                 else
                 {
-                    pack.Put(key, arg);
+                    pack.Put(key, null);
                 }
             }
             //创建并发布事件
@@ -143,6 +147,16 @@ namespace EventSystemV2
                     continue;
                 }
 
+                //Unity.Object直接引用
+                if (typeof(UnityEngine.Object).IsAssignableFrom(targetType))
+                {
+                    if (packValue is UnityEngine.Object unityObj && unityObj == null)
+                        invokeArgs[i] = null;
+                    else
+                    invokeArgs[i] = packValue;
+                    continue;
+                }
+
                 // 简单类型直接赋值
                 if (IsSimpleType(targetType))
                 {
@@ -151,7 +165,7 @@ namespace EventSystemV2
                 }
 
                 // 复杂类型：反序列化
-                if (packValue is string json)
+                else if (packValue is string json)
                 {
                     try
                     {
@@ -174,19 +188,32 @@ namespace EventSystemV2
         //类型判断工具
         private static bool IsSimpleType(Type type)
         {
-            return type.IsPrimitive ||
+            // 处理可空类型
+            Type underlyingType = Nullable.GetUnderlyingType(type);
+            if (underlyingType != null)
+                type = underlyingType;
+
+            if (type.IsPrimitive ||
                 type == typeof(string) ||
                 type == typeof(decimal) ||
                 type == typeof(DateTime) ||
                 type == typeof(TimeSpan) ||
                 type == typeof(Guid) ||
-                type == typeof(Vector2) ||
+                type.IsEnum)
+            {
+                return true;
+            }
+
+            if (type == typeof(Vector2) ||
                 type == typeof(Vector3) ||
                 type == typeof(Vector4) ||
                 type == typeof(Quaternion) ||
                 type == typeof(Color) ||
-                type == typeof(Rect) ||
-                type.IsEnum;
+                type == typeof(Rect))
+            {
+                return true;
+            }
+            return false;
         }
 
         //序列化复杂对象
@@ -194,7 +221,9 @@ namespace EventSystemV2
         {
             var settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.Auto
+                TypeNameHandling = TypeNameHandling.All,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.None
             };
             return JsonConvert.SerializeObject(obj, settings);
         }
@@ -204,7 +233,8 @@ namespace EventSystemV2
         {
             var settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.Auto
+                TypeNameHandling = TypeNameHandling.All,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
             return JsonConvert.DeserializeObject(json, TargetType, settings);
         }

@@ -35,6 +35,13 @@ public class TestListen
         
     }
 
+    [EventListenAttr]
+    public void TestLisenGameObj(GameObject Obj)
+    {
+        GameObject Pawn = Object.Instantiate(Obj);
+        Debug.Log("生成预制体");
+    }
+
 
     // Start is called before the first frame update
     void Start()

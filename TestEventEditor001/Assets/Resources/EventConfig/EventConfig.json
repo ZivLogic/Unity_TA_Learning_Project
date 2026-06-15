@@ -172,13 +172,73 @@
         "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_EventBoolTest002.cs"
       },
       "IsOldEvent": false
+    },
+    "TestGameObj": {
+      "EventName": "TestGameObj",
+      "EventClassFullName": "E_TestGameObj",
+      "QueueType": 0,
+      "GlobalEnable": true,
+      "EventPublish": "TestPublish.GameOBJ",
+      "EventListen": [
+        "TestListen.TestLisenGameObj"
+      ],
+      "ListenMethodDict": {
+        "TestListen.TestLisenGameObj": "TestLisenGameObj"
+      },
+      "PublishSysId": [
+        "TestID002"
+      ],
+      "ListenSysId": [
+        "TestID002"
+      ],
+      "PublishMethodToSystemID": {
+        "TestPublish.GameOBJ": "TestID002"
+      },
+      "ListenMethodToSystemID": {
+        "TestListen.TestLisenGameObj": "TestID002"
+      },
+      "PublishClassList": [
+        "TestPublish"
+      ],
+      "ListenClassList": [
+        "TestListen"
+      ],
+      "PublishClassName": {
+        "TestPublish.GameOBJ": "TestPublish"
+      },
+      "ListenClassName": {
+        "TestListen.TestLisenGameObj": "TestListen"
+      },
+      "PublishKey": {
+        "TestPublish.GameOBJ": [
+          "Pawn",
+          "Pawn",
+          "Pawn"
+        ]
+      },
+      "ListenKey": {
+        "TestListen.TestLisenGameObj": [
+          "Obj"
+        ]
+      },
+      "KeyConnection": {
+        "TestPublish.GameOBJ_TestListen.TestLisenGameObj": {
+          "Obj": "Pawn"
+        }
+      },
+      "CodePath": {
+        "EventClass": "Assets/Scripts/Generated/Events/E_TestGameObj.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TestGameObj.cs"
+      },
+      "IsOldEvent": false
     }
   },
   "MethodInstances": {
     "TestPublish": [
       "TestEventPublish",
       "TestEventPublish002",
-      "Test_CLASSevnt"
+      "Test_CLASSevnt",
+      "GameOBJ"
     ],
     "EVent_TEst": [
       "EVentINit",
@@ -187,7 +247,8 @@
     "TestListen": [
       "TestEventListen",
       "TestEvent002",
-      "TestEventlISTEN_CLASS_003"
+      "TestEventlISTEN_CLASS_003",
+      "TestLisenGameObj"
     ]
   },
   "ListenMethodInstances": {
@@ -197,17 +258,20 @@
     "TestListen": [
       "TestEventListen",
       "TestEvent002",
-      "TestEventlISTEN_CLASS_003"
+      "TestEventlISTEN_CLASS_003",
+      "TestLisenGameObj"
     ]
   },
   "PublishMethodToEvent": {
     "TestPublish.TestEventPublish": "TestEvent",
     "TestPublish.Test_CLASSevnt": "EventClass002",
-    "TestPublish.TestEventPublish002": "EventBoolTest002"
+    "TestPublish.TestEventPublish002": "EventBoolTest002",
+    "TestPublish.GameOBJ": "TestGameObj"
   },
   "ListenMethodToEvent": {
     "TestListen.TestEventListen": "TestEvent",
     "TestListen.TestEventlISTEN_CLASS_003": "EventClass002",
-    "TestListen.TestEvent002": "EventBoolTest002"
+    "TestListen.TestEvent002": "EventBoolTest002",
+    "TestListen.TestLisenGameObj": "TestGameObj"
   }
 }
