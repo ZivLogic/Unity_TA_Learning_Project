@@ -42,6 +42,22 @@ public class TestListen
         Debug.Log("生成预制体");
     }
 
+    [EventListenAttr]
+    public void TestConfigData()
+    {
+        Debug.Log("接收到配置事件");
+        var spawnConfig = ConfigAPI.Get<MapSpawnPointsConfig>();
+        if (spawnConfig?.spawnPoints != null)
+        {
+            foreach (var spawn in spawnConfig.spawnPoints)
+            {
+                Debug.Log($"生成点：{spawn.id} at ({spawn.x}, {spawn.y}, {spawn.z})");
+            }
+        }
+        else
+            Debug.Log($"配置为空/未取得配置,是否为空? {spawnConfig == null}, 子配置是否为空？{spawnConfig.spawnPoints == null}");
+        //Debug.Log($"主配置是否可以正常接收{spawnConfig.TestNumber == 1}");
+    }
 
     // Start is called before the first frame update
     void Start()

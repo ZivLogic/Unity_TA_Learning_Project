@@ -9,6 +9,11 @@
       "OperateTime": "2026-06-16 00:22:33",
       "TargetEvent": "选择的事件：TestGameObj",
       "Content": "保存了事件：TestGameObj"
+    },
+    {
+      "OperateTime": "2026-09-04 00:32:27",
+      "TargetEvent": "选择的事件：TestConfig_001",
+      "Content": "保存了事件：TestConfig_001"
     }
   ]
 }

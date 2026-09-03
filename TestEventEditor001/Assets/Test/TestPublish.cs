@@ -36,6 +36,13 @@ public class TestPublish
         EventUtil.EmitEventFromMethod(this, nameof (GameOBJ), Pawn);
     }
 
+    [EventPublishAttr]
+    public void Test_ConfigData()
+    {
+        Debug.Log("≥¢ ‘¥•∑¢≈‰÷√ ¬º˛");
+        EventUtil.EmitEventFromMethod(this, nameof(Test_ConfigData));
+    }
+
     public void Test_GameObj()
     {
         Obj = Resources.Load<GameObject>("TestGameObject/Pawn");

@@ -23,6 +23,16 @@
         "E_EventBoolTest002": true,
         "E_TestGameObj": true
       }
+    },
+    "TestConfig": {
+      "SysId": "TestConfig",
+      "Remark": "",
+      "PublishEvent": {
+        "E_TestConfig_001": true
+      },
+      "ListenEvent": {
+        "E_TestConfig_001": true
+      }
     }
   },
   "ItemsNoEnable": {},
@@ -34,6 +44,9 @@
     "TestID002": [
       "TestPublish.TestEventPublish002",
       "TestPublish.GameOBJ"
+    ],
+    "TestConfig": [
+      "TestPublish.Test_ConfigData"
     ]
   },
   "SysIDToListenMethod": {
@@ -44,6 +57,9 @@
     "TestID002": [
       "TestListen.TestEvent002",
       "TestListen.TestLisenGameObj"
+    ],
+    "TestConfig": [
+      "TestListen.TestConfigData"
     ]
   }
 }
