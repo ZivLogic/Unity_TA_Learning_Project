@@ -1,0 +1,3 @@
+﻿{
+  "pools": [{"poolId":"vegetation","preloadCount":50,"maxSize":200,"autoExpand":true},{"poolId":"celestial","preloadCount":10,"maxSize":20,"autoExpand":false}]
+}

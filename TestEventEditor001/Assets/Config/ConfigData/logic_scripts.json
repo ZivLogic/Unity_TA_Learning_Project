@@ -1,0 +1,3 @@
+﻿{
+  "scripts": [{"scriptId":"tree_growth","scriptName":"TreeGrowth","parameters":["speed=1.0","maxHeight=10"]},{"scriptId":"fruit_bearing","scriptName":"FruitBearing","parameters":["fruitType=bread"]},{"scriptId":"orbit_earth","scriptName":"OrbitAroundEarth","parameters":["radius=384400","speed=0.5"]}]
+}

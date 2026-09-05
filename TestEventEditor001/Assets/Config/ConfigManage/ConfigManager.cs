@@ -256,7 +256,7 @@ public class ConfigManager : MonoBehaviour
                 // 使用反射调用 ConfigParser.Parse<T>
                 var parseMethod = typeof(ConfigParser).GetMethod("Parse");
                 var genericParse = parseMethod.MakeGenericMethod(metaInfo.ConfigType);
-                config = genericParse.Invoke(null, new object[] { jsonText }) as ConfigDefinition;
+                config = genericParse.Invoke(null, new object[] { jsonText, this }) as ConfigDefinition;
 
                 Debug.Log($"[ConfigManager] 从文件加载配置: {configId} ← {metaInfo.JsonPath}");
             }
@@ -355,4 +355,249 @@ public class ConfigManager : MonoBehaviour
     }
 
     #endregion
+
+
+    /// <summary>
+    /// 解析引用路径
+    /// 格式：configId.fieldPath
+    /// 示例：physics_configs.tree_standard
+    ///       material_database.materials["bread_tree"].path
+    ///       map_spawn_points.spawnPoints[0].position
+    /// </summary>
+    public object ResolveReference(string refPath)
+    {
+        if (string.IsNullOrEmpty(refPath))
+            return null;
+
+        // 清理：移除可能的引号和空格
+        refPath = refPath.Trim().TrimEnd('"').TrimEnd('\'');
+
+        Debug.Log($"[ConfigManager] 解析引用路径: {refPath}");
+
+        // 分割：configId.fieldPath
+        string[] parts = refPath.Split('.');
+        if (parts.Length < 2)
+        {
+            Debug.LogWarning($"[ConfigManager] 引用格式错误: {refPath}");
+            return null;
+        }
+
+        string configId = parts[0];
+        string fieldPath = string.Join(".", parts.Skip(1));
+
+        // 获取配置对象
+        var config = GetConfigRaw(configId);
+        if (config == null)
+        {
+            Debug.LogWarning($"[ConfigManager] 引用的配置不存在: {configId}");
+            return null;
+        }
+
+        // 解析字段路径
+        return ResolveFieldPath(config, fieldPath);
+    }
+
+    private object ResolveFieldPath(object obj, string fieldPath)
+    {
+        if (obj == null || string.IsNullOrEmpty(fieldPath))
+            return null;
+
+        Debug.Log($"[ConfigManager] 解析字段路径: {fieldPath}");
+
+        // 按 . 分割，但要保留方括号内的内容
+        string[] segments = SplitFieldPath(fieldPath);
+
+        foreach (var segment in segments)
+        {
+            if (obj == null) return null;
+
+            string cleanSegment = segment.Trim();
+
+            Debug.Log($"[ConfigManager] 处理片段: {cleanSegment}");
+
+            // 处理数组索引: fieldName[0]
+            if (cleanSegment.Contains("["))
+            {
+                obj = ResolveIndexedField(obj, cleanSegment);
+            }
+            // 普通字段
+            else
+            {
+                var field = obj.GetType().GetField(cleanSegment);
+                if (field == null)
+                {
+                    Debug.LogWarning($"[ConfigManager] 字段不存在: {cleanSegment}");
+                    return null;
+                }
+                obj = field.GetValue(obj);
+            }
+        }
+
+        return obj;
+    }
+
+    /// <summary>
+    /// 分割字段路径，保留方括号内容
+    /// </summary>
+    private string[] SplitFieldPath(string fieldPath)
+    {
+        var segments = new List<string>();
+        int start = 0;
+        bool inBracket = false;
+
+        for (int i = 0; i < fieldPath.Length; i++)
+        {
+            char c = fieldPath[i];
+
+            if (c == '[')
+            {
+                inBracket = true;
+            }
+            else if (c == ']')
+            {
+                inBracket = false;
+            }
+            else if (c == '.' && !inBracket)
+            {
+                // 只在不在方括号内时分割
+                segments.Add(fieldPath.Substring(start, i - start));
+                start = i + 1;
+            }
+        }
+
+        // 添加最后一段
+        if (start < fieldPath.Length)
+        {
+            segments.Add(fieldPath.Substring(start));
+        }
+
+        return segments.ToArray();
+    }
+
+    private object ResolveIndexedField(object obj, string segment)
+    {
+        int bracketStart = segment.IndexOf('[');
+        int bracketEnd = segment.IndexOf(']');
+
+        if (bracketStart < 0 || bracketEnd < 0)
+            return null;
+
+        string fieldName = segment.Substring(0, bracketStart).Trim();
+        string indexStr = segment.Substring(bracketStart + 1, bracketEnd - bracketStart - 1).Trim();
+
+        Debug.Log($"[ConfigManager] 索引访问: {fieldName}[{indexStr}]");
+
+        // 清理索引字符串：移除引号
+        indexStr = indexStr.Trim('"').Trim('\'');
+
+        var field = obj.GetType().GetField(fieldName);
+        if (field == null)
+        {
+            Debug.LogWarning($"[ConfigManager] 字段不存在: {fieldName}");
+            return null;
+        }
+
+        var fieldValue = field.GetValue(obj);
+        if (fieldValue == null) return null;
+
+        // 数组访问
+        if (fieldValue is Array array)
+        {
+            if (int.TryParse(indexStr, out int index))
+            {
+                return array.GetValue(index);
+            }
+        }
+        // List 访问
+        else if (fieldValue is System.Collections.IList list)
+        {
+            if (int.TryParse(indexStr, out int index))
+            {
+                return list[index];
+            }
+        }
+        // 字典访问（支持字符串键）
+        else if (fieldValue is System.Collections.IDictionary dict)
+        {
+            return dict[indexStr];
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 获取原始配置对象（不经过类型转换）
+    /// </summary>
+    public ConfigDefinition GetConfigRaw(string configId)
+    {
+        if (_loadedConfigs.TryGetValue(configId, out var config))
+        {
+            return config;
+        }
+
+        Debug.LogWarning($"[ConfigManager] 配置未加载: {configId}");
+        return null;
+    }
+
+    /// <summary>
+    /// 通用字典键查找
+    /// </summary>
+    public T FindByKey<T>(string configId, string keyField, string keyValue) where T : class
+    {
+        var config = GetConfigRaw(configId);
+        if (config == null) return null;
+
+        // 查找数组字段
+        var arrayField = config.GetType().GetFields()
+            .FirstOrDefault(f => f.FieldType.IsArray);
+
+        if (arrayField == null) return null;
+
+        var array = arrayField.GetValue(config) as Array;
+        if (array == null) return null;
+
+        // 遍历匹配
+        foreach (var item in array)
+        {
+            var keyFieldInfo = item.GetType().GetField(keyField);
+            if (keyFieldInfo == null) continue;
+
+            var value = keyFieldInfo.GetValue(item)?.ToString();
+            if (value == keyValue)
+            {
+                return item as T;
+            }
+        }
+
+        Debug.LogWarning($"[ConfigManager] 字典键查找失败: {configId}[{keyField}={keyValue}]");
+        return null;
+    }
+
+    // 物理配置
+    public PhysicsConfigs.PhysicsData FindPhysicsConfig(string configId)
+        => FindByKey<PhysicsConfigs.PhysicsData>("physics_configs", "configId", configId);
+
+    // 材质配置
+    public MaterialDatabaseConfig.MaterialData FindMaterialConfig(string materialId)
+        => FindByKey<MaterialDatabaseConfig.MaterialData>("material_database", "materialId", materialId);
+
+    // 逻辑脚本
+    public LogicScriptsConfig.ScriptData FindLogicScript(string scriptId)
+        => FindByKey<LogicScriptsConfig.ScriptData>("logic_scripts", "scriptId", scriptId);
+
+    // 对象池
+    public ObjectPoolsConfig.PoolData FindObjectPool(string poolId)
+        => FindByKey<ObjectPoolsConfig.PoolData>("object_pools", "poolId", poolId);
+
+    // UI预制体
+    public UIPrefabsConfig.UIPrefab FindUIPrefab(string prefabId)
+        => FindByKey<UIPrefabsConfig.UIPrefab>("ui_prefabs", "prefabId", prefabId);
+
+    //音频
+    public AudioConfigs.AudioData FindAudioConfig(string audioId)
+        => FindByKey<AudioConfigs.AudioData>("audio_configs", "audioId", audioId);
+
+    //地形
+    public TerrainConfigs.TerrainData FindTerrainConfig(string terrainId)
+        => FindByKey<TerrainConfigs.TerrainData>("terrain_configs", "terrainId", terrainId);
 }

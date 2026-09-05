@@ -1,0 +1,3 @@
+﻿{
+  "blueprints": [{"blueprintId":"bread_tree","tag":"Tree_Bread","modelPath":"models/bread_tree.fbx","defaultHeight":1,"physicsConfigId":"tree_standard","materialId":"bread_tree_mat","logicScriptIds":["tree_growth","fruit_bearing"],"poolId":"vegetation"},{"blueprintId":"pine_tree","tag":"Tree_Pine","modelPath":"models/pine_tree.fbx","defaultHeight":1,"physicsConfigId":"tree_standard","materialId":"pine_tree_mat","logicScriptIds":["TreeGrowth","PineNeedle"],"poolId":"vegetation"}]
+}

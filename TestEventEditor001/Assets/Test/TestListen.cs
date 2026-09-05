@@ -46,16 +46,16 @@ public class TestListen
     public void TestConfigData()
     {
         Debug.Log("接收到配置事件");
-        var spawnConfig = ConfigAPI.Get<MapSpawnPointsConfig>();
-        if (spawnConfig?.spawnPoints != null)
+        var spawnConfig = ConfigAPI.Get<EntityBlueprintsConfig>();
+        if (spawnConfig?.blueprints != null)
         {
-            foreach (var spawn in spawnConfig.spawnPoints)
+            foreach (var spawn in spawnConfig.blueprints)
             {
-                Debug.Log($"生成点：{spawn.id} at ({spawn.x}, {spawn.y}, {spawn.z})");
+                Debug.Log($"蓝图ID：{spawn.blueprintId} Tag：{spawn.tag}  模型路径：{spawn.modelPath}  默认高度：{spawn.defaultHeight}  物理配置ID：{spawn.physicsConfigId}  材质id：{spawn.materialId}  逻辑脚本：{spawn.logicScriptIds}");
             }
         }
         else
-            Debug.Log($"配置为空/未取得配置,是否为空? {spawnConfig == null}, 子配置是否为空？{spawnConfig.spawnPoints == null}");
+            Debug.Log($"配置为空/未取得配置,是否为空? {spawnConfig == null}, 子配置是否为空？{spawnConfig.blueprints == null}");
         //Debug.Log($"主配置是否可以正常接收{spawnConfig.TestNumber == 1}");
     }
 
@@ -70,4 +70,22 @@ public class TestListen
     {
 
     }
+
+
+
+    //public void TestConfigData()
+    //{
+    //    Debug.Log("接收到配置事件");
+    //    var spawnConfig = ConfigAPI.Get<MapSpawnPointsConfig>();
+    //    if (spawnConfig?.spawnPoints != null)
+    //    {
+    //        foreach (var spawn in spawnConfig.spawnPoints)
+    //        {
+    //            Debug.Log($"生成点：{spawn.id} at ({spawn.x}, {spawn.y}, {spawn.z})");
+    //        }
+    //    }
+    //    else
+    //        Debug.Log($"配置为空/未取得配置,是否为空? {spawnConfig == null}, 子配置是否为空？{spawnConfig.spawnPoints == null}");
+    //    //Debug.Log($"主配置是否可以正常接收{spawnConfig.TestNumber == 1}");
+    //}
 }

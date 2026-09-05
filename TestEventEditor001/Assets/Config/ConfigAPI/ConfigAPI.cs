@@ -54,4 +54,35 @@ public static class ConfigAPI
             };
         }
     }
+
+    // 获取物理配置
+    public static PhysicsConfigs.PhysicsData GetPhysicsConfig(string configId)
+    {
+        return ConfigManager.Instance.FindPhysicsConfig(configId);
+    }
+
+    // 获取材质配置
+    public static MaterialDatabaseConfig.MaterialData GetMaterialConfig(string materialId)
+    {
+        return ConfigManager.Instance.FindMaterialConfig(materialId);
+    }
+
+    // 获取逻辑脚本
+    public static LogicScriptsConfig.ScriptData GetLogicScript(string scriptId)
+    {
+        return ConfigManager.Instance.FindLogicScript(scriptId);
+    }
+
+    // 获取对象池
+    public static ObjectPoolsConfig.PoolData GetObjectPool(string poolId)
+    {
+        return ConfigManager.Instance.FindObjectPool(poolId);
+    }
+
+    // 获取音频
+    public static AudioConfigs.AudioData GetAudioConfig(string audioId)
+    {
+        return ConfigManager.Instance.FindAudioConfig(audioId);
+    }
+
 }

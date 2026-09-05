@@ -43,46 +43,9 @@ public class TestMono : MonoBehaviour
 
     }
 
-    //测试生成配置代码
-    public void GenerateConfigs()
-    {
-        // 生成地图生成点配置
-        var spawnBuilder = new ConfigBuilder();
-        //spawnBuilder.Group("map_spawn_points");
-        spawnBuilder.Add("spawnPoints", new List<object>
-        {
-            new Dictionary<string, object>
-            {
-                { "id", "forest_01" },
-                { "x", 10 },
-                { "y", 0 },
-                { "z", 20 }
-            }
-        });
-        spawnBuilder.ExportToFileFormat("Assets/Config/ConfigData/map_spawn_points.json");
-
-        // 生成模型放置配置
-        var placementBuilder = new ConfigBuilder();
-        placementBuilder.Group("model_placements");
-        placementBuilder.Add("placements", new List<object>
-        {
-            new Dictionary<string, object>
-            {
-                { "spawnPointId", "forest_01" },
-                { "modelId", "tree_01" },
-                { "rotationY", 45 }
-            }
-        });
-        placementBuilder.ExportToFileFormat("Assets/Config/ConfigData/model_placements.json");
-        Debug.Log("生成配置成功");
-    }
-
-
-
     // Start is called before the first frame update
     void Start()
     {
-        //GenerateConfigs();
         _publish.RegistEventTest();
     }
 

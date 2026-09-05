@@ -1,0 +1,3 @@
+﻿{
+  "materials": [{"materialId":"bread_tree_mat","path":"materials/bread_tree.mat","shaderName":"Standard","mainColor":{"r":0.5,"g":0.3,"b":0.1,"a":1},"metallic":0,"smoothness":0.3},{"materialId":"pine_tree_mat","path":"materials/pine_tree.mat","shaderName":"Standard","mainColor":{"r":0.1,"g":0.4,"b":0.1,"a":1},"metallic":0,"smoothness":0.2}]
+}

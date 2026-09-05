@@ -1,0 +1,41 @@
+﻿{
+    "physicsList": [
+        {
+            "configId": "tree_standard",
+            "mass": 50,
+            "isKinematic": true,
+            "useGravity": false,
+            "interpolate": false,
+            "continuousCollision": false,
+            "colliders": [
+                {
+                    "type": "capsule",
+                    "center": { "x": 0, "y": 1, "z": 0 },
+                    "radius": 0.5,
+                    "height": 2,
+                    "direction": 1,
+                    "convex": false,
+                    "physicsMaterial": ""
+                }
+            ]
+        },
+        {
+            "configId": "rock_heavy",
+            "mass": 200,
+            "isKinematic": false,
+            "useGravity": true,
+            "interpolate": true,
+            "continuousCollision": true,
+            "colliders": [
+                {
+                    "type": "sphere",
+                    "center": { "x": 0, "y": 0, "z": 0 },
+                    "radius": 1,
+                    "direction": 0,
+                    "convex": false,
+                    "physicsMaterial": "physics/rock_physics"
+                }
+            ]
+        }
+    ]
+}
