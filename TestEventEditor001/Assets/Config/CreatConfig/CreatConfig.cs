@@ -4,68 +4,71 @@ using UnityEngine;
 
 public class CreatConfig : MonoBehaviour
 {
-    public void CreatConfigsData()
+    // 1. 音频配置
+    private static void GenerateAudioConfig()
     {
-        #region 蓝图总配置
-        var builder_map = new ConfigBuilder();
-
-        builder_map.Add("blueprints", new List<object>
+        var builder = new ConfigBuilder();
+        builder.Add("audioList", new List<object>
         {
             new Dictionary<string, object>
             {
-                { "blueprintId", "bread_tree" },
-                { "tag", "Tree_Bread" },
-                { "modelPath", "models/bread_tree.fbx" },
-                { "defaultHeight", 1.0f },
-            
-                // 方式1：物理配置ID引用
-                { "physicsConfigId", "tree_standard" },
-
-                //// 方式2：@ref 引用材质路径（通过索引）
-                //{ "materialPath", "@ref:material_database.materials[0].path" },
-
-                {"materialId", "bread_tree_mat" },
-            
-                //// 方式3：@ref 引用完整材质数据
-                //{ "materialData", "@ref:material_database.materials[0]" },
-
-
-
-                { "logicScriptIds", new List<object> { "tree_growth", "fruit_bearing" } },
-                { "poolId", "vegetation" }
-            },
-            new Dictionary<string, object>
-            {
-                { "blueprintId", "pine_tree" },
-                { "tag", "Tree_Pine" },
-                { "modelPath", "models/pine_tree.fbx" },
-                { "defaultHeight", 1.0f },
-
-                { "physicsConfigId", "tree_standard" },
-                //{ "materialPath", "@ref:material_database.materials[1].path" },
-                //{ "materialData", "@ref:material_database.materials[1]" },
-
-                {"materialId", "pine_tree_mat"  },
-
-                { "logicScriptIds", new List<object> { "TreeGrowth", "PineNeedle" } },
-                { "poolId", "vegetation" }
+                { "audioId", "pawn_move" },
+                { "clipPath", "Audio/Test_Audio_001" },  // 需要你实际放入音频文件
+                { "volume", 0.5f },
+                { "pitch", 1.0f },
+                { "loop", false },
+                { "spatialBlend", 1.0f },
+                { "minDistance", 1.0f },
+                { "maxDistance", 20.0f },
+                { "playMode", "manual" }
             }
         });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/audio_configs.json");
+    }
 
-        builder_map.ExportToFileFormat("Assets/Config/ConfigData/entity_blueprints.json");
-        Debug.Log("蓝图配置已生成");
-        #endregion
-
-        #region 物理配置
-        var builder_physics = new ConfigBuilder();
-
-        builder_physics.Add("physicsList", new List<object>
+    // 2. 材质配置
+    private static void GenerateMaterialConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("materials", new List<object>
         {
             new Dictionary<string, object>
             {
-                { "configId", "tree_standard" },
-                { "mass", 50.0f },
-                { "isKinematic", true },
+                { "materialId", "pawn_black" },
+                { "path", "Materials/pawn_black" },  // 需要创建材质
+                { "shaderName", "Universal Render Pipeline/Lit" },
+                { "mainColor", new Dictionary<string, object>
+                    {
+                        { "r", 0.1f },
+                        { "g", 0.1f },
+                        { "b", 0.1f },
+                        { "a", 1.0f }
+                    }
+                },
+                { "metallic", 0.0f },
+                { "smoothness", 0.3f },
+                { "castShadows", true },
+                { "receiveShadows", true },
+                { "renderLayer", "Default" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/material_database.json");
+    }
+
+    // 3. 物理配置
+    private static void GeneratePhysicsConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("physicsList", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "configId", "pawn_physics" },
+                { "mass", 1.0f },
+                { "isKinematic", false },
+                { "useGravity", true },
+                { "interpolate", false },
+                { "continuousCollision", false },
                 { "colliders", new List<object>
                     {
                         new Dictionary<string, object>
@@ -74,125 +77,257 @@ public class CreatConfig : MonoBehaviour
                             { "center", new Dictionary<string, object>
                                 {
                                     { "x", 0.0f },
-                                    { "y", 1.0f },
+                                    { "y", 0.5f },
                                     { "z", 0.0f }
                                 }
                             },
-                            { "height", 2.0f },
-                            { "radius", 0.5f },
+                            { "radius", 0.3f },
+                            { "height", 0.8f },
                             { "size", new Dictionary<string, object>
                                 {
                                     { "x", 0.0f },
                                     { "y", 0.0f },
                                     { "z", 0.0f }
                                 }
-                            }
+                            },
+                            { "direction", 1 },
+                            { "convex", false },
+                            { "physicsMaterial", "" }
                         }
                     }
                 }
             }
         });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/physics_configs.json");
+    }
 
-        builder_physics.ExportToFileFormat("Assets/Config/ConfigData/physics_configs.json");
-        Debug.Log("物理配置已生成");
-        #endregion
-
-        #region 材质配置
-        var builder_mate = new ConfigBuilder();
-
-        builder_mate.Add("materials", new List<object>
+    // 4. 逻辑脚本配置
+    private static void GenerateLogicScriptsConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("scripts", new List<object>
         {
             new Dictionary<string, object>
             {
-                { "materialId", "bread_tree_mat" },
-                { "path", "materials/bread_tree.mat" },
-                { "shaderName", "Standard" },
-                { "mainColor", new Dictionary<string, object>
-                    {
-                        { "r", 0.5f },
-                        { "g", 0.3f },
-                        { "b", 0.1f },
-                        { "a", 1.0f }
-                    }
-                },
-                { "metallic", 0.0f },
-                { "smoothness", 0.3f }
+                { "scriptId", "pawn_attack_range" },
+                { "scriptName", "PawnAttackRange" },
+                { "executionOrder", 0 },
+                { "enabled", true }
             },
             new Dictionary<string, object>
             {
-                { "materialId", "pine_tree_mat" },
-                { "path", "materials/pine_tree.mat" },
-                { "shaderName", "Standard" },
-                { "mainColor", new Dictionary<string, object>
-                    {
-                        { "r", 0.1f },
-                        { "g", 0.4f },
-                        { "b", 0.1f },
-                        { "a", 1.0f }
-                    }
-                },
-                { "metallic", 0.0f },
-                { "smoothness", 0.2f }
+                { "scriptId", "follow_target" },
+                { "scriptName", "FollowTarget" },
+                { "executionOrder", 0 },
+                { "enabled", true }
             }
         });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/logic_scripts.json");
+    }
 
-        builder_mate.ExportToFileFormat("Assets/Config/ConfigData/material_database.json");
-        Debug.Log("材质配置已生成");
-        #endregion
-
-        #region 逻辑配置
-        var builder_logic = new ConfigBuilder();
-
-        builder_logic.Add("scripts", new List<object>
+    // 5. 对象池配置
+    private static void GenerateObjectPoolsConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("pools", new List<object>
         {
             new Dictionary<string, object>
             {
-                {"scriptId", "tree_growth" },
-                {"scriptName", "TreeGrowth" },
-                {"parameters", new List<object> { "speed=1.0", "maxHeight=10" } }
-            },
-            new Dictionary<string, object>
-            {
-                {"scriptId", "fruit_bearing" },
-                {"scriptName", "FruitBearing" },
-                {"parameters", new List<object>{ "fruitType=bread" } }
-            },
-            new Dictionary<string, object>
-            {
-                {"scriptId", "orbit_earth" },
-                {"scriptName", "OrbitAroundEarth" },
-                {"parameters", new List<object>{ "radius=384400", "speed=0.5" } }
-            }
-        });
-
-        builder_logic.ExportToFileFormat("Assets/Config/ConfigData/logic_scripts.json");
-        Debug.Log("逻辑配置已生成");
-        #endregion
-
-        #region 对象池配置
-        var builder_pools = new ConfigBuilder();
-
-        builder_pools.Add("pools", new List<object>
-        {
-            new Dictionary<string, object>
-            {
-                {"poolId", "vegetation" },
-                {"preloadCount", 50 },
-                {"maxSize", 200 },
+                { "poolId", "pawn_pool" },
+                { "preloadCount", 5 },
+                { "maxSize", 20 },
                 { "autoExpand", true }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/object_pools.json");
+    }
+
+    // 6. 实体蓝图
+    private static void GenerateEntityBlueprints()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("blueprints", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "blueprintId", "pawn" },
+                { "tag", "Pawn" },
+                { "modelPath", "TestGameObject/Pawn" },  // 你的棋子预制体
+                { "defaultHeight", 0.5f },
+                { "physicsConfigId", "pawn_physics" },
+                { "materialId", "pawn_black" },
+                { "audioIds", new List<object> { "pawn_move" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range" } },
+                { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
             {
-                {"poolId", "celestial" },
-                {"preloadCount", 10 },
-                {"maxSize", 20 },
-                { "autoExpand", false }
+                { "blueprintId", "floor_tile" },
+                { "tag", "Floor" },
+                { "modelPath", "Map/floor_10x10" },  // 地板预制体
+                { "defaultHeight", 0.0f },
+                { "physicsConfigId", "" },
+                { "materialId", "" },
+                { "audioIds", new List<object>() },
+                { "logicScriptIds", new List<object>() },
+                { "poolId", "pawn_pool" }
             }
         });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/entity_blueprints.json");
+    }
 
-        builder_pools.ExportToFileFormat("Assets/Config/ConfigData/object_pools.json");
-        Debug.Log("对象池配置已生成");
-        #endregion
+    // 7. UI蓝图
+    private static void GenerateUIBlueprints()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("blueprints", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "blueprintId", "pawn_info_ui" },
+                { "tag", "UI_Test" },
+                { "defaultHeight", 0.0f },
+                { "logicScriptIds", new List<object> { "follow_target" } },
+                { "audioIds",  new List<object> { "pawn_move" } },
+                { "poolId", "" },
+                { "prefabPath", "TestImage/TEST_UI_001" },  // 你的图片
+                { "canvasName", "Canvas_Main" },
+                { "sortingOrder", 100 },
+                { "uiLayer", "normal" },
+                { "raycastTarget", false },
+                { "alwaysOnTop", false }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/ui_blueprints.json");
+    }
+
+    // 8. 画布注册表
+    private static void GenerateCanvasRegistry()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("canvases", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "canvasId", "Canvas_Main" },
+                { "canvasTag", "Canvas_Main" },
+                { "scenePath", "Canvas_Main" },
+                { "cameraId", "Camera_Main" },
+                { "sortingOrder", 0 },
+                { "renderMode", "ScreenSpace" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/canvas_registry.json");
+    }
+
+    // 9. 摄像机注册表
+    private static void GenerateCameraRegistry()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("cameras", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "cameraId", "Camera_Main" },
+                { "cameraTag", "Camera_Main" },
+                { "scenePath", "Camera_Main" },
+                { "cameraType", "main" },
+                { "priority", 0 }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/camera_registry.json");
+    }
+
+    // 10. 地图总览
+    private static void GenerateMapOverview()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("mapId", "test_map");
+        builder.Add("mapName", "测试地图");
+        builder.Add("mapSize", new Dictionary<string, object> { { "x", 100 }, { "y", 100 } });
+        builder.Add("terrainPath", "Map/floor_10x10");
+        builder.Add("zones", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "zoneId", "zone_01" },
+                { "zoneCenter", new Dictionary<string, object> { { "x", 0 }, { "y", 0 } } },
+                { "zoneSize", new Dictionary<string, object> { { "x", 100 }, { "y", 100 } } },
+                { "zoneType", "test" },
+                { "terrainConfigId", "test_terrain" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/map_overview.json");
+    }
+
+    // 11. 地形配置
+    private static void GenerateTerrainConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("terrains", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "terrainId", "test_terrain" },
+                { "terrainType", "flat" },
+                { "height", 0.0f },
+                { "noiseScale", 0.0f },
+                { "noiseAmplitude", 0.0f },
+                { "groundTexture", "" },
+                { "heightMapPath", "" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/terrain_configs.json");
+    }
+
+    // 12. 地图放置
+    private static void GenerateMapPlacements()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("placements", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                { "placementId", "pawn" },
+                { "zoneId", "zone_01" },
+                { "position", new Dictionary<string, object> { { "x", 1f }, { "y", 0.5f }, { "z", 1f } } },
+                { "rotation", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                { "scale", new Dictionary<string, object> { { "x", 1 }, { "y", 1 }, { "z", 1 } } },
+                { "blueprintId", "pawn" },
+                { "tag", "Pawn" },
+                { "spawnCondition", "always" }
+            },
+            new Dictionary<string, object>
+            {
+                { "placementId", "floor_tile" },
+                { "zoneId", "zone_01" },
+                { "position", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                { "rotation", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                { "scale", new Dictionary<string, object> { { "x", 1 }, { "y", 1 }, { "z", 1 } } },
+                { "blueprintId", "floor_tile" },
+                { "tag", "Floor" },
+                { "spawnCondition", "always" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/map_placements.json");
+
+    }
+
+    //逻辑状态
+    private static void GenerateLogicState()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("entries", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                {"containerId", "logic_state_pawn_attack_range" },
+                {"scriptName", "PawnAttackRange" },
+                {"containerType", "PawnAttackRangeStateContainer" },
+                {"savePath", "Assets/Config/ConfigData/logic_state_pawn_attack_range.json" }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/logic_state_registry.json");
     }
 
 
@@ -205,7 +340,20 @@ public class CreatConfig : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //CreatConfigsData();
+        GenerateAudioConfig();
+        GenerateMaterialConfig();
+        GeneratePhysicsConfig();
+        GenerateLogicScriptsConfig();
+        GenerateObjectPoolsConfig();
+        GenerateEntityBlueprints();
+        GenerateUIBlueprints();
+        GenerateCanvasRegistry();
+        GenerateCameraRegistry();
+        GenerateMapOverview();
+        GenerateTerrainConfig();
+        GenerateMapPlacements();
+        GenerateLogicState();
+        Debug.Log("所有测试配置已生成！");
     }
 
     // Update is called once per frame

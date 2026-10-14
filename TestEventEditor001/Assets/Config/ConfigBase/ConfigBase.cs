@@ -10,7 +10,7 @@ public class ConfigAttribute : Attribute
     //配置ID（唯一标识）
     public string ConfigId { get; }
 
-    //JSON文件路径（相对于 Assets/Config/Data）
+    //JSON文件路径（相对于 Assets/Configs/ConfigData）
     public string JsonPath {  get; }
 
     //优先级（越小越先加载）

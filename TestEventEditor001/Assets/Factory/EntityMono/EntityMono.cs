@@ -8,4 +8,5 @@ public class EntityMono : MonoBehaviour
     public string UUID => Entity?.UUID;
     public string EntityId => Entity?.EntityId;
     public string Tag => Entity?.Tag;
+
 }

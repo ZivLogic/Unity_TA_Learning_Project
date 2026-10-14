@@ -1,0 +1,5 @@
+﻿{
+  "mapId": "test_map",
+  "cacheVersion": "1.0.0",
+  "entries": [{"uuid":"Pawn_0006","tag":"Pawn_01","blueprintId":"pawn","position":{"x":0,"y":0.5,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},{"uuid":"Floor_0001","tag":"Floor_Main","blueprintId":"floor_tile","position":{"x":0,"y":0,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}}]
+}

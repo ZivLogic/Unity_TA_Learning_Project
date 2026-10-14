@@ -131,10 +131,21 @@ public class RenderFactory : IFactoryStep
     /// </summary>
     private void ApplyMaterialProperties(Material material, MaterialDatabaseConfig.MaterialData materialConfig)
     {
-        // 设置主颜色
+        // 设置主颜色（兼容两种Shader）
         if (materialConfig.mainColor != default)
         {
-            material.color = materialConfig.mainColor;
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor("_BaseColor", materialConfig.mainColor);
+            }
+            else if (material.HasProperty("_Color"))
+            {
+                material.SetColor("_Color", materialConfig.mainColor);
+            }
+            else
+            {
+                material.color = materialConfig.mainColor;
+            }
         }
 
         // 设置金属度
@@ -143,8 +154,12 @@ public class RenderFactory : IFactoryStep
             material.SetFloat("_Metallic", materialConfig.metallic);
         }
 
-        // 设置光滑度
-        if (material.HasProperty("_Glossiness"))
+        // 设置光滑度（兼容两种Shader）
+        if (material.HasProperty("_Smoothness"))
+        {
+            material.SetFloat("_Smoothness", materialConfig.smoothness);
+        }
+        else if (material.HasProperty("_Glossiness"))
         {
             material.SetFloat("_Glossiness", materialConfig.smoothness);
         }

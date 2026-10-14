@@ -11,6 +11,14 @@ public abstract class EntityBlueprintBase
     public string tag;
     public float defaultHeight = 1.0f;
     public string[] logicScriptIds;
+
+    //三体配置
+    public string physicsConfigId;
+    public string materialId;
+    public string[] audioIds;  // 音频ID
+
+    //对象池ID
+    public string poolId;
 }
 
 // 实体蓝图
@@ -33,9 +41,5 @@ public class EntityBlueprintsConfig : ConfigDefinition
     public class EntityBlueprint : EntityBlueprintBase
     {
         public string modelPath;
-        public string physicsConfigId;
-        public string materialId;
-        public string poolId;
-        public string[] audioIds;  // 音频ID（可选）
     }
 }

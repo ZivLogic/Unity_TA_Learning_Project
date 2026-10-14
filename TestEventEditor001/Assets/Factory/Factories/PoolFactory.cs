@@ -231,6 +231,14 @@ public class ObjectPool
     {
         if (entity == null) return;
 
+        //防止重复入池
+        if (entity.IsPooled)
+        {
+            Debug.LogWarning($"[ObjectPool]实体已经在池中，重复入池{entity.UUID}");
+            return;
+        }
+
+
         // 检查容量
         if (_entities.Count >= _maxSize && !_autoExpand)
         {

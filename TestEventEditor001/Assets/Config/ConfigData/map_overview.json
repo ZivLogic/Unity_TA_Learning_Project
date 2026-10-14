@@ -1,0 +1,7 @@
+﻿{
+  "mapId": "test_map",
+  "mapName": "测试地图",
+  "mapSize": {"x":100,"y":100},
+  "terrainPath": "Map/floor_10x10",
+  "zones": [{"zoneId":"zone_01","zoneCenter":{"x":0,"y":0},"zoneSize":{"x":100,"y":100},"zoneType":"test","terrainConfigId":"test_terrain"}]
+}

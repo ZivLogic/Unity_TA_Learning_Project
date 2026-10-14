@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 [Config(
@@ -19,5 +20,9 @@ public class TerrainConfigs : ConfigDefinition
         public float noiseAmplitude;     // 噪声幅度
         public string groundTexture;     // 地面贴图
         public string heightMapPath;     // 高度图路径
+        public string diffuseTexture;    // 漫反射贴图
+        public string normalTexture;     // 法线贴图路径
+        public Vector2 tileSize = new Vector2(10, 10);  // 纹理平铺
+        public Color groundColor = Color.gray;  // 备用颜色
     }
 }

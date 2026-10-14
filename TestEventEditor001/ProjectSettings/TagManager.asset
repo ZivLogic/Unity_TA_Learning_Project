@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Camera_Main
+  - Canvas_Main
+  - Pawn
+  - Floor
+  - UI_Test
   layers:
   - Default
   - TransparentFX

@@ -1,3 +1,3 @@
 ﻿{
-  "blueprints": [{"blueprintId":"bread_tree","tag":"Tree_Bread","modelPath":"models/bread_tree.fbx","defaultHeight":1,"physicsConfigId":"tree_standard","materialId":"bread_tree_mat","logicScriptIds":["tree_growth","fruit_bearing"],"poolId":"vegetation"},{"blueprintId":"pine_tree","tag":"Tree_Pine","modelPath":"models/pine_tree.fbx","defaultHeight":1,"physicsConfigId":"tree_standard","materialId":"pine_tree_mat","logicScriptIds":["TreeGrowth","PineNeedle"],"poolId":"vegetation"}]
+  "blueprints": [{"blueprintId":"pawn","tag":"Pawn","modelPath":"TestGameObject/Pawn","defaultHeight":0.5,"physicsConfigId":"pawn_physics","materialId":"pawn_black","audioIds":["pawn_move"],"logicScriptIds":["pawn_attack_range"],"poolId":"pawn_pool"},{"blueprintId":"floor_tile","tag":"Floor","modelPath":"Map/floor_10x10","defaultHeight":0,"physicsConfigId":"","materialId":"","audioIds":[],"logicScriptIds":[],"poolId":"pawn_pool"}]
 }

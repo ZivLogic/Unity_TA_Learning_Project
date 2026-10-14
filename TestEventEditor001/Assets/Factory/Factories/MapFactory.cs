@@ -11,27 +11,17 @@ using UnityEngine;
 /// 1. 地图总览配置（map_overview）- 地图基本信息
 /// 2. 地形配置（terrain_configs）- 地形数据
 /// 3. 物体放置配置（map_placements）- 实体摆放位置
-/// 4. 地图缓存配置（map_cache）- 缓存数据（可选）
 /// 
 /// 工作流程：
-/// 第一次加载（冷启动）：
-///   读配置 → 创建实体 → 摆放 → 生成缓存
-/// 
-/// 第二次加载（热启动）：
-///   读缓存 → 从对象池取实体 → 快速摆放
-/// 
-/// 缓存失效：
-///   回退到按需加载 → 重新生成缓存
+/// 读配置 → 创建实体 → 摆放
+/// （缓存功能留待后续地图编辑器完成后再实现）
 /// </summary>
 public class MapFactory : IFactoryStep
 {
-    #region 缓存数据
+    #region 数据
 
     // 当前地图ID
     private string _currentMapId;
-
-    // 地图缓存
-    private MapCacheConfig _mapCache;
 
     // 已摆放的实体列表
     private readonly List<Entity> _placedEntities = new();
@@ -57,7 +47,7 @@ public class MapFactory : IFactoryStep
     #region 地图加载
 
     /// <summary>
-    /// 加载地图（带缓存机制）
+    /// 加载地图（纯按需加载）
     /// </summary>
     public void LoadMap(string mapId)
     {
@@ -65,79 +55,13 @@ public class MapFactory : IFactoryStep
 
         _currentMapId = mapId;
 
-        // 1. 尝试从缓存加载
-        if (TryLoadFromCache(mapId))
-        {
-            Debug.Log($"[MapFactory] ✅ 从缓存加载地图成功: {mapId}");
-            return;
-        }
+        // 清空之前的地图
+        ClearMap();
 
-        // 2. 缓存失败，按需加载
-        Debug.Log($"[MapFactory] 缓存失效，按需加载地图: {mapId}");
+        // 按需加载
         LoadFromConfig(mapId);
 
-        // 3. 生成新缓存
-        GenerateCache(mapId);
-
         Debug.Log($"[MapFactory] ✅ 地图加载完成: {mapId}");
-    }
-
-    /// <summary>
-    /// 尝试从缓存加载
-    /// </summary>
-    private bool TryLoadFromCache(string mapId)
-    {
-        // 1. 读取缓存配置
-        _mapCache = ConfigAPI.Get<MapCacheConfig>();
-
-        if (_mapCache?.entries == null || _mapCache.entries.Length == 0)
-        {
-            Debug.Log("[MapFactory] 没有缓存数据");
-            return false;
-        }
-
-        // 2. 验证缓存是否有效
-        if (!ValidateCache(mapId))
-        {
-            Debug.LogWarning("[MapFactory] 缓存验证失败");
-            return false;
-        }
-
-        // 3. 从缓存快速加载
-        int loadedCount = 0;
-
-        foreach (var entry in _mapCache.entries)
-        {
-            // 从对象池获取实体
-            var entity = MasterFactory.Instance.PoolFactory.GetFromPool(entry.blueprintId);
-
-            if (entity == null)
-            {
-                // 对象池没有，创建新实体
-                var blueprint = MasterFactory.Instance.GetBlueprint(entry.blueprintId);
-                if (blueprint == null) continue;
-
-                entity = MasterFactory.Instance.CreateEntity(blueprint);
-            }
-
-            if (entity == null) continue;
-
-            // 恢复位置
-            entity.Root.transform.position = entry.position;
-            entity.Root.transform.rotation = Quaternion.Euler(entry.rotation);
-            entity.Root.transform.localScale = entry.scale;
-
-            // 恢复Tag
-            entity.Root.tag = entry.tag;
-            entity.Tag = entry.tag;
-
-            // 记录已摆放的实体
-            _placedEntities.Add(entity);
-            loadedCount++;
-        }
-
-        Debug.Log($"[MapFactory] 从缓存加载 {loadedCount} 个实体");
-        return loadedCount > 0;
     }
 
     /// <summary>
@@ -185,7 +109,7 @@ public class MapFactory : IFactoryStep
             }
         }
 
-        Debug.Log($"[MapFactory] 按需加载 {placedCount} 个实体");
+        Debug.Log($"[MapFactory] 按需加载完成，共摆放 {placedCount} 个实体");
     }
 
     /// <summary>
@@ -193,22 +117,16 @@ public class MapFactory : IFactoryStep
     /// </summary>
     private Entity PlaceEntity(MapPlacementsConfig.MapPlacement placement)
     {
-        // 1. 从对象池获取实体
-        var entity = MasterFactory.Instance.PoolFactory.GetFromPool(placement.blueprintId);
-
-        // 2. 如果对象池没有，创建新实体
-        if (entity == null)
+        // 1. 获取蓝图
+        var blueprint = MasterFactory.Instance.GetBlueprint(placement.blueprintId);
+        if (blueprint == null)
         {
-            var blueprint = MasterFactory.Instance.GetBlueprint(placement.blueprintId);
-            if (blueprint == null)
-            {
-                Debug.LogError($"[MapFactory] 找不到蓝图: {placement.blueprintId}");
-                return null;
-            }
-
-            entity = MasterFactory.Instance.CreateEntity(blueprint);
+            Debug.LogError($"[MapFactory] 找不到蓝图: {placement.blueprintId}");
+            return null;
         }
 
+        // 2. 创建实体（直接创建，不走对象池）
+        var entity = MasterFactory.Instance.CreateEntity(blueprint);
         if (entity == null) return null;
 
         // 3. 设置位置
@@ -216,12 +134,15 @@ public class MapFactory : IFactoryStep
         entity.Root.transform.rotation = Quaternion.Euler(placement.rotation);
         entity.Root.transform.localScale = placement.scale;
 
-        // 4. 覆盖Tag（如果需要）
+        // 4. 覆盖Tag（如果需要）(恢复成和地形放置配置一样)
         if (!string.IsNullOrEmpty(placement.tag))
         {
             entity.Root.tag = placement.tag;
             entity.Tag = placement.tag;
         }
+
+        // 5. 更新实体ID（使用 placementId）
+        entity.EntityId = placement.placementId;
 
         Debug.Log($"[MapFactory] 放置实体: {placement.placementId} → ({placement.position.x}, {placement.position.y}, {placement.position.z})");
 
@@ -279,85 +200,6 @@ public class MapFactory : IFactoryStep
 
     #endregion
 
-    #region 缓存管理
-
-    /// <summary>
-    /// 生成缓存
-    /// </summary>
-    private void GenerateCache(string mapId)
-    {
-        var entries = new List<MapCacheConfig.MapCacheEntry>();
-
-        // 遍历所有已摆放的实体
-        foreach (var entity in _placedEntities)
-        {
-            if (entity?.Root == null) continue;
-
-            var entry = new MapCacheConfig.MapCacheEntry
-            {
-                uuid = entity.UUID,
-                tag = entity.Tag,
-                blueprintId = entity.Blueprint.blueprintId,
-                position = entity.Root.transform.position,
-                rotation = entity.Root.transform.rotation.eulerAngles,
-                scale = entity.Root.transform.localScale
-            };
-
-            entries.Add(entry);
-        }
-
-        // 保存到配置
-        _mapCache = new MapCacheConfig
-        {
-            mapId = mapId,
-            cacheVersion = "1.0.0",
-            entries = entries.ToArray()
-        };
-
-        // 写入JSON
-        var builder = new ConfigBuilder();
-        builder.Add("mapId", mapId);
-        builder.Add("cacheVersion", "1.0.0");
-        builder.Add("entries", entries);
-        builder.ExportToFileFormat("Assets/Configs/Data/map_cache.json");
-
-        Debug.Log($"[MapFactory] 缓存生成完成: {entries.Count} 个实体");
-    }
-
-    /// <summary>
-    /// 验证缓存是否有效
-    /// </summary>
-    private bool ValidateCache(string mapId)
-    {
-        // 1. 检查地图ID是否匹配
-        if (_mapCache.mapId != mapId)
-        {
-            Debug.LogWarning($"[MapFactory] 缓存地图ID不匹配: {_mapCache.mapId} vs {mapId}");
-            return false;
-        }
-
-        // 2. 检查缓存是否为空
-        if (_mapCache.entries == null || _mapCache.entries.Length == 0)
-        {
-            return false;
-        }
-
-        // 3. 检查实体数量是否与地图配置一致
-        var placements = ConfigAPI.Get<MapPlacementsConfig>();
-        if (placements?.placements != null)
-        {
-            if (_mapCache.entries.Length != placements.placements.Length)
-            {
-                Debug.LogWarning($"[MapFactory] 缓存数量不匹配: {_mapCache.entries.Length} vs {placements.placements.Length}");
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    #endregion
-
     #region 清理
 
     /// <summary>
@@ -367,12 +209,13 @@ public class MapFactory : IFactoryStep
     {
         Debug.Log("[MapFactory] 清空地图...");
 
-        // 将所有实体放回对象池
+        // 销毁所有已摆放的实体
         foreach (var entity in _placedEntities)
         {
-            if (entity == null) continue;
-
-            MasterFactory.Instance.PoolFactory.ReturnToPool(entity);
+            if (entity?.Root != null)
+            {
+                GameObject.Destroy(entity.Root);
+            }
         }
 
         _placedEntities.Clear();

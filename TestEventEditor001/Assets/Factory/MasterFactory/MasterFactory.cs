@@ -1,13 +1,13 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ×Ü¹¤³§£ºÍ³Ò»µ÷¶ÈËùÓĞ×Ó¹¤³§£¬¸ºÔğÊµÌå´´½¨¡¢UUID·ÖÅä¡¢¿ìËÙÆ¥Åä¡¢Ïú»Ù¹ÜÀí
+/// æ€»å·¥å‚ï¼šç»Ÿä¸€è°ƒåº¦æ‰€æœ‰å­å·¥å‚ï¼Œè´Ÿè´£å®ä½“åˆ›å»ºã€UUIDåˆ†é…ã€å¿«é€ŸåŒ¹é…ã€é”€æ¯ç®¡ç†
 /// </summary>
 public class MasterFactory : MonoBehaviour
 {
-    #region µ¥Àı
+    #region å•ä¾‹
 
     private static MasterFactory _instance;
     public static MasterFactory Instance
@@ -29,11 +29,11 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region ¹¤³§ÁĞ±í
+    #region å·¥å‚åˆ—è¡¨
 
     private readonly List<IFactoryStep> _factorySteps = new();
 
-    // ¸÷¸ö×Ó¹¤³§µÄÒıÓÃ£¨·½±ãÍâ²¿·ÃÎÊ£©
+    // å„ä¸ªå­å·¥å‚çš„å¼•ç”¨ï¼ˆæ–¹ä¾¿å¤–éƒ¨è®¿é—®ï¼‰
     public EntityFactory EntityFactory { get; private set; }
     public PhysicsFactory PhysicsFactory { get; private set; }
     public LogicFactory LogicFactory { get; private set; }
@@ -45,23 +45,23 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region ¿ìËÙÆ¥Åä»º´æ
+    #region å¿«é€ŸåŒ¹é…ç¼“å­˜
 
-    // Tag ¡ú ÊµÌåÁĞ±í£¨¿ìËÙ²éÕÒ£©
+    // Tag â†’ å®ä½“åˆ—è¡¨ï¼ˆå¿«é€ŸæŸ¥æ‰¾ï¼‰
     private readonly Dictionary<string, List<Entity>> _entitiesByTag = new();
 
-    // UUID ¡ú ÊµÌå£¨¾«È·²éÕÒ£©
+    // UUID â†’ å®ä½“ï¼ˆç²¾ç¡®æŸ¥æ‰¾ï¼‰
     private readonly Dictionary<string, Entity> _entitiesByUUID = new();
 
-    // À¶Í¼ID ¡ú ÊµÌåÁĞ±í£¨°´À¶Í¼ÀàĞÍÍ³¼Æ£©
+    // è“å›¾ID â†’ å®ä½“åˆ—è¡¨ï¼ˆæŒ‰è“å›¾ç±»å‹ç»Ÿè®¡ï¼‰
     private readonly Dictionary<string, List<Entity>> _entitiesByBlueprint = new();
 
-    // ÊµÌåÀàĞÍ ¡ú ÊµÌåÁĞ±í£¨Âß¼­Ìå¡¢ÊÓ¾õÌå¡¢ÒôÆµÌå£©
+    // å®ä½“ç±»å‹ â†’ å®ä½“åˆ—è¡¨ï¼ˆé€»è¾‘ä½“ã€è§†è§‰ä½“ã€éŸ³é¢‘ä½“ï¼‰
     private readonly Dictionary<EntityType, List<Entity>> _entitiesByType = new();
 
     #endregion
 
-    #region Í³¼ÆĞÅÏ¢
+    #region ç»Ÿè®¡ä¿¡æ¯
 
     public int TotalEntityCount { get; private set; }
     public int TotalPooledCount { get; private set; }
@@ -69,7 +69,7 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region ³õÊ¼»¯
+    #region åˆå§‹åŒ–
 
     private void Awake()
     {
@@ -82,18 +82,22 @@ public class MasterFactory : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // ×¢²áËùÓĞ¹¤³§
+        // æ³¨å†Œæ‰€æœ‰å·¥å‚
         RegisterFactories();
 
-        Debug.Log("[MasterFactory] ×Ü¹¤³§³õÊ¼»¯Íê³É");
+        //UIåˆå§‹åŒ–
+        UIFactory.Initialize();
+        //UIåˆå§‹åŒ–
+
+        Debug.Log("[MasterFactory] æ€»å·¥å‚åˆå§‹åŒ–å®Œæˆ");
     }
 
     /// <summary>
-    /// ×¢²áËùÓĞ×Ó¹¤³§
+    /// æ³¨å†Œæ‰€æœ‰å­å·¥å‚
     /// </summary>
     private void RegisterFactories()
     {
-        // ´´½¨¹¤³§ÊµÀı
+        // åˆ›å»ºå·¥å‚å®ä¾‹
         EntityFactory = new EntityFactory();
         PhysicsFactory = new PhysicsFactory();
         LogicFactory = new LogicFactory();
@@ -103,7 +107,7 @@ public class MasterFactory : MonoBehaviour
         MapFactory = new MapFactory();
         AudioFactory = new AudioFactory();
 
-        // °´Ë³ĞòÌí¼Óµ½Á÷Ë®Ïß
+        // æŒ‰é¡ºåºæ·»åŠ åˆ°æµæ°´çº¿
         _factorySteps.Clear();
         _factorySteps.Add(EntityFactory);
         _factorySteps.Add(PhysicsFactory);
@@ -114,84 +118,100 @@ public class MasterFactory : MonoBehaviour
         _factorySteps.Add(UIFactory);
         _factorySteps.Add(MapFactory);
 
-        Debug.Log($"[MasterFactory] ×¢²á {_factorySteps.Count} ¸ö¹¤³§");
+        Debug.Log($"[MasterFactory] æ³¨å†Œ {_factorySteps.Count} ä¸ªå·¥å‚");
     }
 
     #endregion
 
-    #region ÊµÌå´´½¨
+    #region å®ä½“åˆ›å»º
 
     /// <summary>
-    /// ´´½¨ÊµÌå£¨½ÓÊÜ»ùÀàÀ¶Í¼£©
+    /// åˆ›å»ºå®ä½“ï¼ˆæ¥å—åŸºç±»è“å›¾ï¼‰
     /// </summary>
     public Entity CreateEntity(EntityBlueprintBase blueprint)
     {
         if (blueprint == null) return null;
 
-        // 1. ´´½¨ÊµÌå¹Ç¼Ü
+        // 1. åˆ›å»ºå®ä½“éª¨æ¶
         var entity = CreateEntitySkeleton(blueprint);
 
-        // 2. Á÷Ë®Ïß´¦Àí
+        // 2. æµæ°´çº¿å¤„ç†
         foreach (var factory in _factorySteps)
         {
             factory.Process(entity);
         }
 
-        // 3. ×¢²á
+        // 3. æ³¨å†Œ
         RegisterEntity(entity);
 
-        // 4. ¸üĞÂÍ³¼Æ
+        // 4. æ›´æ–°ç»Ÿè®¡
         TotalEntityCount++;
 
         return entity;
     }
 
+    // UUIDè®¡æ•°å™¨
+    private readonly Dictionary<string, int> _entityCounters = new();
+
     /// <summary>
-    /// ´´½¨ÊµÌå¹Ç¼Ü
+    /// ç”Ÿæˆè§„å¾‹æ€§UUID
+    /// </summary>
+    private string GenerateUUID(string tag)
+    {
+        if (!_entityCounters.ContainsKey(tag))
+        {
+            _entityCounters[tag] = 0;
+        }
+
+        _entityCounters[tag]++;
+        return $"{tag}_{_entityCounters[tag]:D4}";
+    }
+
+    /// <summary>
+    /// åˆ›å»ºå®ä½“éª¨æ¶
     /// </summary>
     private Entity CreateEntitySkeleton(EntityBlueprintBase blueprint)
     {
-        // ·ÖÅä UUID
-        string uuid = Guid.NewGuid().ToString();
+        // ç”ŸæˆUUID
+        string uuid = GenerateUUID(blueprint.tag);
 
-        // ´´½¨ÊµÌå¶ÔÏó
         var entity = new Entity
         {
             EntityId = blueprint.blueprintId,
             UUID = uuid,
-            Tag = blueprint.tag,
+            Tag = blueprint.tag,           // âœ… ç›´æ¥ç”¨è“å›¾tagï¼Œä¸åŠ åç¼€
             Blueprint = blueprint,
             EntityType = DetermineEntityType(blueprint)
         };
 
-        // ´´½¨¸ù½Úµã
-        var root = new GameObject($"{blueprint.blueprintId}_{uuid.Substring(0, 8)}");
-        root.tag = blueprint.tag;
+        // å®ä½“åå­—ç”¨UUID
+        var root = new GameObject(uuid);   // "Pawn_0001"
+        root.tag = blueprint.tag;          // "Pawn"
         entity.Root = root;
 
-        // ´´½¨Âß¼­Ìå
+        // åˆ›å»ºé€»è¾‘ä½“
         var logicObj = new GameObject("Logic");
         logicObj.transform.SetParent(root.transform);
         entity.LogicObject = logicObj;
 
-        // ´´½¨ÊÓ¾õÌå
+        // åˆ›å»ºè§†è§‰ä½“
         var viewObj = new GameObject("View");
-        viewObj.transform.SetParent(root.transform);
+        viewObj.transform.SetParent(logicObj.transform);
         entity.ViewObject = viewObj;
 
-        // ´´½¨ÒôÆµÌå
+        // åˆ›å»ºéŸ³é¢‘ä½“
         var audioObj = new GameObject("Audio");
-        audioObj.transform.SetParent(root.transform);
+        audioObj.transform.SetParent(logicObj.transform);
         entity.AudioObject = audioObj;
 
-        // ÉèÖÃÄ¬ÈÏÎ»ÖÃ
+        // è®¾ç½®é»˜è®¤ä½ç½®
         root.transform.position = new Vector3(0, blueprint.defaultHeight, 0);
 
         return entity;
     }
 
     /// <summary>
-    /// ÅĞ¶ÏÊµÌåÀàĞÍ
+    /// åˆ¤æ–­å®ä½“ç±»å‹
     /// </summary>
     private EntityType DetermineEntityType(EntityBlueprintBase blueprint)
     {
@@ -206,31 +226,31 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region ¿ìËÙÆ¥Åä
+    #region å¿«é€ŸåŒ¹é…
 
     /// <summary>
-    /// ×¢²áÊµÌåµ½¿ìËÙÆ¥Åä»º´æ
+    /// æ³¨å†Œå®ä½“åˆ°å¿«é€ŸåŒ¹é…ç¼“å­˜
     /// </summary>
     private void RegisterEntity(Entity entity)
     {
-        // 1. °´ UUID ×¢²á
+        // 1. æŒ‰ UUID æ³¨å†Œ
         _entitiesByUUID[entity.UUID] = entity;
 
-        // 2. °´ Tag ×¢²á
+        // 2. æŒ‰ Tag æ³¨å†Œ
         if (!_entitiesByTag.ContainsKey(entity.Tag))
         {
             _entitiesByTag[entity.Tag] = new List<Entity>();
         }
         _entitiesByTag[entity.Tag].Add(entity);
 
-        // 3. °´À¶Í¼ID×¢²á
+        // 3. æŒ‰è“å›¾IDæ³¨å†Œ
         if (!_entitiesByBlueprint.ContainsKey(entity.Blueprint.blueprintId))
         {
             _entitiesByBlueprint[entity.Blueprint.blueprintId] = new List<Entity>();
         }
         _entitiesByBlueprint[entity.Blueprint.blueprintId].Add(entity);
 
-        // 4. °´ÊµÌåÀàĞÍ×¢²á
+        // 4. æŒ‰å®ä½“ç±»å‹æ³¨å†Œ
         if (!_entitiesByType.ContainsKey(entity.EntityType))
         {
             _entitiesByType[entity.EntityType] = new List<Entity>();
@@ -239,7 +259,7 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// Í¨¹ı UUID ²éÕÒÊµÌå
+    /// é€šè¿‡ UUID æŸ¥æ‰¾å®ä½“
     /// </summary>
     public Entity FindByUUID(string uuid)
     {
@@ -247,7 +267,7 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// Í¨¹ı Tag ²éÕÒµÚÒ»¸öÊµÌå
+    /// é€šè¿‡ Tag æŸ¥æ‰¾ç¬¬ä¸€ä¸ªå®ä½“
     /// </summary>
     public Entity FindFirstByTag(string tag)
     {
@@ -259,7 +279,7 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// Í¨¹ı Tag ²éÕÒËùÓĞÊµÌå
+    /// é€šè¿‡ Tag æŸ¥æ‰¾æ‰€æœ‰å®ä½“
     /// </summary>
     public List<Entity> FindAllByTag(string tag)
     {
@@ -269,7 +289,7 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// Í¨¹ıÀ¶Í¼ID²éÕÒËùÓĞÊµÌå
+    /// é€šè¿‡è“å›¾IDæŸ¥æ‰¾æ‰€æœ‰å®ä½“
     /// </summary>
     public List<Entity> FindByBlueprint(string blueprintId)
     {
@@ -279,7 +299,7 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// Í¨¹ıÊµÌåÀàĞÍ²éÕÒËùÓĞÊµÌå
+    /// é€šè¿‡å®ä½“ç±»å‹æŸ¥æ‰¾æ‰€æœ‰å®ä½“
     /// </summary>
     public List<Entity> FindByType(EntityType type)
     {
@@ -290,14 +310,14 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region À¶Í¼»ñÈ¡
+    #region è“å›¾è·å–
 
-    /// »ñÈ¡À¶Í¼£¨´ÓÅäÖÃÏµÍ³£©
-    /// ·µ»Ø»ùÀà£¬×Ó¹¤³§¸ù¾İÀàĞÍÅĞ¶Ï
+    /// è·å–è“å›¾ï¼ˆä»é…ç½®ç³»ç»Ÿï¼‰
+    /// è¿”å›åŸºç±»ï¼Œå­å·¥å‚æ ¹æ®ç±»å‹åˆ¤æ–­
     /// </summary>
     public EntityBlueprintBase GetBlueprint(string blueprintId)
     {
-        // 1. ÏÈ³¢ÊÔ´ÓÊµÌåÀ¶Í¼ÅäÖÃ»ñÈ¡
+        // 1. å…ˆå°è¯•ä»å®ä½“è“å›¾é…ç½®è·å–
         var entityBlueprints = ConfigAPI.Get<EntityBlueprintsConfig>();
         if (entityBlueprints?.blueprints != null)
         {
@@ -308,7 +328,7 @@ public class MasterFactory : MonoBehaviour
             }
         }
 
-        // 2. ³¢ÊÔ´ÓUIÀ¶Í¼ÅäÖÃ»ñÈ¡
+        // 2. å°è¯•ä»UIè“å›¾é…ç½®è·å–
         var uiBlueprints = ConfigAPI.Get<UIBlueprintsConfig>();
         if (uiBlueprints?.blueprints != null)
         {
@@ -319,29 +339,29 @@ public class MasterFactory : MonoBehaviour
             }
         }
 
-        Debug.LogError($"[MasterFactory] ÕÒ²»µ½À¶Í¼: {blueprintId}");
+        Debug.LogError($"[MasterFactory] æ‰¾ä¸åˆ°è“å›¾: {blueprintId}");
         return null;
     }
 
     #endregion
 
-    #region Ïú»Ù¹ÜÀí
+    #region é”€æ¯ç®¡ç†
 
     /// <summary>
-    /// Ïú»ÙÊµÌå
+    /// é”€æ¯å®ä½“
     /// </summary>
     public void DestroyEntity(string uuid)
     {
         var entity = FindByUUID(uuid);
         if (entity == null) return;
 
-        // ´ÓËùÓĞ»º´æÖĞÒÆ³ı
+        // ä»æ‰€æœ‰ç¼“å­˜ä¸­ç§»é™¤
         _entitiesByUUID.Remove(uuid);
         _entitiesByTag[entity.Tag]?.Remove(entity);
         _entitiesByBlueprint[entity.Blueprint.blueprintId]?.Remove(entity);
         _entitiesByType[entity.EntityType]?.Remove(entity);
 
-        // Ïú»Ù GameObject
+        // é”€æ¯ GameObject
         if (entity.Root != null)
         {
             Destroy(entity.Root);
@@ -349,11 +369,11 @@ public class MasterFactory : MonoBehaviour
 
         TotalEntityCount--;
 
-        Debug.Log($"[MasterFactory] ÊµÌåÒÑÏú»Ù: {entity.EntityId} (UUID: {uuid})");
+        Debug.Log($"[MasterFactory] å®ä½“å·²é”€æ¯: {entity.EntityId} (UUID: {uuid})");
     }
 
     /// <summary>
-    /// Çå¿ÕËùÓĞÊµÌå
+    /// æ¸…ç©ºæ‰€æœ‰å®ä½“
     /// </summary>
     public void DestroyAllEntities()
     {
@@ -363,40 +383,47 @@ public class MasterFactory : MonoBehaviour
             DestroyEntity(uuid);
         }
 
-        Debug.Log("[MasterFactory] ËùÓĞÊµÌåÒÑÇå¿Õ");
+        Debug.Log("[MasterFactory] æ‰€æœ‰å®ä½“å·²æ¸…ç©º");
     }
 
     /// <summary>
-    /// ³ÌĞòÍË³öÇ°µÄÇåÀí¼ì²é
+    /// ç¨‹åºé€€å‡ºå‰çš„æ¸…ç†æ£€æŸ¥
     /// </summary>
     private void OnApplicationQuit()
     {
-        Debug.Log("[MasterFactory] ¿ªÊ¼ÇåÀí¼ì²é...");
+        Debug.Log("[MasterFactory] å¼€å§‹æ¸…ç†æ£€æŸ¥...");
 
-        // 1. ¼ì²é¶ÔÏó³ØÊÇ·ñÓĞ²ĞÓà
+        //æ–°å¢
+        //ä¿å­˜æ‰€æœ‰é€»è¾‘çŠ¶æ€ï¼ˆåœ¨é”€æ¯ä¹‹å‰ï¼‰
+        if (LogicStateManager.Instance != null)
+        {
+            LogicStateManager.Instance.SaveAllStates();
+        }
+
+        // 1. æ£€æŸ¥å¯¹è±¡æ± æ˜¯å¦æœ‰æ®‹ä½™
         if (PoolFactory != null)
         {
             PoolFactory.CheckPoolOnExit();
         }
 
-        // 2. ¼ì²éÊÇ·ñÓĞÎ´Ïú»ÙµÄÊµÌå
+        // 2. æ£€æŸ¥æ˜¯å¦æœ‰æœªé”€æ¯çš„å®ä½“
         if (_entitiesByUUID.Count > 0)
         {
-            Debug.LogWarning($"[MasterFactory] ÍË³öÊ±ÈÔÓĞ {_entitiesByUUID.Count} ¸öÊµÌåÎ´Ïú»Ù");
+            Debug.LogWarning($"[MasterFactory] é€€å‡ºæ—¶ä»æœ‰ {_entitiesByUUID.Count} ä¸ªå®ä½“æœªé”€æ¯");
 
-            // ×Ô¶¯ÇåÀí
+            // è‡ªåŠ¨æ¸…ç†
             DestroyAllEntities();
         }
         else
         {
-            Debug.Log("[MasterFactory] ËùÓĞÊµÌåÒÑÕıÈ·Ïú»Ù");
+            Debug.Log("[MasterFactory] æ‰€æœ‰å®ä½“å·²æ­£ç¡®é”€æ¯");
         }
 
-        // 3. Êä³öÍ³¼ÆĞÅÏ¢
-        Debug.Log($"[MasterFactory] ×îÖÕÍ³¼Æ:\n" +
-                  $"  ×Ü´´½¨: {TotalEntityCount}\n" +
-                  $"  ¶ÔÏó³Ø: {TotalPooledCount}\n" +
-                  $"  »îÔ¾: {TotalActiveCount}");
+        // 3. è¾“å‡ºç»Ÿè®¡ä¿¡æ¯
+        Debug.Log($"[MasterFactory] æœ€ç»ˆç»Ÿè®¡:\n" +
+                  $"  æ€»åˆ›å»º: {TotalEntityCount}\n" +
+                  $"  å¯¹è±¡æ± : {TotalPooledCount}\n" +
+                  $"  æ´»è·ƒ: {TotalActiveCount}");
     }
 
     #endregion

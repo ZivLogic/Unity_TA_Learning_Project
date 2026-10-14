@@ -1,3 +1,3 @@
 ﻿{
-  "scripts": [{"scriptId":"tree_growth","scriptName":"TreeGrowth","parameters":["speed=1.0","maxHeight=10"]},{"scriptId":"fruit_bearing","scriptName":"FruitBearing","parameters":["fruitType=bread"]},{"scriptId":"orbit_earth","scriptName":"OrbitAroundEarth","parameters":["radius=384400","speed=0.5"]}]
+  "scripts": [{"scriptId":"pawn_attack_range","scriptName":"PawnAttackRange","executionOrder":0,"enabled":true},{"scriptId":"follow_target","scriptName":"FollowTarget","executionOrder":0,"enabled":true}]
 }

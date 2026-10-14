@@ -15,9 +15,11 @@ public class AudioFactory : IFactoryStep
     {
         if (entity?.Blueprint == null) return;
 
-        // 只有普通实体蓝图才有音频配置
-        if (entity.Blueprint is not EntityBlueprintsConfig.EntityBlueprint blueprint)
-            return;
+        //// 只有普通实体蓝图才有音频配置
+        //if (entity.Blueprint is not EntityBlueprintsConfig.EntityBlueprint blueprint)
+        //    return;
+
+        var blueprint = entity.Blueprint;
 
         // 如果没有音频配置ID，跳过
         if (blueprint.audioIds == null || blueprint.audioIds.Length == 0)

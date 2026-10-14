@@ -1,0 +1,3 @@
+﻿{
+  "blueprints": [{"blueprintId":"pawn_info_ui","tag":"UI_Test","defaultHeight":0,"logicScriptIds":["follow_target"],"audioIds":["pawn_move"],"poolId":"","prefabPath":"TestImage/TEST_UI_001","canvasName":"Canvas_Main","sortingOrder":100,"uiLayer":"normal","raycastTarget":false,"alwaysOnTop":false}]
+}

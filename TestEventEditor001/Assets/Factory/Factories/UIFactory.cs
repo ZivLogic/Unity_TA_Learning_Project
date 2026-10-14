@@ -220,7 +220,16 @@ public class UIFactory : IFactoryStep
         // 8. 记录到实体
         entity.ViewObject = uiInstance;
 
+        //9.确保 UI 上也有 EntityMono(如果已有则跳过)
+        if (uiInstance.GetComponent<EntityMono>() == null)
+        {
+            var entityMono = uiInstance.AddComponent<EntityMono>();
+            entityMono.Entity = entity;
+        }
+
         Debug.Log($"[UIFactory] UI创建成功: {blueprint.blueprintId} → 画布: {blueprint.canvasName}");
+
+        Debug.Log($"实体名称：{entity.ViewObject.name},UUID:{entity.UUID}");
     }
 
     #endregion
@@ -254,21 +263,14 @@ public class UIFactory : IFactoryStep
     }
 
     /// <summary>
-    /// 设置UI层级
+    /// 设置UI层级（background / normal / popup / tooltip / overlay）
+    /// 输出对应的内部排序值，修改transform SiblingIndex（同画布内部层级）
     /// </summary>
     private void SetUILayer(GameObject uiObj, string uiLayer)
     {
         if (string.IsNullOrEmpty(uiLayer)) return;
 
-        // 尝试获取CanvasGroup组件
-        var canvasGroup = uiObj.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-        {
-            canvasGroup = uiObj.AddComponent<CanvasGroup>();
-        }
-
-        // 设置层级（通过排序值）
-        int sortingValue = uiLayer.ToLower() switch
+        int siblingIndex = uiLayer.ToLower() switch
         {
             "background" => 0,
             "normal" => 100,
@@ -277,23 +279,20 @@ public class UIFactory : IFactoryStep
             "overlay" => 400,
             _ => 100
         };
-
-        // 存储到CanvasGroup的alpha值作为层级标识（临时方案）
-        // 实际项目中应该用专门的UI层级管理器
-        Debug.Log($"[UIFactory] UI层级: {uiLayer} (排序值: {sortingValue})");
+        uiObj.transform.SetSiblingIndex(siblingIndex);
+        Debug.Log($"[UIFactory] UI层级: {uiLayer} → SiblingIndex = {siblingIndex}");
     }
 
     /// <summary>
-    /// 设置渲染顺序
+    /// 设置同画布内部子物体顺序，覆盖uiLayer的预设值
+    /// 注意：这是SiblingIndex，不是Canvas.sortingOrder
+    /// 传入 <=0 代表不手动设置
     /// </summary>
-    private void SetSortingOrder(GameObject uiObj, int sortingOrder)
+    private void SetSortingOrder(GameObject uiObj, int siblingIndex)
     {
-        if (sortingOrder <= 0) return;
-
-        // 设置SiblingIndex控制渲染顺序
-        uiObj.transform.SetSiblingIndex(sortingOrder);
-
-        Debug.Log($"[UIFactory] 渲染顺序: {sortingOrder}");
+        if (siblingIndex <= 0) return;
+        uiObj.transform.SetSiblingIndex(siblingIndex);
+        Debug.Log($"[UIFactory] 强制设置SiblingIndex: {siblingIndex}");
     }
 
     /// <summary>

@@ -1,0 +1,3 @@
+﻿{
+  "entries": [{"containerId":"logic_state_pawn_attack_range","scriptName":"PawnAttackRange","containerType":"PawnAttackRangeStateContainer","savePath":"Assets/Config/ConfigData/logic_state_pawn_attack_range.json"}]
+}
