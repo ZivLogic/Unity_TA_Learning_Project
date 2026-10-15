@@ -38,6 +38,17 @@ public class PoolFactory : IFactoryStep
             return;
         }
 
+        //无论是否入池，先记录归属池
+        _entityPoolMap[entity.UUID] = blueprint.poolId;
+
+
+        //预热模式下，不自动放入对象池
+        if (_isPrewarming)
+        {
+            Debug.Log($"[PoolFactory] 预热模式，跳过入池：{entity.UUID}");
+            return;
+        }
+
         // 1. 获取对象池配置
         var poolConfig = ConfigManager.Instance.FindObjectPool(blueprint.poolId);
         if (poolConfig == null)
@@ -51,9 +62,6 @@ public class PoolFactory : IFactoryStep
 
         // 3. 将实体放入对象池
         pool.Push(entity);
-
-        // 4. 记录实体所属对象池
-        _entityPoolMap[entity.UUID] = poolConfig.poolId;
 
         Debug.Log($"[PoolFactory] 实体放入对象池: {blueprint.blueprintId} → {poolConfig.poolId} (池内数量: {pool.Count})");
     }
@@ -115,17 +123,62 @@ public class PoolFactory : IFactoryStep
     {
         if (entity == null) return;
 
-        if (!_entityPoolMap.TryGetValue(entity.UUID, out var poolId))
+
+        //1.检查是否已在池中
+        if (entity.IsPooled)
         {
-            Debug.LogWarning($"[PoolFactory] 实体不在任何对象池中: {entity.EntityId}");
+            Debug.LogWarning($"[PoolFactory] 实体已在池中，跳过：{entity.EntityId}");
             return;
         }
 
-        if (_pools.TryGetValue(poolId, out var pool))
+        //2.获取归属地ID
+        string poolId = GetPoolId(entity);
+        if (string.IsNullOrEmpty(poolId))
         {
-            pool.Push(entity);
-            Debug.Log($"[PoolFactory] 实体放回对象池: {entity.EntityId} → {poolId}");
+            Debug.LogWarning($"[PoolFactory] 实体没有对象池配置：{entity.EntityId}");
+            return;
         }
+
+        //3.获取或创建对象池
+        var poolConfig = ConfigManager.Instance.FindObjectPool(poolId);
+        if ( poolConfig == null)
+        {
+            Debug.LogError($"[PoolFactory] 找不到对象池配置：{poolId}");
+            return;
+        }
+
+        var pool = GetOrCreatePool(poolConfig);
+
+        //4.放入对象池
+        pool.Push(entity);
+
+        Debug.Log($"[PoolFactory] 实体放回对象池：{entity.EntityId} -> {poolId} (池内：{pool.Count})");
+    }
+
+
+    //获取归属池ID（优先从缓存，回退到蓝图）
+    private string GetPoolId(Entity entity)
+    {
+        //1.优先从缓存中获取
+        if (_entityPoolMap.TryGetValue(entity.UUID, out var poolId))
+        {
+            return poolId;
+        }
+
+        //2.从蓝图获取
+        if (entity.Blueprint is EntityBlueprintsConfig.EntityBlueprint blueprint)
+        {
+            poolId = blueprint.poolId;
+
+            //记录到缓存
+            if (!string.IsNullOrEmpty(poolId))
+            {
+                _entityPoolMap[entity.UUID] = poolId;
+            }
+            return poolId;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -152,6 +205,23 @@ public class PoolFactory : IFactoryStep
         }
     }
 
+
+    //预热模式标记
+    private bool _isPrewarming = false;
+
+    //开始预热模式（预热期间实体不放入对象池）
+    public void BeginPrewarm()
+    {
+        _isPrewarming = true;
+        Debug.Log("[PoolFactory] 开始预热模式");
+    }
+
+    //结束预热模式
+    public void EndPrewarm()
+    {
+        _isPrewarming = false;
+        Debug.Log("[PoolFactory] 结束预热模式");
+    }
     #endregion
 
     #region 清理检查
@@ -201,6 +271,102 @@ public class PoolFactory : IFactoryStep
         Debug.Log("[PoolFactory] 所有对象池已清空");
     }
 
+    #endregion
+
+    #region 批量操作
+
+    //批量放入对象池（通过 UUID 列表）
+    public void BatchReturnToPool(List<string> uuids)
+    {
+        Debug.Log($"[PoolFactory] 批量放入对象池：{uuids.Count} 个实体");
+
+        int successCount = 0;
+        foreach (var uuid in uuids)
+        {
+            var entity = MasterFactory.Instance.FindByUUID(uuid);
+            if (entity != null)
+            {
+                ReturnToPool(entity);
+                successCount++;
+            }
+        }
+
+        Debug.Log($"[PollFactory] 批量放入完成：{successCount}/{uuids.Count}");
+    }
+
+    //批量取出对象池（通过 UUID 列表）
+    public List<Entity> BatchGetFromPool(List<string> uuids)
+    {
+        Debug.Log($"[PoolFactory] 批量取出对象池：{uuids.Count} 个实体");
+
+        var result = new List<Entity>();
+        foreach (var uuid in uuids)
+        {
+            var entity = MasterFactory.Instance.FindByUUID(uuid);
+            if (entity != null && entity.IsPooled)
+            {
+                //从池中取出
+                var poolId = _entityPoolMap[entity.UUID];
+                if (_pools.TryGetValue(poolId, out var pool))
+                {
+                    var popped = pool.Pop();
+                    if (popped != null)result.Add(popped);
+                }
+            }
+        }
+
+        Debug.Log($"[PoolFactory] 批量取出完成：{result.Count}/{uuids.Count}");
+        return result;
+    }
+
+    //通过Tag批量放入对象池
+    public void BatchReturnByTag(string tag)
+    {
+        var entites = MasterFactory.Instance.FindAllByTag(tag);
+        Debug.Log($"[PoolFactory] 按Tag批量放入：{tag} * {entites.Count}");
+
+        foreach (var entity in entites)
+        {
+            ReturnToPool(entity);
+        }
+    }
+
+    //通过蓝图ID批量放入对象池
+    public void BatchReturnByBlueptint(string blueptintId)
+    {
+        var entites = MasterFactory.Instance.FindByBlueprint(blueptintId);
+        Debug.Log($"[PoolFactory] 按蓝图批量放入：{blueptintId} * {entites.Count}");
+
+        foreach (var entity in entites)
+        {
+            ReturnToPool(entity);
+        }
+    }
+
+    //通过Tag批量取出对象池
+    public List<Entity> BatchGetByTag(string tag, int count)
+    {
+        var result = new List<Entity>();
+
+        //从对象池获取指定数量的实体
+        var entites = MasterFactory.Instance.FindAllByTag(tag);
+
+        foreach (var entity in entites)
+        {
+            if (entity.IsPooled)
+            {
+                var poolId = _entityPoolMap[entity.UUID];
+                if (_pools.TryGetValue(poolId, out var pool))
+                {
+                    var popped = pool.Pop();
+                    if (popped != null)result.Add(popped);
+                }
+            }
+        }
+
+        Debug.Log($"[PoolFactory] 按 Tag 批量取出：{tag} * {result.Count}");
+        return result;
+    }
     #endregion
 }
 
@@ -298,4 +464,6 @@ public class ObjectPool
             }
         }
     }
+
+   
 }

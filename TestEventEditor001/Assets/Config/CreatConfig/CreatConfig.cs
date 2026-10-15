@@ -330,6 +330,35 @@ public class CreatConfig : MonoBehaviour
         builder.ExportToFileFormat("Assets/Config/ConfigData/logic_state_registry.json");
     }
 
+    //蓝图注册表
+    private static void GeneratePrductionLauncher()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("entries", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                {"blueprintId", "pawn" },
+                {"count", 20 },
+                {"spawnCount", 5 },
+                {"prewarm", true},
+                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0.5 }, { "z", 0 } } },
+                {"spacing", new Dictionary<string, object> { { "x", 1 }, { "y", 0 }, { "z", 0 } } },
+                {"tagOverride", ""}
+            },
+            new Dictionary<string, object>
+            {
+                {"blueprintId", "pawn_info_ui" },
+                {"count", 1 },
+                {"spawnCount", 1 },
+                {"prewarm", false},
+                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                {"spacing", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                {"tagOverride", ""}
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/production_configs.json");
+    }
 
 
 
@@ -353,6 +382,7 @@ public class CreatConfig : MonoBehaviour
         GenerateTerrainConfig();
         GenerateMapPlacements();
         GenerateLogicState();
+        GeneratePrductionLauncher();
         Debug.Log("所有测试配置已生成！");
     }
 

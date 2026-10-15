@@ -33,8 +33,9 @@ public class LogicStateManager : MonoBehaviour
         }
 
         _instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        Debug.Log("[LogicStateManager] 初始化完成");
+        Debug.Log("[LogicStateManager] 逻辑脚本数值注入器初始化完成");
     }
 
     #region 保存
