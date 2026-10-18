@@ -1,0 +1,24 @@
+{
+  "Items": [
+    {
+      "ModelId": "Sphere",
+      "AreaShape": "Sphere",
+      "ParamSchema": "radius"
+    },
+    {
+      "ModelId": "Box",
+      "AreaShape": "Box",
+      "ParamSchema": "length,height,width"
+    },
+    {
+      "ModelId": "Cylinder",
+      "AreaShape": "Cylinder",
+      "ParamSchema": "radius,height"
+    },
+    {
+      "ModelId": "Cone",
+      "AreaShape": "Cone",
+      "ParamSchema": "angle,radius"
+    }
+  ]
+}

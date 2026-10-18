@@ -1,0 +1,61 @@
+{
+  "Items": [
+    {
+      "ScopeId": "Self",
+      "ScopeType": "Self",
+      "IncludeSelf": true,
+      "Remark": "自身"
+    },
+    {
+      "ScopeId": "Global",
+      "ScopeType": "Global",
+      "Remark": "全场景"
+    },
+    {
+      "ScopeId": "Single",
+      "ScopeType": "Single",
+      "Remark": "单个锚点"
+    },
+    {
+      "ScopeId": "Category_Interactable",
+      "ScopeType": "Category",
+      "CategoryTag": "Interactable",
+      "CategoryMatchMode": "Any",
+      "IncludeSelf": true,
+      "Remark": "可交互类别"
+    },
+    {
+      "ScopeId": "Area_Sphere_3",
+      "ScopeType": "Area",
+      "AreaModelId": "Sphere",
+      "Radius": 3.0,
+      "IncludeSelf": false,
+      "Remark": "球形半径3"
+    },
+    {
+      "ScopeId": "Area_Sphere_5",
+      "ScopeType": "Area",
+      "AreaModelId": "Sphere",
+      "Radius": 5.0,
+      "IncludeSelf": true,
+      "Remark": "球形半径5"
+    },
+    {
+      "ScopeId": "Area_Box_4x2x4",
+      "ScopeType": "Area",
+      "AreaModelId": "Box",
+      "Length": 4.0,
+      "Height": 2.0,
+      "Width": 4.0,
+      "Remark": "盒形4x2x4"
+    },
+    {
+      "ScopeId": "Area_Cylinder_3x2",
+      "ScopeType": "Area",
+      "AreaModelId": "Cylinder",
+      "Radius": 3.0,
+      "Height": 2.0,
+      "Remark": "圆柱半径3高2"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "Items": [
+    {
+      "OutputId": "MoveUp",
+      "EventName": "Input.Move.Up",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "向上移动"
+    },
+    {
+      "OutputId": "MoveDown",
+      "EventName": "Input.Move.Down",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "向下移动"
+    },
+    {
+      "OutputId": "MoveLeft",
+      "EventName": "Input.Move.Left",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "向左移动"
+    },
+    {
+      "OutputId": "MoveRight",
+      "EventName": "Input.Move.Right",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "向右移动"
+    },
+    {
+      "OutputId": "Jump",
+      "EventName": "Input.Action.Jump",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "跳跃"
+    },
+    {
+      "OutputId": "Interact",
+      "EventName": "Input.Action.Interact",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "交互"
+    },
+    {
+      "OutputId": "Attack",
+      "EventName": "Input.Action.Attack",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "攻击"
+    },
+    {
+      "OutputId": "AreaSelect",
+      "EventName": "Input.Action.AreaSelect",
+      "Param": "",
+      "CanBeBlocked": true,
+      "Remark": "区域选择"
+    }
+  ]
+}

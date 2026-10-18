@@ -120,6 +120,20 @@ public class CreatConfig : MonoBehaviour
                 { "scriptName", "FollowTarget" },
                 { "executionOrder", 0 },
                 { "enabled", true }
+            },
+            //new Dictionary<string, object>
+            //{
+            //    { "scriptId", "entity_input_entry" },
+            //    { "scriptName", "EntityInputEntry" },
+            //    { "executionOrder", 0 },
+            //    { "enabled", true }
+            //},
+            new Dictionary<string, object>
+            {
+                { "scriptId", "character_input_entry" },
+                { "scriptName", "CharacterInputEntry" },
+                { "executionOrder", 0 },
+                { "enabled", true }
             }
         });
         builder.ExportToFileFormat("Assets/Config/ConfigData/logic_scripts.json");
@@ -157,7 +171,7 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "pawn_physics" },
                 { "materialId", "pawn_black" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>

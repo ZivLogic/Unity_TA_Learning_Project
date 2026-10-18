@@ -308,6 +308,12 @@ public class MasterFactory : MonoBehaviour
             : new List<Entity>();
     }
 
+    //获取全部实体
+    public List<Entity> GetAllEntities()
+    {
+        return new List<Entity>(_entitiesByUUID.Values);
+    }
+
     #endregion
 
     #region 蓝图获取

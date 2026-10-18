@@ -1,0 +1,58 @@
+{
+  "Items": [
+    {
+      "Id": "Global",
+      "InterceptorMode": "BlackList",
+      "Priority": 0,
+      "AllowActions": [],
+      "BlockActions": ["OpenDebugPanel"],
+      "IsEnable": true,
+      "Remark": "全局黑名单：调试面板永远不可用"
+    },
+    {
+      "Id": "PeaceLimit",
+      "InterceptorMode": "BlackList",
+      "Priority": 10,
+      "AllowActions": [],
+      "BlockActions": ["Attack"],
+      "IsEnable": true,
+      "Remark": "和平模式：禁止攻击"
+    },
+    {
+      "Id": "HitLimit",
+      "InterceptorMode": "BlackList",
+      "Priority": 5,
+      "AllowActions": [],
+      "BlockActions": ["Attack", "Interact", "Jump", "AreaSelect"],
+      "IsEnable": true,
+      "Remark": "受击状态：禁止攻击/交互/跳跃/区域选择"
+    },
+    {
+      "Id": "HomeLimit",
+      "InterceptorMode": "BlackList",
+      "Priority": 10,
+      "AllowActions": [],
+      "BlockActions": ["Attack"],
+      "IsEnable": true,
+      "Remark": "家园模式：禁止攻击"
+    },
+    {
+      "Id": "CutSceneLimit",
+      "InterceptorMode": "WhiteList",
+      "Priority": 1,
+      "AllowActions": ["SkipCutScene"],
+      "BlockActions": [],
+      "IsEnable": true,
+      "Remark": "过场：只允许跳过"
+    },
+    {
+      "Id": "UIMenuLimit",
+      "InterceptorMode": "WhiteList",
+      "Priority": 2,
+      "AllowActions": ["UIConfirm", "UICancel", "UINavigate"],
+      "BlockActions": [],
+      "IsEnable": true,
+      "Remark": "UI 菜单：只允许 UI 操作"
+    }
+  ]
+}

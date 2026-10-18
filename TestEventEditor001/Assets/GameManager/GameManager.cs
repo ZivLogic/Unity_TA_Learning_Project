@@ -22,11 +22,14 @@ public class GameManager : MonoBehaviour
 
         //按顺序加载系统
         CreateSystem<EventManager>();
+        CreateSystem<InputManager>();
         CreateSystem<ConfigManager>();
         CreateSystem<MasterFactory>();
         CreateSystem<LogicStateManager>();
         CreateSystem<ProductionLauncher>();
         CreateSystem<EntityManager>();
+        CreateSystem<EntitySystem>();
+        CreateSystem<InputMediator>();
 
         //CreateSystem<FactoryTest>();
     }

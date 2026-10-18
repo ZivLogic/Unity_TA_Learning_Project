@@ -1,0 +1,82 @@
+{
+  "Items": [
+    {
+      "StateName": "Peace",
+      "StateType": "Base",
+      "InterceptorList": ["Global", "PeaceLimit"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": true,
+      "IsEnable": true,
+      "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self"],
+      "AllowCategories": ["Pickable", "NPC", "Door"],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": ["SphereRadius", "BoxSize"],
+      "Remark": "和平模式：可交互、可移动，不可攻击"
+    },
+    {
+      "StateName": "Battle",
+      "StateType": "Base",
+      "InterceptorList": ["Global"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": true,
+      "IsEnable": true,
+      "AllowScopeTypes": ["Single", "Category", "Area", "Self"],
+      "AllowCategories": ["Enemy", "NPC"],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": ["SphereRadius"],
+      "Remark": "战斗模式：可攻击"
+    },
+    {
+      "StateName": "Home",
+      "StateType": "Base",
+      "InterceptorList": ["Global", "HomeLimit"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": true,
+      "IsEnable": true,
+      "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self"],
+      "AllowCategories": ["Furniture", "NPC"],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": ["SphereRadius", "BoxSize"],
+      "Remark": "家园模式：不可攻击，可交互家具"
+    },
+    {
+      "StateName": "Hit",
+      "StateType": "Additive",
+      "InterceptorList": ["HitLimit"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": true,
+      "IsEnable": true,
+      "AllowScopeTypes": [],
+      "AllowCategories": [],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": [],
+      "Remark": "受击附加状态：叠加在基础状态上"
+    },
+    {
+      "StateName": "CutScene",
+      "StateType": "Base",
+      "InterceptorList": ["CutSceneLimit"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": true,
+      "IsEnable": true,
+      "AllowScopeTypes": [],
+      "AllowCategories": [],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": [],
+      "Remark": "过场：只允许跳过"
+    },
+    {
+      "StateName": "UIMenu",
+      "StateType": "Additive",
+      "InterceptorList": ["UIMenuLimit"],
+      "MergeMode": "And",
+      "ClearAdditiveOnBaseSwitch": false,
+      "IsEnable": true,
+      "AllowScopeTypes": [],
+      "AllowCategories": [],
+      "AllowValueKeys": [],
+      "AllowAreaModelIds": [],
+      "Remark": "UI 菜单附加状态"
+    }
+  ]
+}

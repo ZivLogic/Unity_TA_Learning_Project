@@ -1,0 +1,93 @@
+{
+  "Items": [
+    {
+      "IntentName": "EnterBattle",
+      "TargetContext": "GameWorld",
+      "TargetBaseState": "Battle",
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "进入战斗"
+    },
+    {
+      "IntentName": "ExitBattle",
+      "TargetBaseState": "Peace",
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "退出战斗回到和平"
+    },
+    {
+      "IntentName": "EnterHome",
+      "TargetContext": "GameWorld",
+      "TargetBaseState": "Home",
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "进入家园"
+    },
+    {
+      "IntentName": "ExitHome",
+      "TargetBaseState": "Peace",
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "离开家园"
+    },
+    {
+      "IntentName": "EnterHit",
+      "PushAdditiveStates": ["Hit"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "进入受击状态（叠加）"
+    },
+    {
+      "IntentName": "ExitHit",
+      "PopAdditiveStates": ["Hit"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "退出受击状态"
+    },
+    {
+      "IntentName": "EnterCutScene",
+      "TargetBaseState": "CutScene",
+      "ClearAllAdditive": true,
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "进入过场"
+    },
+    {
+      "IntentName": "ExitCutScene",
+      "TargetBaseState": "Peace",
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "退出过场"
+    },
+    {
+      "IntentName": "OpenUIMenu",
+      "PushAdditiveStates": ["UIMenu"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "打开 UI 菜单"
+    },
+    {
+      "IntentName": "CloseUIMenu",
+      "PopAdditiveStates": ["UIMenu"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "关闭 UI 菜单"
+    },
+    {
+      "IntentName": "EnterShop",
+      "TargetContext": "ShopPanel",
+      "PushAdditiveStates": ["UIMenu"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "进入商城"
+    },
+    {
+      "IntentName": "ExitShop",
+      "TargetContext": "GameWorld",
+      "PopAdditiveStates": ["UIMenu"],
+      "Order": 0,
+      "IsEnable": true,
+      "Remark": "退出商城"
+    }
+  ]
+}

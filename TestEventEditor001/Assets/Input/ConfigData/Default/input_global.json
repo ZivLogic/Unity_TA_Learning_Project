@@ -1,0 +1,9 @@
+{
+  "DefaultClickCd": 0.15,
+  "DefaultHoldInterval": 0.1,
+  "GlobalCd": 0.0,
+  "DefaultContext": "GameWorld",
+  "DefaultState": "Peace",
+  "DefaultDevice": "KeyboardMouse",
+  "DebugMode": false
+}
