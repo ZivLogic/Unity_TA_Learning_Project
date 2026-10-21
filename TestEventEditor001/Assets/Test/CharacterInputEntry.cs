@@ -2,53 +2,87 @@ using UnityEngine;
 
 /// <summary>
 /// 角色输入逻辑脚本
-/// 挂在角色实体的逻辑脚本配置里
+/// 单键 + 组合斜走
 /// </summary>
 public class CharacterInputEntry : EntityInputEntry
 {
+    [Header("移动")]
     public float MoveSpeed = 3f;
 
+    // 单键方向
     private Vector3 _moveDir = Vector3.zero;
+    // 组合方向
+    private Vector3 _comboDir = Vector3.zero;
 
     protected override void RegisterInputs()
     {
-        RegisterInput("MoveUp", e => HandleMove(Vector3.forward, e.KeyState));
-        RegisterInput("MoveDown", e => HandleMove(Vector3.back, e.KeyState));
-        RegisterInput("MoveLeft", e => HandleMove(Vector3.left, e.KeyState));
-        RegisterInput("MoveRight", e => HandleMove(Vector3.right, e.KeyState));
+        // 单键
+        RegisterInput("MoveUp", e => HandleSingle(Vector3.forward, e.KeyState));
+        RegisterInput("MoveDown", e => HandleSingle(Vector3.back, e.KeyState));
+        RegisterInput("MoveLeft", e => HandleSingle(Vector3.left, e.KeyState));
+        RegisterInput("MoveRight", e => HandleSingle(Vector3.right, e.KeyState));
+
+        // 组合
+        RegisterInput("MoveDiagonal", e => HandleDiagonal(e.KeyState));
     }
 
-    private void HandleMove(Vector3 dir, InputKeyState state)
+    // ========== 单键 ==========
+    private void HandleSingle(Vector3 dir, InputKeyState state)
     {
         if (state == InputKeyState.Up)
         {
-            _moveDir = Vector3.zero;
-            Debug.Log($"[{name}] 停止移动");
+            // 组合中，单键 Up 退出组合
+            if (_comboDir != Vector3.zero)
+            {
+                _comboDir = Vector3.zero;
+                Debug.Log($"[{name}] 组合退出");
+            }
+
+            if (_moveDir == dir)
+            {
+                _moveDir = Vector3.zero;
+                Debug.Log($"[{name}] 停止 {dir}");
+            }
+            return;
+        }
+
+        // 组合中，单键 Down/Hold 忽略
+        if (_comboDir != Vector3.zero) return;
+
+        if (state == InputKeyState.Down || state == InputKeyState.Hold)
+        {
+            _moveDir = dir;
+            Debug.Log($"[{name}] 单键 {dir} {state}");
+        }
+    }
+
+    // ========== 组合斜走 ==========
+    private void HandleDiagonal(InputKeyState state)
+    {
+        if (state == InputKeyState.Up)
+        {
+            _comboDir = Vector3.zero;
+            Debug.Log($"[{name}] 斜走结束");
             return;
         }
 
         if (state == InputKeyState.Down || state == InputKeyState.Hold)
         {
-            _moveDir = dir;
-            Debug.Log($"[{name}] 移动 {dir} {state}");
+            _comboDir = (Vector3.forward + Vector3.left).normalized;
+            _moveDir = Vector3.zero;
+            Debug.Log($"[{name}] 斜走 {_comboDir} {state}");
         }
     }
 
+    // ========== 每帧移动 ==========
     private void Update()
     {
-        if (_moveDir == Vector3.zero) return;
-        Debug.Log($"[{name}] Update 移动 {_moveDir}");
-        transform.position += _moveDir * MoveSpeed * Time.deltaTime;
+        Vector3 dir = _comboDir != Vector3.zero ? _comboDir : _moveDir;
+        if (dir == Vector3.zero) return;
+        transform.position += dir * MoveSpeed * Time.deltaTime;
     }
 
     // ========== 持久化 ==========
-    public override void LoadFromEntry(ILogicStateEntry entry)
-    {
-        // 输入逻辑一般无持久状态，需要时扩展
-    }
-
-    public override ILogicStateEntry SaveToEntry()
-    {
-        return null;
-    }
+    public override void LoadFromEntry(ILogicStateEntry entry) { }
+    public override ILogicStateEntry SaveToEntry() => null;
 }

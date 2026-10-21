@@ -5,30 +5,80 @@ using UnityEngine;
 /// 输入中转层
 /// 职责：
 /// 1. 拉输入系统标准输出
-/// 2. 按范围类型决定是否射线
-/// 3. Self → 直接发主角
-/// 4. Global → 全场景
-/// 5. Single/Category/ValueRange/Area → 摄像机射线解析
-/// 6. 预筛 → 组装事件 → 实体系统
+/// 2. 维护摄像机入口（可切换）
+/// 3. 维护主角信息
+/// 4. 注入摄像机入口，拿返回结果
+/// 5. 查工厂总表，注入实体输入入口
 /// </summary>
 public class InputMediator : MonoBehaviour
 {
-    [Header("摄像机")]
-    public CameraTestScript TargetCamera;
+    public static InputMediator Instance { get; private set; }
+
+    [Header("摄像机入口")]
+    public CameraEntryBase CameraEntry;
 
     [Header("调试")]
     public bool DebugLog = true;
 
-    // 当前主角 UUID
+    //主角的UUID
     private string _mainCharacterUuid;
-
     private int _lastFrame = -1;
 
-    // ========== 主角注册 ==========
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    // ========== 摄像机入口切换 ==========
+    /// <summary>
+    /// 外部唯一入口：切换摄像机入口
+    /// </summary>
+    public void SetCameraEntry(CameraEntryBase entry)
+    {
+        if (_cameraEntry == entry) return;
+
+        // 旧入口清理
+        if (_cameraEntry != null)
+            _cameraEntry.OnDeactivated();
+
+        _cameraEntry = entry;
+
+        // 新入口激活 + 同步主角
+        if (_cameraEntry != null)
+        {
+            _cameraEntry.SetMainCharacter(_mainCharacterUuid);
+            _cameraEntry.OnActivated();
+        }
+
+        Log($"切换摄像机入口：{entry?.name ?? "null"}");
+    }
+
+    public CameraEntryBase GetCameraEntry()
+    {
+        return _cameraEntry;
+    }
+
+    // 内部引用（避免外部直接改字段）
+    private CameraEntryBase _cameraEntry
+    {
+        get => CameraEntry;
+        set => CameraEntry = value;
+    }
+
+    // ========== 主角 ==========
     public void SetMainCharacter(string uuid)
     {
         _mainCharacterUuid = uuid;
-        Log($"主角注册：{uuid}");
+        Log($"主角注册：{uuid ?? "null"}");
+
+        if (_cameraEntry != null)
+            _cameraEntry.SetMainCharacter(uuid);
     }
 
     public string GetMainCharacter()
@@ -44,196 +94,89 @@ public class InputMediator : MonoBehaviour
         if (output.Frame == _lastFrame) return;
         _lastFrame = output.Frame;
 
-        Log($"收到：{output.Action} {output.KeyState} " +
-            $"Scope={output.Scope.ScopeId}");
+        Log($"收到：{output.Action} {output.KeyState}");
 
-        //SelectScopeTool.Describe(output.Scope)
-
-        var uuidList = ResolveScope(output);
-        if (uuidList == null || uuidList.Count == 0)
+        if (_cameraEntry == null)
         {
-            Log("无有效实体");
+            Log("无摄像机入口");
             return;
         }
-        Log($"解析到 {uuidList.Count} 个实体");
 
-        var evt = BuildEvent(output, uuidList);
-        PushEvent(evt);
+        _cameraEntry.ReceiveInput(output);
 
+        var result = _cameraEntry.GetResult();
+        if (result == null || !result.HasResult) return;
 
-
-
-
-        // 收到 AreaSelect 且按下 → 通知摄像机进入选择模式
-        if (output.Action == "AreaSelect" && output.KeyState == InputKeyState.Down)
+        // 主角选择结果
+        if (result.Action == "SelectMainCharacter")
         {
-            var camera = SelectCamera(output);
-            if (camera != null)
-                camera.BeginSelect();
+            SetMainCharacter(result.SingleUuid);
+            return;
         }
 
-        // InputMediator.Update 里
-        Debug.Log($"[Mediator] Action={output.Action} Scope={output.Scope?.ScopeType} " +
-                  $"TargetUuids=[{string.Join(",", uuidList)}]");
-    }
-
-    // ========== 按范围解析 ==========
-    private List<string> ResolveScope(InputOutputPayload output)
-    {
-        var scope = output.Scope;
-        if (scope == null)
+        // 查工厂总表
+        var validUuids = new List<string>();
+        foreach (var uuid in result.Uuids)
         {
-            // 没范围，默认当 Self
-            return ResolveSelf();
+            if (MasterFactory.Instance.FindByUUID(uuid) == null) continue;
+            validUuids.Add(uuid);
         }
 
-        var scopeType = scope.GetScopeType();
+        if (validUuids.Count == 0) return;
 
-        switch (scopeType)
+        var evt = new EntityInputEvent
         {
-            case SelectScopeType.Self:
-                return ResolveSelf();
-
-            case SelectScopeType.Global:
-                return ResolveGlobal();
-
-            case SelectScopeType.Single:
-            case SelectScopeType.Category:
-            case SelectScopeType.ValueRange:
-            case SelectScopeType.Area:
-                return ResolveByCamera(scope, output);
-
-            default:
-                Log($"未知范围类型：{scope.ScopeType}");
-                return new List<string>();
-        }
-    }
-
-    // ========== Self：直接主角 ==========
-    private List<string> ResolveSelf()
-    {
-        if (string.IsNullOrEmpty(_mainCharacterUuid))
-        {
-            Log("Self：主角未注册");
-            return new List<string>();
-        }
-
-        // 验证工厂有这个实体
-        if (MasterFactory.Instance.FindByUUID(_mainCharacterUuid) == null)
-        {
-            Log($"Self：工厂无主角 {_mainCharacterUuid}");
-            return new List<string>();
-        }
-
-        Log($"Self：主角 {_mainCharacterUuid}");
-        return new List<string> { _mainCharacterUuid };
-    }
-
-    // ========== Global：全场景 ==========
-    private List<string> ResolveGlobal()
-    {
-        var all = MasterFactory.Instance.GetAllEntities();
-        var result = new List<string>();
-        foreach (var e in all)
-        {
-            if (e == null || string.IsNullOrEmpty(e.UUID)) continue;
-            if (!result.Contains(e.UUID))
-                result.Add(e.UUID);
-        }
-        Log($"Global：{result.Count} 个");
-        return result;
-    }
-
-    // ========== 需要射线的范围 ==========
-    private List<string> ResolveByCamera(SelectScope scope, InputOutputPayload output)
-    {
-        var camera = SelectCamera(output);
-        if (camera == null)
-        {
-            Log("无摄像机");
-            return new List<string>();
-        }
-
-        var entities = camera.ResolveScope(scope, output);
-        if (entities == null || entities.Count == 0)
-        {
-            Log("摄像机未解析到");
-            return new List<string>();
-        }
-
-        return PreFilterAndGetUuids(entities);
-    }
-
-    // ========== 选摄像机 ==========
-    private CameraTestScript SelectCamera(InputOutputPayload output)
-    {
-        if (TargetCamera != null) return TargetCamera;
-        return FindObjectOfType<CameraTestScript>();
-    }
-
-    // ========== 预筛 ==========
-    private List<string> PreFilterAndGetUuids(List<GameObject> entities)
-    {
-        var result = new List<string>();
-        foreach (var go in entities)
-        {
-            if (go == null) continue;
-
-            var mono = EntityMono.FindInParents(go);
-            if (mono == null)
-            {
-                Log($"跳过无 EntityMono：{go.name}");
-                continue;
-            }
-
-            if (string.IsNullOrEmpty(mono.UUID))
-            {
-                Log($"跳过 UUID 空：{go.name}");
-                continue;
-            }
-
-            if (MasterFactory.Instance.FindByUUID(mono.UUID) == null)
-            {
-                Log($"工厂无此 UUID：{mono.UUID}");
-                continue;
-            }
-
-            if (!result.Contains(mono.UUID))
-                result.Add(mono.UUID);
-        }
-        return result;
-    }
-
-    // ========== 组装事件 ==========
-    private EntityInputEvent BuildEvent(InputOutputPayload output, List<string> uuids)
-    {
-        return new EntityInputEvent
-        {
-            Action = output.Action,
-            ActionKey = output.ActionKey,
-            Context = output.Context,
+            Action = result.Action,
             KeyState = output.KeyState,
-            Device = output.Device,
-            Param = output.Param,
-            Frame = output.Frame,
-            TargetUuids = uuids
+            Frame = result.Frame,
+            TargetUuids = validUuids
         };
+
+        InjectToEntities(evt);
     }
 
-    private void PushEvent(EntityInputEvent evt)
+    // ========== 注入实体 ==========
+    private void InjectToEntities(EntityInputEvent evt)
     {
-        if (EntitySystem.Instance == null)
+        foreach (var uuid in evt.TargetUuids)
         {
-            Debug.LogError("[Mediator] EntitySystem.Instance 为空");
-            return;
+            var entity = MasterFactory.Instance.FindByUUID(uuid);
+            if (entity == null) continue;
+
+            var entry = FindInputEntry(entity);
+            if (entry == null) continue;
+
+            entry.ReceiveInput(evt);
         }
-        EntitySystem.Instance.InjectInput(evt);
     }
 
-    // InputMediator 里加
+    private EntityInputEntry FindInputEntry(Entity entity)
+    {
+        if (entity?.LogicScripts == null) return null;
+        foreach (var s in entity.LogicScripts)
+        {
+            if (s is EntityInputEntry entry)
+                return entry;
+        }
+        return null;
+    }
+
+    // ========== 启动 ==========
     private void Start()
     {
-        // 场景里如果有 Tag=Player 的实体，默认设为主角
+        // 自动找默认摄像机入口
+        if (CameraEntry == null)
+        {
+            CameraEntry = FindObjectOfType<CameraEntry_Default>();
+            if (CameraEntry != null)
+            {
+                CameraEntry.SetMainCharacter(_mainCharacterUuid);
+                CameraEntry.OnActivated();
+                Log($"自动找到摄像机入口：{CameraEntry.name}");
+            }
+        }
+
+        // 默认主角
         var player = MasterFactory.Instance.FindFirstByTag("Player");
         if (player != null)
         {

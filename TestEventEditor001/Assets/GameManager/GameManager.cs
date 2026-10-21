@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         CreateSystem<LogicStateManager>();
         CreateSystem<ProductionLauncher>();
         CreateSystem<EntityManager>();
-        CreateSystem<EntitySystem>();
+        //CreateSystem<EntitySystem>();
         CreateSystem<InputMediator>();
 
         //CreateSystem<FactoryTest>();

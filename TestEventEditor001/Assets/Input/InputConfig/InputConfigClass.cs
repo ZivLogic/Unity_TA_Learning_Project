@@ -27,9 +27,6 @@ public class InputOutputPayload
     // 设备
     public string Device;
 
-    // 附带参数（来自事件映射配置）
-    public string Param;
-
     // 输出帧号
     public int Frame;
 
@@ -44,7 +41,6 @@ public class InputOutputPayload
         Context = null;
         KeyState = InputKeyState.None;
         Device = null;
-        Param = null;
         Frame = 0;
         Scope = null;
     }
@@ -72,19 +68,58 @@ public class InputGlobalConfig : InputConfigDefinition
 [Serializable]
 public class InputKeyConfig
 {
-    public string ActionKey;                                    //绑定项的唯一标识
-    public string KeyBindCode;                                  //主键位绑定码
-    public string AltKeyBindCode;                               //备用键位绑定码
-    public int MouseButtonIndex = -1;                           //鼠标按键索引（0 = 左键， 1 = 右键， 2 = 中键）
-    public string Action;                                       //触发的动作名
-    public List<string> AllowContext = new List<string>();      //允许触发的上下文列表
-    public float ClickCdThreshold = -1f;                        //该动作专属的点击冷却阈值
-    public float HoldInterval = -1f;                            //该动作专属的长按重复间隔
-    public string Scope;                                        //该动作的选择范围（只存配置索引）
-    public bool IsEnable = true;                                //是否启用该绑定
-    public List<string> ListenState = new List<string>();       //监听的状态列表（处于某些状态才响应）
-    public string Device = "KeyboardMouse";                     //该绑定所属设备类型
-    public string Remark;                                       //备注
+    public string ActionKey;
+    public string Action;
+
+    // ===== 显式标记 =====
+    public bool IsCombo = false;
+
+    // ===== 键位（1~3 个）=====
+    public string Key1;
+    public string Key2;
+    public string Key3;
+    public string AltKey1;
+    public string AltKey2;
+    public string AltKey3;
+
+    // ===== 鼠标 =====
+    public int MouseButtonIndex = -1;
+
+    // ===== 上下文 =====
+    public List<string> AllowContext = new List<string>();
+
+    // ===== 状态 =====
+    public List<string> ListenState = new List<string>();
+
+    // ===== CD =====
+    public float ClickCdThreshold = -1f;
+    public float HoldInterval = -1f;
+
+    // ===== 范围 =====
+    public string Scope;
+
+    // ===== 组合专用 =====
+    public string TriggerMode = "AllDown";
+    public float MaxTimeWindow = 0.1f;
+    public bool AllowPassthrough = false;
+
+    // ===== 启用 =====
+    public bool IsEnable = true;
+    public string Device = "KeyboardMouse";
+    public string Remark;
+
+    // ===== 工具 =====
+    public int KeyCount
+    {
+        get
+        {
+            int c = 0;
+            if (!string.IsNullOrEmpty(Key1)) c++;
+            if (!string.IsNullOrEmpty(Key2)) c++;
+            if (!string.IsNullOrEmpty(Key3)) c++;
+            return c;
+        }
+    }
 }
 
 // ========== 绑定容器 ==========
@@ -209,44 +244,7 @@ public class InputStateContainer : InputConfigDefinition
     public void MarkDirty() => _dict = null;
 }
 
-// ========== 事件映射配置 ==========
-[Serializable]
-public class InputEventMapConfig
-{
-    public string OutputId;             //输出事件的唯一标识
-    public string EventName;            //派发出去的事件名
-    public string Param;                //事件附带的参数字符串
-    public bool CanBeBlocked = true;    //该事件是否可被拦截器拦截
-    public string Remark;               //备注
-}
 
-[Serializable]
-[InputConfig(
-    configId: "input_events", 
-    priority: 250)]
-public class InputEventMapContainer : InputConfigDefinition
-{
-    public List<InputEventMapConfig> Items = new List<InputEventMapConfig>();
-
-    [NonSerialized] private Dictionary<string, InputEventMapConfig> _dict;
-    public Dictionary<string, InputEventMapConfig> Dict
-    {
-        get
-        {
-            if (_dict == null)
-            {
-                _dict = new Dictionary<string, InputEventMapConfig>();
-                foreach (var item in Items)
-                {
-                    if (item == null || string.IsNullOrEmpty(item.OutputId)) continue;
-                    _dict[item.OutputId] = item;
-                }
-            }
-            return _dict;
-        }
-    }
-    public void MarkDirty() => _dict = null;
-}
 
 /// <summary>
 /// 可序列化的 Vector3
@@ -513,3 +511,45 @@ public class InputIntentContainer : InputConfigDefinition
 
     public void MarkDirty() => _dict = null;
 }
+
+
+
+
+//// ========== 事件映射配置 ==========
+//[Serializable]
+//public class InputEventMapConfig
+//{
+//    public string OutputId;             //输出事件的唯一标识
+//    public string EventName;            //派发出去的事件名
+//    public string Param;                //事件附带的参数字符串
+//    public bool CanBeBlocked = true;    //该事件是否可被拦截器拦截
+//    public string Remark;               //备注
+//}
+
+//[Serializable]
+//[InputConfig(
+//    configId: "input_events",
+//    priority: 250)]
+//public class InputEventMapContainer : InputConfigDefinition
+//{
+//    public List<InputEventMapConfig> Items = new List<InputEventMapConfig>();
+
+//    [NonSerialized] private Dictionary<string, InputEventMapConfig> _dict;
+//    public Dictionary<string, InputEventMapConfig> Dict
+//    {
+//        get
+//        {
+//            if (_dict == null)
+//            {
+//                _dict = new Dictionary<string, InputEventMapConfig>();
+//                foreach (var item in Items)
+//                {
+//                    if (item == null || string.IsNullOrEmpty(item.OutputId)) continue;
+//                    _dict[item.OutputId] = item;
+//                }
+//            }
+//            return _dict;
+//        }
+//    }
+//    public void MarkDirty() => _dict = null;
+//}

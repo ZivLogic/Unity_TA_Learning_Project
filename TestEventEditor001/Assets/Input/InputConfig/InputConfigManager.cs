@@ -110,7 +110,6 @@ public class InputConfigManager
     public InputBindContainer GetBindContainer() => FinalRoot?.BindContainer;
     public InputInterceptorContainer GetInterceptorContainer() => FinalRoot?.InterceptorContainer;
     public InputStateContainer GetStateContainer() => FinalRoot?.StateContainer;
-    public InputEventMapContainer GetEventMapContainer() => FinalRoot?.EventMapContainer;
     public InputIntentContainer GetIntentContainer() => FinalRoot?.IntentContainer;
     public InputAreaModelContainer GetAreaModelContainer() => FinalRoot?.AreaModelContainer;
     public InputScopeContainer GetScopeContainer() => FinalRoot?.ScopeContainer;

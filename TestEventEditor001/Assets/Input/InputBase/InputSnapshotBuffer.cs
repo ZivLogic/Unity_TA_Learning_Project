@@ -67,6 +67,7 @@ public class InputSnapshotBuffer
         LookAxis = new Vector2(
             Input.GetAxisRaw("Mouse X"),
             Input.GetAxisRaw("Mouse Y"));
+
     }
 
     /// <summary>

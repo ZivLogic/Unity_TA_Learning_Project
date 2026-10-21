@@ -51,7 +51,6 @@ public static class InputConfigAutoLoader
             case InputBindContainer b: root.BindContainer = b; break;
             case InputInterceptorContainer i: root.InterceptorContainer = i;break;
             case InputStateContainer s: root.StateContainer = s; break;
-            case InputEventMapContainer e: root.EventMapContainer = e; break;
             case InputIntentContainer t: root.IntentContainer = t; break;
             case InputAreaModelContainer a : root.AreaModelContainer = a; break;
             case InputScopeContainer sc: root.ScopeContainer = sc; break;

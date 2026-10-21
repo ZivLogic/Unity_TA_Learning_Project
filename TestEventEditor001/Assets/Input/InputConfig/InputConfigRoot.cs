@@ -9,7 +9,6 @@ public class InputConfigRoot
     public InputBindContainer BindContainer;
     public InputInterceptorContainer InterceptorContainer;
     public InputStateContainer StateContainer;
-    public InputEventMapContainer EventMapContainer;
     public InputIntentContainer IntentContainer;
     public InputAreaModelContainer AreaModelContainer;
     public InputScopeContainer ScopeContainer;
@@ -22,7 +21,6 @@ public class InputConfigRoot
         BindContainer ??= new InputBindContainer();
         InterceptorContainer ??= new InputInterceptorContainer();
         StateContainer ??= new InputStateContainer();
-        EventMapContainer ??= new InputEventMapContainer();
         IntentContainer ??= new InputIntentContainer();
         AreaModelContainer ??= new InputAreaModelContainer();
         ScopeContainer ??= new InputScopeContainer();

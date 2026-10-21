@@ -3,7 +3,7 @@
     {
       "StateName": "Peace",
       "StateType": "Base",
-      "InterceptorList": ["Global", "PeaceLimit"],
+      "InterceptorList": ["Global"],
       "MergeMode": "And",
       "ClearAdditiveOnBaseSwitch": true,
       "IsEnable": true,
