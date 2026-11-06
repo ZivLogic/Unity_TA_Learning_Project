@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 中转层组装后的实体输入事件
-/// 交给实体系统注入
 /// </summary>
 public class EntityInputEvent
 {

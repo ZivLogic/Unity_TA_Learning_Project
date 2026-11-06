@@ -2,6 +2,7 @@ using EventSystemV2;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EventSystemV3;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         //按顺序加载系统
+        CreateSystem<AppLifecycleInitializer>();
         CreateSystem<EventManager>();
         CreateSystem<InputManager>();
         CreateSystem<ConfigManager>();
@@ -28,7 +30,6 @@ public class GameManager : MonoBehaviour
         CreateSystem<LogicStateManager>();
         CreateSystem<ProductionLauncher>();
         CreateSystem<EntityManager>();
-        //CreateSystem<EntitySystem>();
         CreateSystem<InputMediator>();
 
         //CreateSystem<FactoryTest>();

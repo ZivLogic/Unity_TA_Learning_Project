@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 总工厂：统一调度所有子工厂，负责实体创建、UUID分配、快速匹配、销毁管理
-/// </summary>
 public class MasterFactory : MonoBehaviour
 {
     #region 单例
 
     private static MasterFactory _instance;
+    private static bool _isDestroyed = false;
+
     public static MasterFactory Instance
     {
         get
         {
+            // 退出阶段或已销毁：不重建
+            if (AppLifecycle.IsQuitting || _isDestroyed) return _instance;
+
             if (_instance == null)
             {
                 _instance = FindObjectOfType<MasterFactory>();
@@ -30,10 +32,7 @@ public class MasterFactory : MonoBehaviour
     #endregion
 
     #region 工厂列表
-
     private readonly List<IFactoryStep> _factorySteps = new();
-
-    // 各个子工厂的引用（方便外部访问）
     public EntityFactory EntityFactory { get; private set; }
     public PhysicsFactory PhysicsFactory { get; private set; }
     public LogicFactory LogicFactory { get; private set; }
@@ -42,31 +41,19 @@ public class MasterFactory : MonoBehaviour
     public UIFactory UIFactory { get; private set; }
     public MapFactory MapFactory { get; private set; }
     public AudioFactory AudioFactory { get; private set; }
-
     #endregion
 
     #region 快速匹配缓存
-
-    // Tag → 实体列表（快速查找）
     private readonly Dictionary<string, List<Entity>> _entitiesByTag = new();
-
-    // UUID → 实体（精确查找）
     private readonly Dictionary<string, Entity> _entitiesByUUID = new();
-
-    // 蓝图ID → 实体列表（按蓝图类型统计）
     private readonly Dictionary<string, List<Entity>> _entitiesByBlueprint = new();
-
-    // 实体类型 → 实体列表（逻辑体、视觉体、音频体）
     private readonly Dictionary<EntityType, List<Entity>> _entitiesByType = new();
-
     #endregion
 
-    #region 统计信息
-
+    #region 统计
     public int TotalEntityCount { get; private set; }
-    public int TotalPooledCount { get; private set; }
+    public int TotalPooledCount => PoolFactory != null ? PoolFactory.TotalPooledCount : 0;
     public int TotalActiveCount => TotalEntityCount - TotalPooledCount;
-
     #endregion
 
     #region 初始化
@@ -80,24 +67,17 @@ public class MasterFactory : MonoBehaviour
         }
 
         _instance = this;
+        _isDestroyed = false;
         DontDestroyOnLoad(gameObject);
 
-        // 注册所有工厂
         RegisterFactories();
-
-        //UI初始化
         UIFactory.Initialize();
-        //UI初始化
 
         Debug.Log("[MasterFactory] 总工厂初始化完成");
     }
 
-    /// <summary>
-    /// 注册所有子工厂
-    /// </summary>
     private void RegisterFactories()
     {
-        // 创建工厂实例
         EntityFactory = new EntityFactory();
         PhysicsFactory = new PhysicsFactory();
         LogicFactory = new LogicFactory();
@@ -107,7 +87,6 @@ public class MasterFactory : MonoBehaviour
         MapFactory = new MapFactory();
         AudioFactory = new AudioFactory();
 
-        // 按顺序添加到流水线
         _factorySteps.Clear();
         _factorySteps.Add(EntityFactory);
         _factorySteps.Add(PhysicsFactory);
@@ -117,110 +96,76 @@ public class MasterFactory : MonoBehaviour
         _factorySteps.Add(PoolFactory);
         _factorySteps.Add(UIFactory);
         _factorySteps.Add(MapFactory);
-
-        Debug.Log($"[MasterFactory] 注册 {_factorySteps.Count} 个工厂");
     }
 
     #endregion
 
     #region 实体创建
 
-    /// <summary>
-    /// 创建实体（接受基类蓝图）
-    /// </summary>
     public Entity CreateEntity(EntityBlueprintBase blueprint)
     {
         if (blueprint == null) return null;
 
-        // 1. 创建实体骨架
         var entity = CreateEntitySkeleton(blueprint);
 
-        // 2. 流水线处理
         foreach (var factory in _factorySteps)
-        {
             factory.Process(entity);
-        }
 
-        // 3. 注册
         RegisterEntity(entity);
-
-        // 4. 更新统计
         TotalEntityCount++;
 
         return entity;
     }
 
-    // UUID计数器
     private readonly Dictionary<string, int> _entityCounters = new();
 
-    /// <summary>
-    /// 生成规律性UUID
-    /// </summary>
     private string GenerateUUID(string tag)
     {
         if (!_entityCounters.ContainsKey(tag))
-        {
             _entityCounters[tag] = 0;
-        }
 
         _entityCounters[tag]++;
         return $"{tag}_{_entityCounters[tag]:D4}";
     }
 
-    /// <summary>
-    /// 创建实体骨架
-    /// </summary>
     private Entity CreateEntitySkeleton(EntityBlueprintBase blueprint)
     {
-        // 生成UUID
         string uuid = GenerateUUID(blueprint.tag);
 
         var entity = new Entity
         {
             EntityId = blueprint.blueprintId,
             UUID = uuid,
-            Tag = blueprint.tag,           // ✅ 直接用蓝图tag，不加后缀
+            Tag = blueprint.tag,
             Blueprint = blueprint,
             EntityType = DetermineEntityType(blueprint)
         };
 
-        // 实体名字用UUID
-        var root = new GameObject(uuid);   // "Pawn_0001"
-        root.tag = blueprint.tag;          // "Pawn"
+        var root = new GameObject(uuid);
+        root.tag = blueprint.tag;
         entity.Root = root;
 
-        // 创建逻辑体
         var logicObj = new GameObject("Logic");
         logicObj.transform.SetParent(root.transform);
         entity.LogicObject = logicObj;
 
-        // 创建视觉体
         var viewObj = new GameObject("View");
         viewObj.transform.SetParent(logicObj.transform);
         entity.ViewObject = viewObj;
 
-        // 创建音频体
         var audioObj = new GameObject("Audio");
         audioObj.transform.SetParent(logicObj.transform);
         entity.AudioObject = audioObj;
 
-        // 设置默认位置
         root.transform.position = new Vector3(0, blueprint.defaultHeight, 0);
 
         return entity;
     }
 
-    /// <summary>
-    /// 判断实体类型
-    /// </summary>
     private EntityType DetermineEntityType(EntityBlueprintBase blueprint)
     {
-        if (blueprint is UIBlueprintsConfig.UIBlueprint)
-            return EntityType.UI;
-
-        if (blueprint is EntityBlueprintsConfig.EntityBlueprint)
-            return EntityType.Normal;
-
+        if (blueprint is UIBlueprintsConfig.UIBlueprint) return EntityType.UI;
+        if (blueprint is EntityBlueprintsConfig.EntityBlueprint) return EntityType.Normal;
         return EntityType.Normal;
     }
 
@@ -228,121 +173,59 @@ public class MasterFactory : MonoBehaviour
 
     #region 快速匹配
 
-    /// <summary>
-    /// 注册实体到快速匹配缓存
-    /// </summary>
     private void RegisterEntity(Entity entity)
     {
-        // 1. 按 UUID 注册
         _entitiesByUUID[entity.UUID] = entity;
 
-        // 2. 按 Tag 注册
         if (!_entitiesByTag.ContainsKey(entity.Tag))
-        {
             _entitiesByTag[entity.Tag] = new List<Entity>();
-        }
         _entitiesByTag[entity.Tag].Add(entity);
 
-        // 3. 按蓝图ID注册
         if (!_entitiesByBlueprint.ContainsKey(entity.Blueprint.blueprintId))
-        {
             _entitiesByBlueprint[entity.Blueprint.blueprintId] = new List<Entity>();
-        }
         _entitiesByBlueprint[entity.Blueprint.blueprintId].Add(entity);
 
-        // 4. 按实体类型注册
         if (!_entitiesByType.ContainsKey(entity.EntityType))
-        {
             _entitiesByType[entity.EntityType] = new List<Entity>();
-        }
         _entitiesByType[entity.EntityType].Add(entity);
     }
 
-    /// <summary>
-    /// 通过 UUID 查找实体
-    /// </summary>
     public Entity FindByUUID(string uuid)
-    {
-        return _entitiesByUUID.TryGetValue(uuid, out var entity) ? entity : null;
-    }
+        => _entitiesByUUID.TryGetValue(uuid, out var e) ? e : null;
 
-    /// <summary>
-    /// 通过 Tag 查找第一个实体
-    /// </summary>
     public Entity FindFirstByTag(string tag)
-    {
-        if (_entitiesByTag.TryGetValue(tag, out var entities) && entities.Count > 0)
-        {
-            return entities[0];
-        }
-        return null;
-    }
+        => _entitiesByTag.TryGetValue(tag, out var list) && list.Count > 0 ? list[0] : null;
 
-    /// <summary>
-    /// 通过 Tag 查找所有实体
-    /// </summary>
     public List<Entity> FindAllByTag(string tag)
-    {
-        return _entitiesByTag.TryGetValue(tag, out var entities)
-            ? new List<Entity>(entities)
-            : new List<Entity>();
-    }
+        => _entitiesByTag.TryGetValue(tag, out var list) ? new List<Entity>(list) : new List<Entity>();
 
-    /// <summary>
-    /// 通过蓝图ID查找所有实体
-    /// </summary>
     public List<Entity> FindByBlueprint(string blueprintId)
-    {
-        return _entitiesByBlueprint.TryGetValue(blueprintId, out var entities)
-            ? new List<Entity>(entities)
-            : new List<Entity>();
-    }
+        => _entitiesByBlueprint.TryGetValue(blueprintId, out var list) ? new List<Entity>(list) : new List<Entity>();
 
-    /// <summary>
-    /// 通过实体类型查找所有实体
-    /// </summary>
     public List<Entity> FindByType(EntityType type)
-    {
-        return _entitiesByType.TryGetValue(type, out var entities)
-            ? new List<Entity>(entities)
-            : new List<Entity>();
-    }
+        => _entitiesByType.TryGetValue(type, out var list) ? new List<Entity>(list) : new List<Entity>();
 
-    //获取全部实体
     public List<Entity> GetAllEntities()
-    {
-        return new List<Entity>(_entitiesByUUID.Values);
-    }
+        => new List<Entity>(_entitiesByUUID.Values);
 
     #endregion
 
     #region 蓝图获取
 
-    /// 获取蓝图（从配置系统）
-    /// 返回基类，子工厂根据类型判断
-    /// </summary>
     public EntityBlueprintBase GetBlueprint(string blueprintId)
     {
-        // 1. 先尝试从实体蓝图配置获取
         var entityBlueprints = ConfigAPI.Get<EntityBlueprintsConfig>();
         if (entityBlueprints?.blueprints != null)
         {
             foreach (var bp in entityBlueprints.blueprints)
-            {
-                if (bp.blueprintId == blueprintId)
-                    return bp;
-            }
+                if (bp.blueprintId == blueprintId) return bp;
         }
 
-        // 2. 尝试从UI蓝图配置获取
         var uiBlueprints = ConfigAPI.Get<UIBlueprintsConfig>();
         if (uiBlueprints?.blueprints != null)
         {
             foreach (var bp in uiBlueprints.blueprints)
-            {
-                if (bp.blueprintId == blueprintId)
-                    return bp;
-            }
+                if (bp.blueprintId == blueprintId) return bp;
         }
 
         Debug.LogError($"[MasterFactory] 找不到蓝图: {blueprintId}");
@@ -351,27 +234,25 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
-    #region 销毁管理
+    #region 销毁管理（唯一权威入口）
 
     /// <summary>
-    /// 销毁实体
+    /// 统一销毁入口：唯一权威
     /// </summary>
     public void DestroyEntity(string uuid)
     {
         var entity = FindByUUID(uuid);
         if (entity == null) return;
 
-        // 从所有缓存中移除
-        _entitiesByUUID.Remove(uuid);
-        _entitiesByTag[entity.Tag]?.Remove(entity);
-        _entitiesByBlueprint[entity.Blueprint.blueprintId]?.Remove(entity);
-        _entitiesByType[entity.EntityType]?.Remove(entity);
+        // 1. 池表同步
+        PoolFactory?.OnEntityDestroyed(entity);
 
-        // 销毁 GameObject
+        // 2. 总表移除
+        RemoveFromAllTables(entity);
+
+        // 3. GameObject 销毁
         if (entity.Root != null)
-        {
             Destroy(entity.Root);
-        }
 
         TotalEntityCount--;
 
@@ -379,57 +260,78 @@ public class MasterFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// 清空所有实体
+    /// 保底：GameObject 被外部直接销毁时清理总表
+    /// 优先判断退出状态，退出阶段直接跳过
     /// </summary>
+    public void OnEntityMonoDestroyed(Entity entity)
+    {
+        // 保底：退出阶段不处理
+        if (AppLifecycle.IsQuitting || _isDestroyed) return;
+        if (entity == null) return;
+        if (!_entitiesByUUID.ContainsKey(entity.UUID)) return;
+
+        PoolFactory?.OnEntityDestroyed(entity);
+        RemoveFromAllTables(entity);
+        TotalEntityCount--;
+
+        Debug.Log($"[MasterFactory] 保底清理: {entity.UUID}");
+    }
+
+    private void RemoveFromAllTables(Entity entity)
+    {
+        _entitiesByUUID.Remove(entity.UUID);
+        _entitiesByTag[entity.Tag]?.Remove(entity);
+        _entitiesByBlueprint[entity.Blueprint.blueprintId]?.Remove(entity);
+        _entitiesByType[entity.EntityType]?.Remove(entity);
+    }
+
+    public void DestroyAllByTag(string tag)
+    {
+        var list = FindAllByTag(tag);
+        foreach (var e in list) DestroyEntity(e.UUID);
+    }
+
+    public void DestroyAllByBlueprint(string blueprintId)
+    {
+        var list = FindByBlueprint(blueprintId);
+        foreach (var e in list) DestroyEntity(e.UUID);
+    }
+
     public void DestroyAllEntities()
     {
         var allUUIDs = new List<string>(_entitiesByUUID.Keys);
-        foreach (var uuid in allUUIDs)
-        {
-            DestroyEntity(uuid);
-        }
-
+        foreach (var uuid in allUUIDs) DestroyEntity(uuid);
         Debug.Log("[MasterFactory] 所有实体已清空");
     }
 
-    /// <summary>
-    /// 程序退出前的清理检查
-    /// </summary>
     private void OnApplicationQuit()
     {
+        // 主动标记退出，优先于任何 OnDestroy
+        AppLifecycle.MarkQuitting();
+
         Debug.Log("[MasterFactory] 开始清理检查...");
 
-        //新增
-        //保存所有逻辑状态（在销毁之前）
         if (LogicStateManager.Instance != null)
-        {
             LogicStateManager.Instance.SaveAllStates();
-        }
 
-        // 1. 检查对象池是否有残余
-        if (PoolFactory != null)
-        {
-            PoolFactory.CheckPoolOnExit();
-        }
+        PoolFactory?.CheckPoolOnExit();
 
-        // 2. 检查是否有未销毁的实体
         if (_entitiesByUUID.Count > 0)
         {
             Debug.LogWarning($"[MasterFactory] 退出时仍有 {_entitiesByUUID.Count} 个实体未销毁");
-
-            // 自动清理
             DestroyAllEntities();
         }
-        else
-        {
-            Debug.Log("[MasterFactory] 所有实体已正确销毁");
-        }
 
-        // 3. 输出统计信息
-        Debug.Log($"[MasterFactory] 最终统计:\n" +
-                  $"  总创建: {TotalEntityCount}\n" +
-                  $"  对象池: {TotalPooledCount}\n" +
-                  $"  活跃: {TotalActiveCount}");
+        Debug.Log($"[MasterFactory] 最终统计: 总创建={TotalEntityCount}, 池化={TotalPooledCount}, 活跃={TotalActiveCount}");
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _isDestroyed = true;
+            _instance = null;
+        }
     }
 
     #endregion

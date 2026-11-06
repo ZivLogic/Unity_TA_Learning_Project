@@ -1,0 +1,16 @@
+{
+    "entries": [
+        {
+            "DefinitionId": "Attack",
+            "Description": "发起攻击",
+            "PayloadTypeName": "AttackPayload",
+            "Enable": true,
+            "QueueType": 0,
+            "Cooldown": 0.10000000149011612,
+            "PublisherTag": "",
+            "PublisherBlueprintId": "",
+            "PublisherMethodFullName": "CharacterAttackPublisher.DoAttack",
+            "Listeners": []
+        }
+    ]
+}
