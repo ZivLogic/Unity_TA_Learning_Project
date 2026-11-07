@@ -428,7 +428,7 @@ namespace EventSystemV2
             GUILayout.BeginHorizontal();
             if (allMethods.Count > 0)
             {
-                int selectedIndex = isPublish ? SelectedPubMethodIndex : SelectedPubMethodIndex;
+                int selectedIndex = isPublish ? SelectedPubMethodIndex : SelectedLstMethodIndex;
 
                 if (selectedIndex < 0 || selectedIndex >= allMethods.Count)
                     selectedIndex = 0;

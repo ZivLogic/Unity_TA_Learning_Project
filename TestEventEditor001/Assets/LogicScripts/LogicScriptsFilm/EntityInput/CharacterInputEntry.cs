@@ -1,11 +1,14 @@
 using UnityEngine;
+using EventSystemV2;
+using System.Collections.Generic;
 
 /// <summary>
 /// 角色输入逻辑脚本
 /// 单键 + 组合斜走
 /// </summary>
-public class CharacterInputEntry : EntityInputEntry
+public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
 {
+    public EventEntryBase EventEntry { get; set; }
 
     [Header("移动")]
     public float MoveSpeed = 3f;
@@ -21,7 +24,7 @@ public class CharacterInputEntry : EntityInputEntry
         RegisterInput("MoveUp", e => HandleSingle(Vector3.forward, e.KeyState));
         RegisterInput("MoveDown", HandleMoveDown);
         RegisterInput("MoveLeft", e => HandleSingle(Vector3.left, e.KeyState));
-        RegisterInput("MoveRight", e => HandleSingle(Vector3.right, e.KeyState));
+        RegisterInput("MoveRight", HandleMoveRight);
 
         // 组合
         RegisterInput("MoveDiagonal", e => HandleDiagonal(e.KeyState));
@@ -112,6 +115,26 @@ public class CharacterInputEntry : EntityInputEntry
             Debug.LogWarning("【输入层】当前实体上没有找到 TestEntry 组件！");
         }
     }
+
+    private void HandleMoveRight(EntityInputEvent e)
+    {
+        // 只在刚按下的那一帧触发，防止按住一直发
+        if (e.KeyState != InputKeyState.Down) return;
+
+        if (EventEntry != null)
+        {
+            // 把发送任务“代发”给事件入口
+            // 告诉它：用我身上的 InputMoveEvent 的配置发
+            EventEntry.EmitFromExternal(this, nameof(InputMoveToEvent), new List<string> { "Pawn_0005" }, 2, "InputTest");
+        }
+    }
+
+    [EventPublishAttr]
+    public void InputMoveToEvent(List<string> UUIDS, int vle, string name)
+    {
+
+    }
+    
 
     // ========== 持久化 ==========
     public override void LoadFromEntry(ILogicStateEntry entry) { }

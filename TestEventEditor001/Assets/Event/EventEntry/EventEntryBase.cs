@@ -50,6 +50,14 @@ public abstract class EventEntryBase : LogicScriptBase
 
     protected void Emit(PackageEvent evt) => EventUtil.EmitEvent(evt);
 
+    /// <summary>
+    /// 供同实体的其他组件（如输入脚本）借用入口代发事件
+    /// </summary>
+    public void EmitFromExternal(object externalInstance, string methodName, List<string> targets, params object[] payload)
+    {
+        EventUtil.EmitToTargets(externalInstance, methodName, targets, payload);
+    }
+
     public override void LoadFromEntry(ILogicStateEntry entry) { }
     public override ILogicStateEntry SaveToEntry() => null;
 }

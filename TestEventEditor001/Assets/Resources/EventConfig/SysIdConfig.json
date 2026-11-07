@@ -4,10 +4,20 @@
       "SysId": "TEST",
       "Remark": "",
       "PublishEvent": {
-        "E_TestEvent_001": true
+        "E_TEST_001": true
       },
       "ListenEvent": {
-        "E_TestEvent_001": true
+        "E_TEST_001": true
+      }
+    },
+    "TESTINPUT": {
+      "SysId": "TESTINPUT",
+      "Remark": "",
+      "PublishEvent": {
+        "E_TEST_002": true
+      },
+      "ListenEvent": {
+        "E_TEST_002": true
       }
     }
   },
@@ -15,11 +25,17 @@
   "SysIDToPublsihMethod": {
     "TEST": [
       "TestEntry.TestEventPublish"
+    ],
+    "TESTINPUT": [
+      "CharacterInputEntry.InputMoveToEvent"
     ]
   },
   "SysIDToListenMethod": {
     "TEST": [
       "TestEntry.TestEventListen"
+    ],
+    "TESTINPUT": [
+      "TestEntry.TestInputToListen"
     ]
   }
 }

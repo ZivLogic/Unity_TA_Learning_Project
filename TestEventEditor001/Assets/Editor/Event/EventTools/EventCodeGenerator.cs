@@ -27,21 +27,18 @@ namespace EventSystemV2
         [MenuItem("Tools/事件系统/生成所有事件代码")]
         public static void GenerateAllEventCode()
         {
-            //确保目录存在
             EnsureDirectories();
-            //加载配置
-            //具体事件配置
             var config = EventGlobalCache.AllEvent;
-            //索引配置
-            var mappingConfig_Listen = EventGlobalCache.GlobalEventConfig.ListenMethodToEvent;
-
-            //先根据具体配置遍历获取到事件名称，通过事件名称找到监听方法具体列表，在根据父级索引获取所有的kv.Key，在通过事件内具体的具体方法 -> 方法找到
-            //普通方法，在通过具体方法名找到对应实例类名和包键值名称还有字段映射联系，最后面集齐实例类名，普通方法名，具体方法的包键值，键值的映射关系
             if (config == null || config.Count == 0)
             {
                 Debug.LogWarning("[EventCodeGenerator]没有找到事件配置/配置为空");
                 return;
             }
+
+            // 【核心修改】按接收方类名分组收集数据
+            // Key: 类名 (如 "TestEntry")
+            // Value: 该类的所有接收绑定信息
+            var classBindings = new Dictionary<string, List<BindingInfo>>();
             int generatedCount = 0;
 
             foreach (var kv in config)
@@ -49,17 +46,44 @@ namespace EventSystemV2
                 string eventName = kv.Key;
                 EventItem item = kv.Value;
 
-                //生成事件壳类
+                // 1. 生成事件壳类 (强类型容器)
                 GenerateEventClass(eventName, item);
-
-                //生成绑定代码
-                GenerateBindingClass(eventName, item);
-
                 generatedCount++;
+
+                // 2. 收集监听方信息
+                foreach (var listenFullName in item.EventListen)
+                {
+                    var parts = listenFullName.Split('.');
+                    if (parts.Length < 2) continue;
+
+                    string className = parts[0];
+                    string methodName = parts[1];
+
+                    if (!classBindings.ContainsKey(className))
+                        classBindings[className] = new List<BindingInfo>();
+
+                    // 去重：防止同一个类的同一个方法绑定了多次
+                    if (!classBindings[className].Exists(b => b.MethodName == methodName))
+                    {
+                        classBindings[className].Add(new BindingInfo
+                        {
+                            EventClassName = GetEventClassName(eventName),
+                            MethodName = methodName,
+                            EventItem = item,
+                            ListenFullName = listenFullName
+                        });
+                    }
+                }
+            }
+
+            // 3. 为每个接收方类生成唯一的 partial 文件
+            foreach (var kv in classBindings)
+            {
+                GeneratePartialBindingClass(kv.Key, kv.Value);
             }
 
             AssetDatabase.Refresh();
-            Debug.Log($"生成了{generatedCount}个事件代码");
+            Debug.Log($"生成了 {generatedCount} 个事件代码，以及 {classBindings.Count} 个类的绑定代码");
         }
 
         //删除所有生成的代码
@@ -163,46 +187,44 @@ namespace EventSystemV2
             Debug.Log($"生成事件类：{filePath}");
         }
 
-        private static void GenerateBindingClass(string eventName, EventItem eventItem)
+        // 【新增】辅助数据结构，用于按类聚合生成
+        private class BindingInfo
         {
-            string eventClassName = GetEventClassName(eventName);
-            var listenGroups = new Dictionary<string, List<string>>();
+            public string EventClassName;
+            public string MethodName;
+            public string ListenFullName;
+            public EventItem EventItem;
+        }
 
-            // 按接收方类名分组
-            foreach (var listenFullName in eventItem.EventListen)
+        // 【替换】生成唯一的 partial 类文件
+        private static void GeneratePartialBindingClass(string className, List<BindingInfo> bindings)
+        {
+            // 文件名固定为 Gen_类名.cs，保证一个类只有一个生成文件
+            string filePath = BINDING_PATH + $"Gen_{className}.cs";
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("using UnityEngine;");
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using EventSystemV2;");
+            sb.AppendLine();
+            sb.AppendLine($"public partial class {className}");
+            sb.AppendLine("{");
+            sb.AppendLine("    protected override void RegisterEvents()");
+            sb.AppendLine("    {");
+
+            foreach (var binding in bindings)
             {
-                var parts = listenFullName.Split('.');
-                if (!listenGroups.ContainsKey(parts[0])) listenGroups[parts[0]] = new List<string>();
-                listenGroups[parts[0]].Add(listenFullName);
+                sb.AppendLine($"        // 绑定事件: {binding.EventClassName}");
+                sb.AppendLine($"        RegisterMethod(\"{binding.MethodName}\", evt => ");
+                sb.AppendLine($"            {binding.MethodName}({BuildArgList(binding.EventItem, binding.ListenFullName, binding.EventClassName)}));");
             }
 
-            foreach (var kv in listenGroups)
-            {
-                string listenClassName = kv.Key;
-                string filePath = BINDING_PATH + $"Gen_{listenClassName}_{eventName}.cs";
+            sb.AppendLine("    }");
+            sb.AppendLine("}");
 
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("using UnityEngine;\nusing System;\nusing System.Collections.Generic;\nusing EventSystemV2;\n");
-                sb.AppendLine($"public partial class {listenClassName}");
-                sb.AppendLine("{");
-                sb.AppendLine("    protected override void RegisterEvents()");
-                sb.AppendLine("    {");
-
-                HashSet<string> processedMethods = new HashSet<string>();
-                foreach (var listenFullName in kv.Value)
-                {
-                    string listenMethodName = listenFullName.Split('.')[1];
-                    if (processedMethods.Contains(listenMethodName)) continue;
-                    processedMethods.Add(listenMethodName);
-
-                    sb.AppendLine($"        // 绑定: {listenFullName}");
-                    sb.AppendLine($"        RegisterMethod(\"{listenMethodName}\", evt => ");
-                    sb.AppendLine($"            {listenMethodName}({BuildArgList(eventItem, listenFullName, eventClassName)}));");
-                }
-
-                sb.AppendLine("    }\n}");
-                File.WriteAllText(filePath, sb.ToString());
-            }
+            File.WriteAllText(filePath, sb.ToString());
+            Debug.Log($"生成绑定 partial 类：{filePath}");
         }
 
         private static string BuildArgList(EventItem item, string listenFullName, string eventClassName)

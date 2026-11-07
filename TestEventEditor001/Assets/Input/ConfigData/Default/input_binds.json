@@ -34,6 +34,17 @@
       "Scope": "Self"
     },
     {
+      "ActionKey": "MoveRight",
+      "IsCombo": false,
+      "Key1": "D",
+      "AltKey1": "RightArrow",
+      "Action": "MoveRight",
+      "AllowContext": ["GameWorld"],
+      "ListenState": ["Down", "Hold", "Up"],
+      "HoldInterval": 0.05,
+      "Scope": "Self"
+    },
+    {
       "ActionKey": "Attack",
       "IsCombo": false,
       "MouseButtonIndex": 0,

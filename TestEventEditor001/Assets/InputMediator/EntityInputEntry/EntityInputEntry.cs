@@ -49,53 +49,6 @@ public abstract class EntityInputEntry : LogicScriptBase
         }
     }
 
-    //// ============ 事件系统桥接 ============
-
-    ///// <summary>
-    ///// 获取事件入口（懒加载 + 缓存）
-    ///// </summary>
-    //protected EntityEventEntry GetEventEntry()
-    //{
-    //    if (_eventEntry != null) return _eventEntry;
-
-    //    if (Entity?.LogicScripts == null) return null;
-
-    //    foreach (var script in Entity.LogicScripts)
-    //    {
-    //        if (script is EntityEventEntry entry)
-    //        {
-    //            _eventEntry = entry;
-    //            return entry;
-    //        }
-    //    }
-
-    //    Debug.LogWarning($"[EntityInputEntry] 实体 {Entity?.UUID} 没有事件入口");
-    //    return null;
-    //}
-
-    ///// <summary>
-    ///// 快捷发布事件（通过实体查找事件入口）
-    ///// </summary>
-    //protected void PublishEvent<T>(T payload) where T : EntityEventPayload
-    //{
-    //    if (payload == null) return;
-
-    //    var entry = GetEventEntry();
-    //    entry?.PublishEvent(payload);
-    //}
-
-    ///// <summary>
-    ///// 快捷注册事件接收（通过实体查找事件入口）
-    ///// </summary>
-    //protected void RegisterEvent<T>(string definitionId, Action<T> handler)
-    //    where T : EntityEventPayload
-    //{
-    //    var entry = GetEventEntry();
-    //    entry?.RegisterEvent(definitionId, handler);
-    //}
-
-    // ============ 持久化 ============
-
     public override void LoadFromEntry(ILogicStateEntry entry)
     {
         // 默认空实现

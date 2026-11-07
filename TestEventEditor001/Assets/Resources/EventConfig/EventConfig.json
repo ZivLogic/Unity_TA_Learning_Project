@@ -1,8 +1,8 @@
 {
   "Items": {
-    "TestEvent_001": {
-      "EventName": "TestEvent_001",
-      "EventClassFullName": "E_TestEvent_001",
+    "TEST_001": {
+      "EventName": "TEST_001",
+      "EventClassFullName": "E_TEST_001",
       "QueueType": 0,
       "GlobalEnable": true,
       "EventPublish": "TestEntry.TestEventPublish",
@@ -56,16 +56,81 @@
         }
       },
       "CodePath": {
-        "EventClass": "Assets/Scripts/Generated/Events/E_TestEvent_001.cs",
-        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TestEvent_001.cs"
+        "EventClass": "Assets/Scripts/Generated/Events/E_TEST_001.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TEST_001.cs"
+      },
+      "IsOldEvent": false
+    },
+    "TEST_002": {
+      "EventName": "TEST_002",
+      "EventClassFullName": "E_TEST_002",
+      "QueueType": 0,
+      "GlobalEnable": true,
+      "EventPublish": "CharacterInputEntry.InputMoveToEvent",
+      "EventListen": [
+        "TestEntry.TestInputToListen"
+      ],
+      "ListenMethodDict": {
+        "TestEntry.TestInputToListen": "TestInputToListen"
+      },
+      "PublishSysId": [
+        "TESTINPUT"
+      ],
+      "ListenSysId": [
+        "TESTINPUT"
+      ],
+      "PublishMethodToSystemID": {
+        "CharacterInputEntry.InputMoveToEvent": "TESTINPUT"
+      },
+      "ListenMethodToSystemID": {
+        "TestEntry.TestInputToListen": "TESTINPUT"
+      },
+      "PublishClassList": [
+        "CharacterInputEntry"
+      ],
+      "ListenClassList": [
+        "TestEntry"
+      ],
+      "PublishClassName": {
+        "CharacterInputEntry.InputMoveToEvent": "CharacterInputEntry"
+      },
+      "ListenClassName": {
+        "TestEntry.TestInputToListen": "TestEntry"
+      },
+      "PublishKey": {
+        "CharacterInputEntry.InputMoveToEvent": [
+          "UUIDS",
+          "vle",
+          "name"
+        ]
+      },
+      "ListenKey": {
+        "TestEntry.TestInputToListen": [
+          "vle",
+          "name"
+        ]
+      },
+      "KeyConnection": {
+        "CharacterInputEntry.InputMoveToEvent_TestEntry.TestInputToListen": {
+          "vle": "vle",
+          "name": "name"
+        }
+      },
+      "CodePath": {
+        "EventClass": "Assets/Scripts/Generated/Events/E_TEST_002.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TEST_002.cs"
       },
       "IsOldEvent": false
     }
   },
   "MethodInstances": {
+    "CharacterInputEntry": [
+      "InputMoveToEvent"
+    ],
     "TestEntry": [
       "TestEventPublish",
-      "TestEventListen"
+      "TestEventListen",
+      "TestInputToListen"
     ],
     "TestPublish": [
       "TestEventPublish",
@@ -88,7 +153,8 @@
   },
   "ListenMethodInstances": {
     "TestEntry": [
-      "TestEventListen"
+      "TestEventListen",
+      "TestInputToListen"
     ],
     "TestListen": [
       "TestEventListen",
@@ -102,9 +168,11 @@
     ]
   },
   "PublishMethodToEvent": {
-    "TestEntry.TestEventPublish": "TestEvent_001"
+    "TestEntry.TestEventPublish": "TEST_001",
+    "CharacterInputEntry.InputMoveToEvent": "TEST_002"
   },
   "ListenMethodToEvent": {
-    "TestEntry.TestEventListen": "TestEvent_001"
+    "TestEntry.TestEventListen": "TEST_001",
+    "TestEntry.TestInputToListen": "TEST_002"
   }
 }

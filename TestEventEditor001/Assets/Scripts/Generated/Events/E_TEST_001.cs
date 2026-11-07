@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using EventSystemV2;
 
-public class E_TestEvent_001 : PackageEvent
+public class E_TEST_001 : PackageEvent
 {
     public string TargetId;
     public List<string> TargetIds;
@@ -10,9 +10,9 @@ public class E_TestEvent_001 : PackageEvent
     public int value;
     public string msg;
 
-    public E_TestEvent_001()
+    public E_TEST_001()
     {
-        EventClassFullName = "E_TestEvent_001";
+        EventClassFullName = "E_TEST_001";
         QueueType = EventQueueType.Logic;
     }
 }
