@@ -121,13 +121,13 @@ public class CreatConfig : MonoBehaviour
                 { "executionOrder", 0 },
                 { "enabled", true }
             },
-            //new Dictionary<string, object>
-            //{
-            //    { "scriptId", "entity_input_entry" },
-            //    { "scriptName", "EntityInputEntry" },
-            //    { "executionOrder", 0 },
-            //    { "enabled", true }
-            //},
+            new Dictionary<string, object>
+            {
+                { "scriptId", "test_entry" },
+                { "scriptName", "TestEntry" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
             new Dictionary<string, object>
             {
                 { "scriptId", "character_input_entry" },
@@ -171,7 +171,7 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "pawn_physics" },
                 { "materialId", "pawn_black" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
@@ -204,7 +204,7 @@ public class CreatConfig : MonoBehaviour
                 { "logicScriptIds", new List<object> { "follow_target" } },
                 { "audioIds",  new List<object> { "pawn_move" } },
                 { "poolId", "" },
-                { "prefabPath", "TestImage/TEST_UI_001" },  // ÄãµÄÍ¼Æ¬
+                { "prefabPath", "TestImage/TEST_UI_003" },  // ÄãµÄÍ¼Æ¬
                 { "canvasName", "Canvas_Main" },
                 { "sortingOrder", 100 },
                 { "uiLayer", "normal" },

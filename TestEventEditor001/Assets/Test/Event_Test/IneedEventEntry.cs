@@ -1,18 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class IneedEventEntry : MonoBehaviour
+/// <summary>
+/// 需要事件入口的脚本实现此接口（如输入脚本）
+/// 由 LogicFactory 在挂载完成后注入
+/// </summary>
+public interface INeedEventEntry
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    EventEntryBase EventEntry { get; set; }
 }

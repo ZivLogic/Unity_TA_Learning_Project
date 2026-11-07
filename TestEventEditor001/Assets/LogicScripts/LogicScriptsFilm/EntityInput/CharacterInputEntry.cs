@@ -6,6 +6,7 @@ using UnityEngine;
 /// </summary>
 public class CharacterInputEntry : EntityInputEntry
 {
+
     [Header("移动")]
     public float MoveSpeed = 3f;
 
@@ -18,7 +19,7 @@ public class CharacterInputEntry : EntityInputEntry
     {
         // 单键
         RegisterInput("MoveUp", e => HandleSingle(Vector3.forward, e.KeyState));
-        RegisterInput("MoveDown", e => HandleSingle(Vector3.back, e.KeyState));
+        RegisterInput("MoveDown", HandleMoveDown);
         RegisterInput("MoveLeft", e => HandleSingle(Vector3.left, e.KeyState));
         RegisterInput("MoveRight", e => HandleSingle(Vector3.right, e.KeyState));
 
@@ -80,6 +81,36 @@ public class CharacterInputEntry : EntityInputEntry
         Vector3 dir = _comboDir != Vector3.zero ? _comboDir : _moveDir;
         if (dir == Vector3.zero) return;
         transform.position += dir * MoveSpeed * Time.deltaTime;
+    }
+
+    // 【新增】专门处理按 S 的测试逻辑
+    private void HandleMoveDown(EntityInputEvent e)
+    {
+        // 只在刚按下的那一帧触发，防止按住一直发
+        if (e.KeyState != InputKeyState.Down) return;
+
+        // 1. 从当前实体上找 TestEntry 组件
+        // （注意：要求 TestEntry 必须和 CharacterInputEntry 挂在同一个实体上）
+        TestEntry testEntry = null;
+        foreach (var script in Entity.LogicScripts)
+        {
+            if (script is TestEntry te)
+            {
+                testEntry = te;
+                break;
+            }
+        }
+
+        // 2. 找到就调用它的测试方法
+        if (testEntry != null)
+        {
+            Debug.Log("【输入层】按下了 S 键，准备触发 TestEntry 的事件发送逻辑");
+            testEntry.TEST_001();
+        }
+        else
+        {
+            Debug.LogWarning("【输入层】当前实体上没有找到 TestEntry 组件！");
+        }
     }
 
     // ========== 持久化 ==========

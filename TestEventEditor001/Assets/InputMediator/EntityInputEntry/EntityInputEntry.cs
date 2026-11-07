@@ -1,4 +1,3 @@
-using EventSystemV3;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,9 +18,6 @@ public abstract class EntityInputEntry : LogicScriptBase
     private Dictionary<string, Action<EntityInputEvent>> _inputTable = new Dictionary<string, Action<EntityInputEvent>>();
 
     public override string ContainerId => "input";
-
-    // ============ 事件入口缓存 ============
-    private EntityEventEntry _eventEntry;
 
     protected virtual void Awake()
     {

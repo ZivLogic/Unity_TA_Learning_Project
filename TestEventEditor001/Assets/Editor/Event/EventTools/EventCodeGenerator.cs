@@ -114,7 +114,6 @@ namespace EventSystemV2
                 Directory.CreateDirectory(BINDING_PATH);
         }
 
-        //自动生成事件类外壳
         private static void GenerateEventClass(string eventName, EventItem eventItem)
         {
             string className = GetEventClassName(eventName);
@@ -122,15 +121,42 @@ namespace EventSystemV2
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("using UnityEngine;");
+            sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("using EventSystemV2;");
             sb.AppendLine();
             sb.AppendLine($"public class {className} : PackageEvent");
             sb.AppendLine("{");
-            sb.AppendLine($"    public {className} ()");
-            sb.AppendLine("     {");
+
+            // 路由字段
+            sb.AppendLine("    public string TargetId;");
+            sb.AppendLine("    public List<string> TargetIds;");
+            sb.AppendLine();
+
+            // payload 字段（按发布方法参数生成属性，UUID 参数跳过）
+            if (eventItem.PublishKey != null &&
+                eventItem.PublishKey.TryGetValue(eventItem.EventPublish, out var keys))
+            {
+                var methodParams = EventGlobalCache.GlobalMethodParams
+                    .GetValueOrDefault(eventItem.EventPublish);
+                if (methodParams != null)
+                {
+                    foreach (var key in keys)
+                    {
+                        if (key == "UUID" || key == "UUIDS") continue;  // UUID 是路由，不进 payload
+                        if (methodParams.ParamNameToType.TryGetValue(key, out var t))
+                        {
+                            sb.AppendLine($"    public {GetTypeName(t)} {key};");
+                        }
+                    }
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine($"    public {className}()");
+            sb.AppendLine("    {");
             sb.AppendLine($"        EventClassFullName = \"{className}\";");
             sb.AppendLine($"        QueueType = EventQueueType.{eventItem.QueueType};");
-            sb.AppendLine("     }");
+            sb.AppendLine("    }");
             sb.AppendLine("}");
 
             File.WriteAllText(filePath, sb.ToString());
@@ -139,134 +165,82 @@ namespace EventSystemV2
 
         private static void GenerateBindingClass(string eventName, EventItem eventItem)
         {
-            string className = GetBindingClassName(eventName);
-            string filePath = BINDING_PATH + className + ".cs";
             string eventClassName = GetEventClassName(eventName);
+            var listenGroups = new Dictionary<string, List<string>>();
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("using UnityEngine;");
-            sb.AppendLine("using System;");
-            sb.AppendLine("using System.Reflection;");
-            sb.AppendLine("using System.Collections.Generic;");
-            sb.AppendLine("using EventSystemV2;");
-            sb.AppendLine();
-            sb.AppendLine($"public static class {className}");
-            sb.AppendLine("{");
-            sb.AppendLine("     private static bool _initialized = false;");
-            sb.AppendLine();
-            //sb.AppendLine("     [RuntimeInitializeOnLoadMethod]");
-            sb.AppendLine($"    public static void Initialize()");
-            sb.AppendLine("     {");
-            sb.AppendLine("         if (_initialized)return;");
-            sb.AppendLine("             _initialized = true;");
-            sb.AppendLine();
-
-            //收集所有不同的监听实例
-            HashSet<string> processedListeners = new();
-
-            //生成每个监听方的绑定代码
-            for (int i = 0; i < eventItem.EventListen.Count; i++)
+            // 按接收方类名分组
+            foreach (var listenFullName in eventItem.EventListen)
             {
-
-                //在这里判断需要实例化的对象和对应的监听方法
-
-
-                string listenFullName = eventItem.EventListen[i];
-                string[] pars = listenFullName.Split('.');
-                string listenClassName = pars[0];
-                string listenMethodName = pars[1];
-
-                //获取映射关系
-                string publishFullName = eventItem.EventPublish;
-                string mappingKey = $"{publishFullName}_{listenFullName}";
-                var keyConnection = eventItem.KeyConnection.GetValueOrDefault(mappingKey);
-
-
-                //获取监听方法
-                MethodInfo listenMethod = GetMethodInfo(listenMethodName);
-                string listenerVarName = $"listener_{i}";
-
-                sb.AppendLine($"        //绑定监听：{listenFullName}");
-                sb.AppendLine($"        var listener_{i} = BusinessInstanceManager.Get(\"{listenClassName}\");");
-                sb.AppendLine($"        if (listener_{i} == null)");
-                sb.AppendLine($"        {{");
-                sb.AppendLine($"            Debug.LogWarning($\"监听实例{listenClassName}未注册\");");
-                sb.AppendLine($"            return;");
-                sb.AppendLine($"        }}");
-                sb.AppendLine();
-                sb.AppendLine($"        Action<{eventClassName}> handler_{i} = (evt) => ");
-                sb.AppendLine("         {");
-                sb.AppendLine("             try");
-                sb.AppendLine("             {");
-
-                if (listenMethod != null)
-                {
-                    GenerateSafeInvokeCode(sb, listenMethod, keyConnection, listenMethodName, listenerVarName);
-                }
-                else
-                {
-                    //降级方案：使用动态调用
-                    sb.AppendLine($"                var method = listener_{i}.GetType().GetMethod(\"{listenMethodName}\");");
-                    sb.AppendLine($"                if (method != null)");
-                    sb.AppendLine($"                {{");
-                    sb.AppendLine($"                    Debug.LogWarning($\"监听方法:{listenMethodName}使用动态调用\");");
-                    sb.AppendLine($"                    method.Invoke(listener_{i}, null);");
-                    sb.AppendLine($"                }}");
-                }
-
-                sb.AppendLine("             }");
-                sb.AppendLine("             catch (Exception e)");
-                sb.AppendLine("             {");
-                sb.AppendLine($"                Debug.LogError($\"执行监听{listenMethodName}失败：{{e.Message}}\");");
-                sb.AppendLine("             }");
-                sb.AppendLine("         };");
-                sb.AppendLine($"        EventManager.Instance.Listen<{eventClassName}>(handler_{i});");
-                sb.AppendLine();
-
+                var parts = listenFullName.Split('.');
+                if (!listenGroups.ContainsKey(parts[0])) listenGroups[parts[0]] = new List<string>();
+                listenGroups[parts[0]].Add(listenFullName);
             }
 
-            sb.AppendLine("     }");
-            sb.AppendLine("}");
+            foreach (var kv in listenGroups)
+            {
+                string listenClassName = kv.Key;
+                string filePath = BINDING_PATH + $"Gen_{listenClassName}_{eventName}.cs";
 
-            File.WriteAllText(filePath, sb.ToString());
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("using UnityEngine;\nusing System;\nusing System.Collections.Generic;\nusing EventSystemV2;\n");
+                sb.AppendLine($"public partial class {listenClassName}");
+                sb.AppendLine("{");
+                sb.AppendLine("    protected override void RegisterEvents()");
+                sb.AppendLine("    {");
+
+                HashSet<string> processedMethods = new HashSet<string>();
+                foreach (var listenFullName in kv.Value)
+                {
+                    string listenMethodName = listenFullName.Split('.')[1];
+                    if (processedMethods.Contains(listenMethodName)) continue;
+                    processedMethods.Add(listenMethodName);
+
+                    sb.AppendLine($"        // 绑定: {listenFullName}");
+                    sb.AppendLine($"        RegisterMethod(\"{listenMethodName}\", evt => ");
+                    sb.AppendLine($"            {listenMethodName}({BuildArgList(eventItem, listenFullName, eventClassName)}));");
+                }
+
+                sb.AppendLine("    }\n}");
+                File.WriteAllText(filePath, sb.ToString());
+            }
         }
 
-        private static void GenerateSafeInvokeCode(StringBuilder sb, MethodInfo method, Dictionary<string, string> keyConnection, string listenMethodName, string listenerVarName)
+        private static string BuildArgList(EventItem item, string listenFullName, string eventClassName)
+        {
+            string mappingKey = $"{item.EventPublish}_{listenFullName}";
+            var mapping = item.KeyConnection?.GetValueOrDefault(mappingKey);
+            var listenParams = EventGlobalCache.GlobalMethodParams.GetValueOrDefault(listenFullName);
+            if (listenParams == null) return "";
+
+            var args = new List<string>();
+            foreach (var p in listenParams.Parameters)
+            {
+                string prop = p.Name;
+                if (mapping != null && mapping.TryGetValue(p.Name, out var mapped)) prop = mapped;
+                args.Add($"(({eventClassName})evt).{prop}");
+            }
+            return string.Join(", ", args);
+        }
+
+        private static void GenerateSafeInvokeCode(StringBuilder sb, MethodInfo method,
+        Dictionary<string, string> keyConnection, string listenMethodName, string listenerVarName)
         {
             var parameters = method.GetParameters();
 
-            if (parameters.Length == 0)
+            // 构建参数表达式：优先按 KeyConnection 映射，否则用 evt.同名属性
+            var argExprs = new List<string>();
+            foreach (var param in parameters)
             {
-                sb.AppendLine($"                var method = {listenerVarName}.GetType().GetMethod(\"{listenMethodName}\");");
-                sb.AppendLine($"                method?.Invoke({listenerVarName}, null);");
-                return;
-            }
-
-            //生成临时变量参数
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var param = parameters[i];
                 string paramName = param.Name;
-                string paramType = GetTypeName(param.ParameterType);
+                string propName = paramName;
+                if (keyConnection != null && keyConnection.TryGetValue(paramName, out var mapped))
+                    propName = mapped;
 
-                string packKey = param.Name;
-                if (keyConnection != null && keyConnection.TryGetValue(paramName, out string mappedKey))
-                    packKey = mappedKey;
-
-                sb.AppendLine($"                {paramType} p_{paramName};");
-                sb.AppendLine($"                if ( ! evt.Package.Get<{paramType}>(\"{packKey}\", out p_{paramName}))");
-                sb.AppendLine($"                {{");
-                sb.AppendLine($"                    Debug.LogError($\"获取参数{paramName}失败，KEY:{packKey}\");");
-                sb.AppendLine($"                    return;");
-                sb.AppendLine($"                }}");
+                argExprs.Add($"evt.{propName}");
             }
 
-            //构建调用参数
-            string args = string.Join(",", System.Array.ConvertAll(parameters, p => $"p_{p.Name}"));
-            sb.AppendLine();
-            sb.AppendLine($"                var method = {listenerVarName}.GetType().GetMethod(\"{listenMethodName}\");");
-            sb.AppendLine($"                method?.Invoke({listenerVarName}, new object[] {{{args}}});");
-
+            string args = string.Join(", ", argExprs);
+            sb.AppendLine($"                {listenerVarName}.{listenMethodName}({args});");
         }
 
 

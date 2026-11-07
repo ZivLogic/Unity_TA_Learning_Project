@@ -244,6 +244,10 @@ public class MasterFactory : MonoBehaviour
         var entity = FindByUUID(uuid);
         if (entity == null) return;
 
+        // 【新增】先反注销事件入口
+        foreach (var s in entity.LogicScripts)
+            if (s is EventEntryBase entry) entry.Shutdown();
+
         // 1. 池表同步
         PoolFactory?.OnEntityDestroyed(entity);
 

@@ -12,21 +12,20 @@ namespace EventSystemV2
 
         public static void Initialize()
         {
-            //Debug.Log("正确调用注册");
             if (_initialized) return;
-            if (EventManager.Instance == null)
-            {
-                Debug.Log("[EventRuntimeInitializer]事件加载器还未加载");
-                return;
-            }
+            if (EventManager.Instance == null) return;
             _initialized = true;
 
-            //从配置加载并自动化床建实例
-            AutoCreateInstancesFromConfig();
+            // 【核心修改】干掉 AutoCreateInstancesFromConfig();
+            // 业务脚本的生命周期已全权交由 MasterFactory -> LogicFactory 管理！
 
-            //根据配置建立事件绑定
-            BindEventsFromConfig();
+            // 旧版本的全局弱类型广播绑定，暂时保留兼容性（如果不用可一并注释）
+            // BindEventsFromConfig();
+
+            Debug.Log("[EventRuntimeInitializer] 旧版自动实例化已停用，事件脚本交由工厂流水线挂载。");
         }
+
+        // ... 下面的代码可以留着，但永远不执行了
 
         //根据配置加载并自动化创建实例
         private static void AutoCreateInstancesFromConfig()

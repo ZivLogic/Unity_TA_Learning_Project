@@ -245,5 +245,113 @@ namespace EventSystemV2
             var method = instance.GetType().GetMethod(methodName);
             return method?.GetParameters() ?? new ParameterInfo[0];
         }
+
+
+
+
+        #region UUID投递
+        public static void EmitToTargets(object instance, string methodName, List<string> uuids, params object[] payload)
+        {
+            if (uuids == null || uuids.Count == 0) return;
+            string fullMethodName = $"{instance.GetType().Name}.{methodName}";
+
+            if (!EventGlobalCache.PublishMethodToEvent.TryGetValue(fullMethodName, out string eventName)) return;
+            var eventItem = EventGlobalCache.AllEvent[eventName];
+
+            var evt = BuildEvent(instance, methodName, payload, uuids);
+            if (evt == null) return;
+
+            var em = EventManager.Instance;
+            if (em == null) return;
+
+            // 精确投递到配置的接收方法
+            foreach (var listenFullName in eventItem.EventListen)
+            {
+                em.DispatchToTargets(uuids, listenFullName, evt); // listenFullName = "类名.方法名"
+            }
+
+            //Debug.Log("事件快捷入口发布成功");
+        }
+
+        /// <summary>
+        /// 全局发布
+        /// </summary>
+        public static void EmitGlobal(object instance, string methodName, params object[] payload)
+        {
+            var evt = BuildEvent(instance, methodName, payload, null);
+            if (evt == null) return;
+
+            string fullMethodName = $"{instance.GetType().Name}.{methodName}";
+            if (!EventGlobalCache.PublishMethodToEvent.TryGetValue(fullMethodName, out string eventName)) return;
+            var eventItem = EventGlobalCache.AllEvent[eventName];
+
+            var em = EventManager.Instance;
+            if (em == null) return;
+
+            // 【核心修改】遍历配置中该事件的所有接收方法，通知全局分发
+            foreach (var listenFullName in eventItem.EventListen)
+            {
+                em.DispatchGlobal(listenFullName, evt);
+            }
+        }
+
+        private static PackageEvent BuildEvent(object instance, string methodName, object[] payload, List<string> uuids)
+        {
+            string fullMethodName = $"{instance.GetType().Name}.{methodName}";
+            if (!EventGlobalCache.PublishMethodToEvent.TryGetValue(fullMethodName, out string eventName)) return null;
+
+            var eventItem = EventGlobalCache.AllEvent[eventName];
+            var eventType = Type.GetType(eventItem.EventClassFullName);
+            if (eventType == null) return null;
+
+            var evt = (PackageEvent)Activator.CreateInstance(eventType);
+
+            // 1. 设置路由 UUID
+            if (uuids != null)
+            {
+                if (uuids.Count == 1) eventType.GetField("TargetId")?.SetValue(evt, uuids[0]);
+                eventType.GetField("TargetIds")?.SetValue(evt, uuids);
+            }
+
+            // 2. 设置强类型 payload 字段
+            var methodParams = EventGlobalCache.GlobalMethodParams.GetValueOrDefault(fullMethodName);
+            if (methodParams != null)
+            {
+                // 【修复】使用专门的 payloadIndex，不和方法参数索引混用
+                int payloadIndex = 0;
+
+                foreach (var p in methodParams.Parameters)
+                {
+                    // 如果是 UUID 字段，直接跳过，不消耗 payloadIndex
+                    if (p.Name == "UUID" || p.Name == "UUIDS" || p.Name == "TargetId" || p.Name == "TargetIds")
+                        continue;
+
+                    // 取出对应的 payload 数据并赋值给事件类的同名属性
+                    if (payloadIndex < payload.Length)
+                    {
+                        var field = eventType.GetField(p.Name);
+                        if (field != null)
+                        {
+                            // 安全赋值：确保类型匹配（避免你配置的映射和实际传参类型不符导致崩溃）
+                            try
+                            {
+                                field.SetValue(evt, payload[payloadIndex]);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError($"[BuildEvent] 字段 {p.Name} 赋值失败，期望类型 {field.FieldType}，实际传入 {payload[payloadIndex]?.GetType()}：{e.Message}");
+                            }
+                        }
+                    }
+
+                    payloadIndex++; // 只有业务字段才递增 payloadIndex
+                }
+            }
+
+            evt.EventClassFullName = eventItem.EventClassFullName;
+            evt.QueueType = eventItem.QueueType;
+            return evt;
+        }
+        #endregion
     }
 }

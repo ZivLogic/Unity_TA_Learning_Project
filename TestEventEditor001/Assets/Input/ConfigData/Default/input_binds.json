@@ -23,6 +23,17 @@
       "Scope": "Self"
     },
     {
+      "ActionKey": "MoveDown",
+      "IsCombo": false,
+      "Key1": "S",
+      "AltKey1": "DownArrow",
+      "Action": "MoveDown",
+      "AllowContext": ["GameWorld"],
+      "ListenState": ["Down", "Hold", "Up"],
+      "HoldInterval": 0.05,
+      "Scope": "Self"
+    },
+    {
       "ActionKey": "Attack",
       "IsCombo": false,
       "MouseButtonIndex": 0,

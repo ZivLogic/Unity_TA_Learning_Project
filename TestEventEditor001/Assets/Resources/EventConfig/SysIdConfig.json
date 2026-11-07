@@ -1,65 +1,25 @@
 {
   "ItemsIsEnable": {
-    "TestSysID": {
-      "SysId": "TestSysID",
-      "Remark": "测试系统ID",
-      "PublishEvent": {
-        "E_TestEvent": true,
-        "E_EventClass002": true
-      },
-      "ListenEvent": {
-        "E_TestEvent": true,
-        "E_EventClass002": true
-      }
-    },
-    "TestID002": {
-      "SysId": "TestID002",
-      "Remark": "测试ID002",
-      "PublishEvent": {
-        "E_EventBoolTest002": true,
-        "E_TestGameObj": true
-      },
-      "ListenEvent": {
-        "E_EventBoolTest002": true,
-        "E_TestGameObj": true
-      }
-    },
-    "TestConfig": {
-      "SysId": "TestConfig",
+    "TEST": {
+      "SysId": "TEST",
       "Remark": "",
       "PublishEvent": {
-        "E_TestConfig_001": true
+        "E_TestEvent_001": true
       },
       "ListenEvent": {
-        "E_TestConfig_001": true
+        "E_TestEvent_001": true
       }
     }
   },
   "ItemsNoEnable": {},
   "SysIDToPublsihMethod": {
-    "TestSysID": [
-      "TestPublish.TestEventPublish",
-      "TestPublish.Test_CLASSevnt"
-    ],
-    "TestID002": [
-      "TestPublish.TestEventPublish002",
-      "TestPublish.GameOBJ"
-    ],
-    "TestConfig": [
-      "TestPublish.Test_ConfigData"
+    "TEST": [
+      "TestEntry.TestEventPublish"
     ]
   },
   "SysIDToListenMethod": {
-    "TestSysID": [
-      "TestListen.TestEventListen",
-      "TestListen.TestEventlISTEN_CLASS_003"
-    ],
-    "TestID002": [
-      "TestListen.TestEvent002",
-      "TestListen.TestLisenGameObj"
-    ],
-    "TestConfig": [
-      "TestListen.TestConfigData"
+    "TEST": [
+      "TestEntry.TestEventListen"
     ]
   }
 }

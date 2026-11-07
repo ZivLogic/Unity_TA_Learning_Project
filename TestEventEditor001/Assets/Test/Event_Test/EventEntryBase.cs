@@ -3,77 +3,53 @@ using System.Collections.Generic;
 using UnityEngine;
 using EventSystemV2;
 
-/// <summary>
-/// 事件入口基类
-/// 继承 LogicScriptBase，可被 LogicStateManager 管理
-/// 职责：
-/// 1. 维护事件处理方法表（key = 类名.方法名）
-/// 2. 收到事件 → 查表 → 命中才调
-/// 3. 提供 Emit 发布入口
-/// 接收方只写业务方法，注册由生成代码（partial）代劳
-/// </summary>
 public abstract class EventEntryBase : LogicScriptBase
 {
-    // key = "类名.方法名"，value = 处理方法
-    private readonly Dictionary<string, Action<PackageEvent>> _table
-        = new Dictionary<string, Action<PackageEvent>>();
-
+    private readonly Dictionary<string, Action<PackageEvent>> _table = new Dictionary<string, Action<PackageEvent>>();
     public override string ContainerId => "event";
 
-    protected virtual void Awake()
+    // 由工厂在 Entity 注入后调用
+    public void Initialize()
     {
-        RegisterEvents();
+        RegisterEvents(); // 触发 partial 生成的注册
+        if (Entity != null && !string.IsNullOrEmpty(Entity.UUID))
+            EventManager.Instance?.RegisterTarget(Entity.UUID, this);
+        //Debug.Log($"注册事件入口成功！UUID = {Entity.UUID}");
     }
 
-    /// <summary>
-    /// 由生成代码（partial）实现，把接收方法注册进表
-    /// 手写场景也可以子类自己重写
-    /// </summary>
-    protected abstract void RegisterEvents();
+    // 由工厂在销毁前调用
+    public void Shutdown()
+    {
+        if (Entity != null && !string.IsNullOrEmpty(Entity.UUID))
+            EventManager.Instance?.UnregisterTarget(Entity.UUID);
+    }
 
-    /// <summary>
-    /// 注册一个处理方法（key = 类名.方法名）
-    /// </summary>
+    // 【关键】改成 virtual 空实现，让 partial 生成代码 override
+    protected virtual void RegisterEvents() { }
+
     protected void RegisterMethod(string methodName, Action<PackageEvent> handler)
     {
         if (string.IsNullOrEmpty(methodName) || handler == null) return;
         _table[$"{GetType().Name}.{methodName}"] = handler;
     }
 
-    /// <summary>
-    /// 统一接收入口：链路代码按配置传 key
-    /// </summary>
     public void Receive(string key, PackageEvent evt)
     {
-        if (string.IsNullOrEmpty(key) || evt == null) return;
+        if (string.IsNullOrEmpty(key) || evt == null)
+        {
+            Debug.LogWarning("接收方法名为空或事件不存在！");
+            return;
+        }
         if (_table.TryGetValue(key, out var handler))
         {
+            //Debug.Log("尝试触发接收逻辑");
             try { handler.Invoke(evt); }
-            catch (Exception e)
-            {
-                Debug.LogError($"[EventEntryBase] {GetType().Name} 处理 {key} 异常：{e}");
-            }
+            catch (Exception e) { Debug.LogError($"[EventEntryBase] {GetType().Name} 处理 {key} 异常：{e}"); }
         }
     }
 
-    /// <summary>
-    /// 兼容：按事件类型查（弱类型通道用）
-    /// </summary>
-    public void Receive(PackageEvent evt)
-    {
-        // 弱类型通道：遍历表找能处理该事件类型的（暂时用全局 typedListeners 兜底）
-        //EventSystemV2.EventManager.Instance?.DispatchTypedToEntry(evt);
-    }
+    protected void Emit(PackageEvent evt) => EventUtil.EmitEvent(evt);
 
-    /// <summary>
-    /// 发布入口（子类只调 Emit，不碰事件系统内部）
-    /// </summary>
-    protected void Emit(PackageEvent evt)
-    {
-        EventSystemV2.EventUtil.EmitEvent(evt);
-    }
-
-    // ===== LogicScriptBase 实现（事件入口默认无状态）=====
     public override void LoadFromEntry(ILogicStateEntry entry) { }
     public override ILogicStateEntry SaveToEntry() => null;
 }

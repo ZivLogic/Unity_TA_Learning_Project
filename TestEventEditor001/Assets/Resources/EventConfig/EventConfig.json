@@ -1,290 +1,72 @@
 {
   "Items": {
-    "TestEvent": {
-      "EventName": "TestEvent",
-      "EventClassFullName": "E_TestEvent",
+    "TestEvent_001": {
+      "EventName": "TestEvent_001",
+      "EventClassFullName": "E_TestEvent_001",
       "QueueType": 0,
       "GlobalEnable": true,
-      "EventPublish": "TestPublish.TestEventPublish",
+      "EventPublish": "TestEntry.TestEventPublish",
       "EventListen": [
-        "TestListen.TestEventListen"
+        "TestEntry.TestEventListen"
       ],
       "ListenMethodDict": {
-        "TestListen.TestEventListen": "TestEventListen"
+        "TestEntry.TestEventListen": "TestEventListen"
       },
       "PublishSysId": [
-        "TestSysID"
+        "TEST"
       ],
       "ListenSysId": [
-        "TestSysID"
+        "TEST"
       ],
       "PublishMethodToSystemID": {
-        "TestEventPublish": "TestSysID"
+        "TestEntry.TestEventPublish": "TEST"
       },
       "ListenMethodToSystemID": {
-        "TestEventListen": "TestSysID"
+        "TestEntry.TestEventListen": "TEST"
       },
       "PublishClassList": [
-        "TestPublish"
+        "TestEntry"
       ],
       "ListenClassList": [
-        "TestListen"
+        "TestEntry"
       ],
       "PublishClassName": {
-        "TestPublish.TestEventPublish": "TestPublish"
+        "TestEntry.TestEventPublish": "TestEntry"
       },
       "ListenClassName": {
-        "TestListen.TestEventListen": "TestListen"
+        "TestEntry.TestEventListen": "TestEntry"
       },
       "PublishKey": {
-        "TestPublish.TestEventPublish": [
-          "Value",
-          "Message"
-        ]
-      },
-      "ListenKey": {
-        "TestListen.TestEventListen": [
+        "TestEntry.TestEventPublish": [
+          "UUIDS",
           "value",
-          "massage"
-        ]
-      },
-      "KeyConnection": {
-        "TestPublish.TestEventPublish_TestListen.TestEventListen": {
-          "value": "Value",
-          "massage": "Message"
-        }
-      },
-      "CodePath": null,
-      "IsOldEvent": false
-    },
-    "EventClass002": {
-      "EventName": "EventClass002",
-      "EventClassFullName": "E_EventClass002",
-      "QueueType": 0,
-      "GlobalEnable": true,
-      "EventPublish": "TestPublish.Test_CLASSevnt",
-      "EventListen": [
-        "TestListen.TestEventlISTEN_CLASS_003"
-      ],
-      "ListenMethodDict": {
-        "TestListen.TestEventlISTEN_CLASS_003": "TestEventlISTEN_CLASS_003"
-      },
-      "PublishSysId": [
-        "TestSysID"
-      ],
-      "ListenSysId": [
-        "TestSysID"
-      ],
-      "PublishMethodToSystemID": {
-        "TestPublish.Test_CLASSevnt": "TestSysID"
-      },
-      "ListenMethodToSystemID": {
-        "TestListen.TestEventlISTEN_CLASS_003": "TestSysID"
-      },
-      "PublishClassList": [
-        "TestPublish"
-      ],
-      "ListenClassList": [
-        "TestListen"
-      ],
-      "PublishClassName": {
-        "TestPublish.Test_CLASSevnt": "TestPublish"
-      },
-      "ListenClassName": {
-        "TestListen.TestEventlISTEN_CLASS_003": "TestListen"
-      },
-      "PublishKey": {
-        "TestPublish.Test_CLASSevnt": [
-          "Test_cfg"
+          "msg"
         ]
       },
       "ListenKey": {
-        "TestListen.TestEventlISTEN_CLASS_003": [
-          "CFG"
+        "TestEntry.TestEventListen": [
+          "value",
+          "msg"
         ]
       },
       "KeyConnection": {
-        "TestPublish.Test_CLASSevnt_TestListen.TestEventlISTEN_CLASS_003": {
-          "CFG": "Test_cfg"
+        "TestEntry.TestEventPublish_TestEntry.TestEventListen": {
+          "value": "value",
+          "msg": "msg"
         }
       },
       "CodePath": {
-        "EventClass": "Assets/Scripts/Generated/Events/E_EventClass002.cs",
-        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_EventClass002.cs"
-      },
-      "IsOldEvent": false
-    },
-    "EventBoolTest002": {
-      "EventName": "EventBoolTest002",
-      "EventClassFullName": "E_EventBoolTest002",
-      "QueueType": 0,
-      "GlobalEnable": true,
-      "EventPublish": "TestPublish.TestEventPublish002",
-      "EventListen": [
-        "TestListen.TestEvent002"
-      ],
-      "ListenMethodDict": {
-        "TestListen.TestEvent002": "TestEvent002"
-      },
-      "PublishSysId": [
-        "TestID002"
-      ],
-      "ListenSysId": [
-        "TestID002"
-      ],
-      "PublishMethodToSystemID": {
-        "TestPublish.TestEventPublish002": "TestID002"
-      },
-      "ListenMethodToSystemID": {
-        "TestListen.TestEvent002": "TestID002"
-      },
-      "PublishClassList": [
-        "TestPublish"
-      ],
-      "ListenClassList": [
-        "TestListen"
-      ],
-      "PublishClassName": {
-        "TestPublish.TestEventPublish002": "TestPublish"
-      },
-      "ListenClassName": {
-        "TestListen.TestEvent002": "TestListen"
-      },
-      "PublishKey": {
-        "TestPublish.TestEventPublish002": [
-          "TestBool",
-          "TestBool",
-          "TestBool"
-        ]
-      },
-      "ListenKey": {
-        "TestListen.TestEvent002": [
-          "Bool"
-        ]
-      },
-      "KeyConnection": {
-        "TestPublish.TestEventPublish002_TestListen.TestEvent002": {
-          "Bool": "TestBool"
-        }
-      },
-      "CodePath": {
-        "EventClass": "Assets/Scripts/Generated/Events/E_EventBoolTest002.cs",
-        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_EventBoolTest002.cs"
-      },
-      "IsOldEvent": false
-    },
-    "TestGameObj": {
-      "EventName": "TestGameObj",
-      "EventClassFullName": "E_TestGameObj",
-      "QueueType": 0,
-      "GlobalEnable": true,
-      "EventPublish": "TestPublish.GameOBJ",
-      "EventListen": [
-        "TestListen.TestLisenGameObj"
-      ],
-      "ListenMethodDict": {
-        "TestListen.TestLisenGameObj": "TestLisenGameObj"
-      },
-      "PublishSysId": [
-        "TestID002"
-      ],
-      "ListenSysId": [
-        "TestID002"
-      ],
-      "PublishMethodToSystemID": {
-        "TestPublish.GameOBJ": "TestID002"
-      },
-      "ListenMethodToSystemID": {
-        "TestListen.TestLisenGameObj": "TestID002"
-      },
-      "PublishClassList": [
-        "TestPublish"
-      ],
-      "ListenClassList": [
-        "TestListen"
-      ],
-      "PublishClassName": {
-        "TestPublish.GameOBJ": "TestPublish"
-      },
-      "ListenClassName": {
-        "TestListen.TestLisenGameObj": "TestListen"
-      },
-      "PublishKey": {
-        "TestPublish.GameOBJ": [
-          "Pawn",
-          "Pawn",
-          "Pawn"
-        ]
-      },
-      "ListenKey": {
-        "TestListen.TestLisenGameObj": [
-          "Obj"
-        ]
-      },
-      "KeyConnection": {
-        "TestPublish.GameOBJ_TestListen.TestLisenGameObj": {
-          "Obj": "Pawn"
-        }
-      },
-      "CodePath": {
-        "EventClass": "Assets/Scripts/Generated/Events/E_TestGameObj.cs",
-        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TestGameObj.cs"
-      },
-      "IsOldEvent": false
-    },
-    "TestConfig_001": {
-      "EventName": "TestConfig_001",
-      "EventClassFullName": "E_TestConfig_001",
-      "QueueType": 0,
-      "GlobalEnable": true,
-      "EventPublish": "TestPublish.Test_ConfigData",
-      "EventListen": [
-        "TestListen.TestConfigData"
-      ],
-      "ListenMethodDict": {
-        "TestListen.TestConfigData": "TestConfigData"
-      },
-      "PublishSysId": [
-        "TestConfig"
-      ],
-      "ListenSysId": [
-        "TestConfig"
-      ],
-      "PublishMethodToSystemID": {
-        "TestPublish.Test_ConfigData": "TestConfig"
-      },
-      "ListenMethodToSystemID": {
-        "TestListen.TestConfigData": "TestConfig"
-      },
-      "PublishClassList": [
-        "TestPublish"
-      ],
-      "ListenClassList": [
-        "TestListen"
-      ],
-      "PublishClassName": {
-        "TestPublish.Test_ConfigData": "TestPublish"
-      },
-      "ListenClassName": {
-        "TestListen.TestConfigData": "TestListen"
-      },
-      "PublishKey": {
-        "TestPublish.Test_ConfigData": []
-      },
-      "ListenKey": {
-        "TestListen.TestConfigData": []
-      },
-      "KeyConnection": {
-        "TestPublish.Test_ConfigData_TestListen.TestConfigData": {}
-      },
-      "CodePath": {
-        "EventClass": "Assets/Scripts/Generated/Events/E_TestConfig_001.cs",
-        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TestConfig_001.cs"
+        "EventClass": "Assets/Scripts/Generated/Events/E_TestEvent_001.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TestEvent_001.cs"
       },
       "IsOldEvent": false
     }
   },
   "MethodInstances": {
+    "TestEntry": [
+      "TestEventPublish",
+      "TestEventListen"
+    ],
     "TestPublish": [
       "TestEventPublish",
       "TestEventPublish002",
@@ -305,8 +87,8 @@
     ]
   },
   "ListenMethodInstances": {
-    "EVent_TEst": [
-      "EVentOUTit"
+    "TestEntry": [
+      "TestEventListen"
     ],
     "TestListen": [
       "TestEventListen",
@@ -314,20 +96,15 @@
       "TestEventlISTEN_CLASS_003",
       "TestLisenGameObj",
       "TestConfigData"
+    ],
+    "EVent_TEst": [
+      "EVentOUTit"
     ]
   },
   "PublishMethodToEvent": {
-    "TestPublish.TestEventPublish": "TestEvent",
-    "TestPublish.Test_CLASSevnt": "EventClass002",
-    "TestPublish.TestEventPublish002": "EventBoolTest002",
-    "TestPublish.GameOBJ": "TestGameObj",
-    "TestPublish.Test_ConfigData": "TestConfig_001"
+    "TestEntry.TestEventPublish": "TestEvent_001"
   },
   "ListenMethodToEvent": {
-    "TestListen.TestEventListen": "TestEvent",
-    "TestListen.TestEventlISTEN_CLASS_003": "EventClass002",
-    "TestListen.TestEvent002": "EventBoolTest002",
-    "TestListen.TestLisenGameObj": "TestGameObj",
-    "TestListen.TestConfigData": "TestConfig_001"
+    "TestEntry.TestEventListen": "TestEvent_001"
   }
 }

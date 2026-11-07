@@ -129,6 +129,12 @@ namespace EventSystemV2
             }
         }
 
+        // 临时：把强类型事件派发给某个入口（阶段一过渡用，阶段三后走 UUID 路由）
+        public void DispatchTypedToEntry(PackageEvent msg)
+        {
+            DispatchTyped(msg);   // 先复用现有强类型派发
+        }
+
         //强类型派发
         private void DispatchTyped(PackageEvent msg)
         {
@@ -267,6 +273,71 @@ namespace EventSystemV2
 
         }
 
+
+        #region UUID寻址与全局分发
+
+        // UUID → 入口索引（单投/多投）
+        private readonly Dictionary<string, EventEntryBase> _uuidIndex = new Dictionary<string, EventEntryBase>();
+
+        // 全局入口列表（全局广播用）
+        private readonly List<EventEntryBase> _globalEntries = new List<EventEntryBase>();
+
+        public void RegisterTarget(string uuid, EventEntryBase entry)
+        {
+            if (string.IsNullOrEmpty(uuid) || entry == null)
+            {
+                Debug.LogWarning("uuid为空或事件入口为空");
+                return;
+            }
+            _uuidIndex[uuid] = entry;
+
+            // 【新增】同时注册到全局列表
+            if (!_globalEntries.Contains(entry)) _globalEntries.Add(entry);
+        }
+
+        public void UnregisterTarget(string uuid)
+        {
+            if (string.IsNullOrEmpty(uuid)) return;
+
+            if (_uuidIndex.TryGetValue(uuid, out var entry))
+            {
+                _uuidIndex.Remove(uuid);
+                // 【新增】从全局列表移除
+                _globalEntries.Remove(entry);
+            }
+        }
+
+        public EventEntryBase FindEntry(string uuid)
+        {
+            return _uuidIndex.TryGetValue(uuid, out var e) ? e : null;
+        }
+
+        // 单投/多投统一入口
+        public void DispatchToTargets(List<string> uuids, string key, PackageEvent evt)
+        {
+            if (uuids == null) return;
+            foreach (var uuid in uuids)
+            {
+                var entry = FindEntry(uuid);
+                if (entry == null)
+                {
+                    Debug.LogWarning($"入口为空！UUID = {uuid}");
+                    continue;
+                }
+                entry?.Receive(key, evt);
+            }
+        }
+
+        // 【核心修改】全局分发：遍历所有注册的入口
+        public void DispatchGlobal(string listenMethodName, PackageEvent evt)
+        {
+            foreach (var entry in _globalEntries)
+            {
+                // 让每个入口自己去查表，如果它注册了这个 listenMethodName，就会执行
+                entry.Receive(listenMethodName, evt);
+            }
+        }
+        #endregion
     }
 }
 

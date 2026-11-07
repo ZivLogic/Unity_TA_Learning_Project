@@ -47,6 +47,20 @@ public class LogicFactory : IFactoryStep
                 {
                     entityAware.Entity = entity;
                 }
+
+                // 2. 统一找事件入口
+                EventEntryBase eventEntry = null;
+                foreach (var s in entity.LogicScripts)
+                    if (s is EventEntryBase entry) { eventEntry = entry; break; }
+
+                // 3. 注入并初始化
+                if (eventEntry != null)
+                {
+                    foreach (var s in entity.LogicScripts)
+                        if (s is INeedEventEntry need) need.EventEntry = eventEntry;
+
+                    eventEntry.Initialize(); // 此时 UUID 已生成，注册方法和 UUID
+                }
             }
         }
     }

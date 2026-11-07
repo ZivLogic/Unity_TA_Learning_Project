@@ -2,7 +2,6 @@ using EventSystemV2;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EventSystemV3;
 
 public class GameManager : MonoBehaviour
 {

@@ -1,19 +1,9 @@
 {
   "Items": [
     {
-      "OperateTime": "2026-06-12 20:33:04",
-      "TargetEvent": "选择的事件：EventBoolTest002",
-      "Content": "保存了事件：EventBoolTest002"
-    },
-    {
-      "OperateTime": "2026-06-16 00:22:33",
-      "TargetEvent": "选择的事件：TestGameObj",
-      "Content": "保存了事件：TestGameObj"
-    },
-    {
-      "OperateTime": "2026-09-04 00:32:27",
-      "TargetEvent": "选择的事件：TestConfig_001",
-      "Content": "保存了事件：TestConfig_001"
+      "OperateTime": "2026-11-07 21:32:06",
+      "TargetEvent": "选择的事件：TestEvent_001",
+      "Content": "保存了事件：TestEvent_001"
     }
   ]
 }
