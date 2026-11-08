@@ -176,6 +176,18 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
+                { "blueprintId", "test_player" },
+                { "tag", "Player" },
+                { "modelPath", "TestGameObject/Ball_Test_001" },  
+                { "defaultHeight", 0.5f },
+                { "physicsConfigId", "pawn_physics" },
+                { "materialId", "" },
+                { "audioIds", new List<object> { "pawn_move" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry" } },
+                { "poolId", "pawn_pool" }
+            },
+            new Dictionary<string, object>
+            {
                 { "blueprintId", "floor_tile" },
                 { "tag", "Floor" },
                 { "modelPath", "Map/floor_10x10" },  // µÿ∞Â‘§÷∆ÃÂ
@@ -358,6 +370,16 @@ public class CreatConfig : MonoBehaviour
                 {"prewarm", true},
                 {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0.5 }, { "z", 0 } } },
                 {"spacing", new Dictionary<string, object> { { "x", 1 }, { "y", 0 }, { "z", 0 } } },
+                {"tagOverride", ""}
+            },
+            new Dictionary<string, object>
+            {
+                {"blueprintId", "test_player" },
+                {"count", 1 },
+                {"spawnCount", 1 },
+                {"prewarm", false},
+                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 2 }, { "z", 0 } } },
+                {"spacing", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
                 {"tagOverride", ""}
             },
             new Dictionary<string, object>
