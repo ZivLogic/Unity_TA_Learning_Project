@@ -15,4 +15,9 @@ public abstract class LogicScriptBase : MonoBehaviour, IEntityAware
 
     //保存数据到子容器（子类重写）
     public abstract ILogicStateEntry SaveToEntry();
+
+
+    // 【新增】所有数据注入完成后调用，默认空实现
+    // 需要的脚本重写它（如相机脚本在此时初始化）
+    public virtual void OnAllStateInjected() { }
 }

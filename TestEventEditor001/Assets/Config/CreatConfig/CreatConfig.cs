@@ -96,6 +96,42 @@ public class CreatConfig : MonoBehaviour
                         }
                     }
                 }
+            },
+            new Dictionary<string, object>
+            {
+                { "configId", "ball_physics" },
+                { "mass", 1.0f },
+                { "isKinematic", false },
+                { "useGravity", true },
+                { "interpolate", false },
+                { "continuousCollision", false },
+                { "colliders", new List<object>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            { "type", "capsule" },
+                            { "center", new Dictionary<string, object>
+                                {
+                                    { "x", 0.0f },
+                                    { "y", 0.5f },
+                                    { "z", 0.0f }
+                                }
+                            },
+                            { "radius", 0.3f },
+                            { "height", 0.5f },
+                            { "size", new Dictionary<string, object>
+                                {
+                                    { "x", 0.0f },
+                                    { "y", 0.0f },
+                                    { "z", 0.0f }
+                                }
+                            },
+                            { "direction", 1 },
+                            { "convex", false },
+                            { "physicsMaterial", "" }
+                        }
+                    }
+                }
             }
         });
         builder.ExportToFileFormat("Assets/Config/ConfigData/physics_configs.json");
@@ -132,6 +168,13 @@ public class CreatConfig : MonoBehaviour
             {
                 { "scriptId", "character_input_entry" },
                 { "scriptName", "CharacterInputEntry" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
+                { "scriptId", "camera_rig" },
+                { "scriptName", "CameraRigScript" },
                 { "executionOrder", 0 },
                 { "enabled", true }
             }
@@ -180,10 +223,10 @@ public class CreatConfig : MonoBehaviour
                 { "tag", "Player" },
                 { "modelPath", "TestGameObject/Ball_Test_001" },  
                 { "defaultHeight", 0.5f },
-                { "physicsConfigId", "pawn_physics" },
+                { "physicsConfigId", "ball_physics" },
                 { "materialId", "" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry", "camera_rig" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
@@ -351,6 +394,13 @@ public class CreatConfig : MonoBehaviour
                 {"scriptName", "PawnAttackRange" },
                 {"containerType", "PawnAttackRangeStateContainer" },
                 {"savePath", "Assets/Config/ConfigData/logic_state_pawn_attack_range.json" }
+            },
+            new Dictionary<string, object>
+            {
+                {"containerId", "logic_state_camera_rig" },
+                {"scriptName", "CameraRigScript" },
+                {"containerType", "CameraRigStateContainer" },
+                {"savePath", "Assets/Config/ConfigData/logic_state_camera_rig.json" }
             }
         });
         builder.ExportToFileFormat("Assets/Config/ConfigData/logic_state_registry.json");
@@ -377,8 +427,8 @@ public class CreatConfig : MonoBehaviour
                 {"blueprintId", "test_player" },
                 {"count", 1 },
                 {"spawnCount", 1 },
-                {"prewarm", false},
-                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 2 }, { "z", 0 } } },
+                {"prewarm", true},
+                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
                 {"spacing", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
                 {"tagOverride", ""}
             },

@@ -234,6 +234,48 @@ public class MasterFactory : MonoBehaviour
 
     #endregion
 
+    #region 逻辑状态管理器专用
+    private readonly Dictionary<Type, List<LogicScriptBase>> _scriptsByType = new();
+
+    /// <summary>注册逻辑脚本（LogicFactory 挂载后调用）</summary>
+    public void RegisterScript(LogicScriptBase script)
+    {
+        if (script == null) return;
+        var type = script.GetType();
+        if (!_scriptsByType.TryGetValue(type, out var list))
+        {
+            list = new List<LogicScriptBase>();
+            _scriptsByType[type] = list;
+        }
+        if (!list.Contains(script)) list.Add(script);
+    }
+
+    /// <summary>注销逻辑脚本（销毁时调用）</summary>
+    public void UnregisterScript(LogicScriptBase script)
+    {
+        if (script == null) return;
+        if (_scriptsByType.TryGetValue(script.GetType(), out var list))
+            list.Remove(script);
+    }
+
+    /// <summary>按类型查脚本（返回副本，防外部改）</summary>
+    public List<LogicScriptBase> GetScriptsByType(Type type)
+    {
+        return _scriptsByType.TryGetValue(type, out var list)
+            ? new List<LogicScriptBase>(list)
+            : new List<LogicScriptBase>();
+    }
+
+    /// <summary>拿所有脚本（给全局就绪遍历用）</summary>
+    public List<LogicScriptBase> GetAllScripts()
+    {
+        var result = new List<LogicScriptBase>();
+        foreach (var list in _scriptsByType.Values) result.AddRange(list);
+        return result;
+    }
+
+    #endregion
+
     #region 销毁管理（唯一权威入口）
 
     /// <summary>
@@ -244,9 +286,12 @@ public class MasterFactory : MonoBehaviour
         var entity = FindByUUID(uuid);
         if (entity == null) return;
 
-        // 【新增】先反注销事件入口
+        // 先反注销事件入口
         foreach (var s in entity.LogicScripts)
+        {
             if (s is EventEntryBase entry) entry.Shutdown();
+            if (s is LogicScriptBase logic) UnregisterScript(logic);   //注销逻辑脚本注册表
+        }
 
         // 1. 池表同步
         PoolFactory?.OnEntityDestroyed(entity);

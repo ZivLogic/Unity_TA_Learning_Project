@@ -42,18 +42,24 @@ public class LogicFactory : IFactoryStep
                 //3.记录到实体
                 entity.LogicScripts.Add(component);
 
-                //4.注入实体引用
+                //4.注册脚本进入工厂逻辑脚本大全
+                if (component is LogicScriptBase logicScript)
+                {
+                    MasterFactory.Instance.RegisterScript(logicScript);
+                }
+
+                //5.注入实体引用
                 if (component is IEntityAware entityAware)
                 {
                     entityAware.Entity = entity;
                 }
 
-                // 2. 统一找事件入口
+                // 6. 统一找事件入口
                 EventEntryBase eventEntry = null;
                 foreach (var s in entity.LogicScripts)
                     if (s is EventEntryBase entry) { eventEntry = entry; break; }
 
-                // 3. 注入并初始化
+                // 7. 注入并初始化
                 if (eventEntry != null)
                 {
                     foreach (var s in entity.LogicScripts)

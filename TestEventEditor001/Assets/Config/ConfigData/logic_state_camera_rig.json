@@ -1,0 +1,3 @@
+﻿{
+  "entries": [{"uuid":"Player_0001","tag":"Player","cameraId":"Camera_Main","attachDistance":3,"attachHeight":1.5,"camDistance":5,"camYaw":0,"camPitch":20,"camHeight":1.5,"snapshotDelay":0.15,"followLerp":12}]
+}

@@ -246,7 +246,7 @@ namespace EventSystemV2
         {
             while (true)
             {
-                while (inputTypedQueue.Count > 0)
+                while (networkTypedQueue.Count > 0)
                 {
                     var msg = networkTypedQueue.Dequeue();
                     DispatchTyped(msg);

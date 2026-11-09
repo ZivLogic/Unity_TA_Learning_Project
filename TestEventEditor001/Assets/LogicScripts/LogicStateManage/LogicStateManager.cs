@@ -24,6 +24,15 @@ public class LogicStateManager : MonoBehaviour
     private static LogicStateManager _instance;
     public static LogicStateManager Instance => _instance;
 
+    /// <summary>所有逻辑状态是否注入完成</summary>
+    public bool IsAllStateInjected { get; private set; }
+
+    /// <summary>反更改标记（重载/阶段回退时用）</summary>
+    public void ResetStateInjected()
+    {
+        IsAllStateInjected = false;
+    }
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -165,22 +174,22 @@ public class LogicStateManager : MonoBehaviour
     //加载所有逻辑状态
     public void LoadAllStates()
     {
+        IsAllStateInjected = false;   // 【新增】重载前重置，防提前就绪
+
         Debug.Log("[LogicStateManager] ========== 开始加载所有逻辑状态 ===========");
 
-        //1.读取顶级注册表
         var registry = ConfigAPI.Get<LogicStateRegistry>();
         if (registry?.entries == null)
         {
-            Debug.LogWarning("[LogicStateManager 注册表为空]");
+            Debug.LogWarning("[LogicStateManager] 注册表为空");
+            NotifyAllScriptsReady();   // 即使没注册表，也要标"就绪"
             return;
         }
 
-        //遍历每个父容器
         foreach (var entry in registry.entries)
-        {
             LoadContainer(entry);
-        }
 
+        NotifyAllScriptsReady();       // 【新增】统一通知
         Debug.Log("[LogicStateManager] =========== 加载完成 ==========");
     }
 
@@ -246,35 +255,31 @@ public class LogicStateManager : MonoBehaviour
     #region 工具方法 
 
     //查找脚本类型
+    private readonly Dictionary<string, Type> _typeCache = new();
+
     private Type FindScriptType(string scriptName)
     {
+        if (_typeCache.TryGetValue(scriptName, out var cached)) return cached;
+
         var type = Type.GetType(scriptName);
-        if (type != null)return type;
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        if (type == null)
         {
-            type = assembly.GetType(scriptName);
-            if ( type != null)
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                return type;
+                type = assembly.GetType(scriptName);
+                if (type != null) break;
             }
         }
-        return null;
+        if (type != null) _typeCache[scriptName] = type;
+        return type;
     }
 
     //查找场景中所有该类型的脚本
+    // 原：FindObjectsOfType(scriptType) 全场景扫
+    // 新：查 MasterFactory 权威缓存
     private List<LogicScriptBase> FindAllScripts(Type scriptType)
     {
-        var result = new List<LogicScriptBase>();
-        var allScripts = FindObjectsOfType(scriptType);
-        foreach (var script in allScripts)
-        {
-            if (script is LogicScriptBase logicBase)
-            {
-                result.Add(logicBase);
-            }
-        }
-
-        return result;
+        return MasterFactory.Instance.GetScriptsByType(scriptType);
     }
 
     //在实体上查找指定脚本
@@ -288,6 +293,27 @@ public class LogicStateManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    //统一通知
+    private void NotifyAllScriptsReady()
+    {
+        var allScripts = MasterFactory.Instance.GetAllScripts();
+
+        // 1. 脚本级：逐个回调（try-catch 防单个崩掉整体）
+        foreach (var s in allScripts)
+        {
+            try { s.OnAllStateInjected(); }
+            catch (Exception e)
+            {
+                Debug.LogError($"[LogicStateManager] {s.name} 就绪回调异常：{e}");
+            }
+        }
+
+        // 2. 全局级：只打标记（不碰事件系统，保持纯净）
+        IsAllStateInjected = true;
+
+        Debug.Log($"[LogicStateManager] 所有脚本数据注入完成，共 {allScripts.Count} 个");
     }
     #endregion
 }
