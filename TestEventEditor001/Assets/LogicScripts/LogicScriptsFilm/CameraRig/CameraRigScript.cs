@@ -6,24 +6,30 @@ public class CameraRigScript : LogicScriptBase
 {
     public override string ContainerId => "logic_state_camera_rig";
 
+    // 暴露给输入系统拿朝向
+    public static Camera ActiveCamera { get; private set; }
+
     // ===== 配置（从容器加载） =====
     public string cameraId = "Camera_Main";
-
     public float attachDistance = 3f;
     public float attachHeight = 1.5f;
-
     public float camDistance = 5f;
-    public float camYaw = 0f;
-    public float camPitch = 20f;
     public float camHeight = 1.5f;
-
     public float snapshotDelay = 0.15f;
     public float followLerp = 12f;
 
+    // ===== 鼠标视角控制参数 =====
+    public float mouseSensitivity = 3f;
+    public float minPitch = -30f;
+    public float maxPitch = 70f;
+
     // ===== 运行时引用 =====
-    private Transform _character;   // Entity.LogicObject（有物理的节点）
-    private Transform _target;      // LogicObject 下的 AimPoint
+    private Transform _character;
+    private Transform _target;
     private Camera _cam;
+
+    private float _currentYaw = 0f;
+    private float _currentPitch = 20f;
 
     private struct Snapshot
     {
@@ -38,21 +44,19 @@ public class CameraRigScript : LogicScriptBase
     // ===== 数据加载 =====
     public override void LoadFromEntry(ILogicStateEntry entry)
     {
-        if (entry is not CameraRigStateContainer.CameraRigEntry data)
-        {
-            Debug.LogError($"[CameraRigScript] 子容器类型错误：{entry.GetType().Name}");
-            return;
-        }
+        if (entry is not CameraRigStateContainer.CameraRigEntry data) return;
 
         cameraId = data.cameraId;
         attachDistance = data.attachDistance;
         attachHeight = data.attachHeight;
         camDistance = data.camDistance;
-        camYaw = data.camYaw;
-        camPitch = data.camPitch;
         camHeight = data.camHeight;
         snapshotDelay = data.snapshotDelay;
         followLerp = data.followLerp;
+
+        // 初始化角度
+        _currentYaw = data.camYaw;
+        _currentPitch = data.camPitch;
     }
 
     public override ILogicStateEntry SaveToEntry()
@@ -65,63 +69,42 @@ public class CameraRigScript : LogicScriptBase
             attachDistance = attachDistance,
             attachHeight = attachHeight,
             camDistance = camDistance,
-            camYaw = camYaw,
-            camPitch = camPitch,
+            camYaw = _currentYaw,     // 保存当前实际角度
+            camPitch = _currentPitch, // 保存当前实际角度
             camHeight = camHeight,
             snapshotDelay = snapshotDelay,
             followLerp = followLerp
         };
     }
 
-    // ===== 就绪后初始化 =====
     public override void OnAllStateInjected()
     {
-        if (Entity == null) { Debug.LogError("[CameraRigScript] Entity 为空"); return; }
-        if (Entity.LogicObject == null)
-        {
-            Debug.LogError("[CameraRigScript] Entity.LogicObject 为空，不符合 Entity 架构");
-            return;
-        }
+        if (Entity?.LogicObject == null) return;
 
-        // 被跟随者 = 逻辑根（有刚体/物理的节点）
         _character = Entity.LogicObject.transform;
-
-        // 挂载点 = 逻辑根下新建/查找 AimPoint
         _target = EnsureAimPoint(_character);
-        if (_target == null || _target == _character)
-        {
-            Debug.LogError("[CameraRigScript] 挂载点创建失败或与逻辑根重合");
-            return;
-        }
-
-        // 相机
         _cam = FindCamera();
-        if (_cam == null)
+
+        if (_cam != null)
         {
-            Debug.LogWarning($"[CameraRigScript] 未找到相机 cameraId={cameraId}");
-            return;
+            ActiveCamera = _cam;
+            _camPos = _cam.transform.position;
+            _camRot = _cam.transform.rotation;
         }
 
-        _camPos = _cam.transform.position;
-        _camRot = _cam.transform.rotation;
-
-        Debug.Log($"[CameraRigScript] 初始化完成：逻辑根={_character.name}, 挂载点={_target.name}, 相机={_cam.name}");
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
-    /// <summary>在逻辑根下确保 AimPoint 存在</summary>
     private Transform EnsureAimPoint(Transform logicRoot)
     {
         const string aimName = "AimPoint";
-
         var existing = logicRoot.Find(aimName);
         if (existing != null) return existing;
 
         var go = new GameObject(aimName);
         go.transform.SetParent(logicRoot, false);
         go.transform.localPosition = new Vector3(0f, attachHeight, attachDistance);
-        go.transform.localRotation = Quaternion.identity;
-
-        Debug.Log($"[CameraRigScript] 在逻辑根下创建挂载点 {aimName}");
         return go.transform;
     }
 
@@ -135,29 +118,39 @@ public class CameraRigScript : LogicScriptBase
                 foreach (var entry in registry.cameras)
                 {
                     if (entry.cameraId != cameraId) continue;
-
                     if (!string.IsNullOrEmpty(entry.cameraTag))
                     {
                         var go = GameObject.FindGameObjectWithTag(entry.cameraTag);
-                        if (go != null) { var c = go.GetComponent<Camera>(); if (c != null) return c; }
-                    }
-                    if (!string.IsNullOrEmpty(entry.scenePath))
-                    {
-                        var go = GameObject.Find(entry.scenePath);
-                        if (go != null) { var c = go.GetComponent<Camera>(); if (c != null) return c; }
+                        if (go != null) return go.GetComponent<Camera>();
                     }
                 }
             }
         }
-
         return Camera.main;
     }
 
-    // ===== 跟随 =====
     private void Update()
     {
         if (_character == null) return;
 
+        // 1. 鼠标控制视角旋转
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            float mx = Input.GetAxis("Mouse X") * mouseSensitivity;
+            float my = Input.GetAxis("Mouse Y") * mouseSensitivity;
+            _currentYaw += mx;
+            _currentPitch -= my;
+            _currentPitch = Mathf.Clamp(_currentPitch, minPitch, maxPitch);
+
+            // 按 ESC 解锁鼠标（方便在编辑器里操作）
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        }
+
+        // 2. 记录快照（注意：快照记录的是角色的位置，不包含相机的旋转）
         _snapshots.Add(new Snapshot
         {
             time = Time.time,
@@ -169,7 +162,7 @@ public class CameraRigScript : LogicScriptBase
         while (_snapshots.Count > 0 && _snapshots[0].time < cutoff)
             _snapshots.RemoveAt(0);
 
-        // 挂载点是 LogicObject 的子物体，用 localPosition 更新
+        // 3. 挂载点（不受视角影响，永远在逻辑根正前方）
         if (_target != null && _target != _character)
         {
             Vector3 desiredLocal = new Vector3(0f, attachHeight, attachDistance);
@@ -184,16 +177,17 @@ public class CameraRigScript : LogicScriptBase
 
         Snapshot snap = _snapshots[0];
 
-        float yawTotal = snap.rot.eulerAngles.y + camYaw;
-        Quaternion rot = Quaternion.Euler(camPitch, yawTotal, 0f);
-
+        // 使用鼠标算出来的角度
+        Quaternion rot = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
         Vector3 pivot = snap.pos + Vector3.up * camHeight;
         Vector3 desiredPos = pivot - rot * Vector3.forward * camDistance;
+
+        // 【修正】补充这行，定义 desiredRot
         Quaternion desiredRot = rot;
 
         float t = 1f - Mathf.Exp(-followLerp * Time.deltaTime);
         _camPos = Vector3.Lerp(_camPos, desiredPos, t);
-        _camRot = Quaternion.Slerp(_camRot, desiredRot, t);
+        _camRot = Quaternion.Slerp(_camRot, desiredRot, t); // 现在这里不会报错了
 
         _cam.transform.position = _camPos;
         _cam.transform.rotation = _camRot;

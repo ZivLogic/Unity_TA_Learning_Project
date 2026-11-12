@@ -11,6 +11,9 @@ public class OutputResultBase
     public string SingleUuid;
     public int Frame;
 
+    // 【新增】告诉中转层，这个结果应该发给谁（比如主角的 UUID）
+    public List<string> ReceiverUuids = new List<string>();
+
     public void Clear()
     {
         HasResult = false;
@@ -18,5 +21,6 @@ public class OutputResultBase
         Uuids.Clear();
         SingleUuid = null;
         Frame = 0;
+        ReceiverUuids.Clear(); // 记得清理
     }
 }

@@ -23,6 +23,11 @@ public class CameraEntry_Default : CameraEntryBase
         RegisterIntent("MoveLeft", OnMove);
         RegisterIntent("MoveRight", OnMove);
         RegisterIntent("MoveDiagonal", OnMove);
+        RegisterIntent("MoveRightAndForward", OnMove);
+        RegisterIntent("MoveLeftAndBack", OnMove);
+        RegisterIntent("MoveRightAndBack", OnMove);
+        RegisterIntent("Inpt_Test_01", Test_Input);
+        RegisterIntent("Inpt_Test_02", Test_Input);
     }
 
     // ========== 切换清理 ==========
@@ -58,29 +63,74 @@ public class CameraEntry_Default : CameraEntryBase
         Log("=== 进入选择状态 ===");
     }
 
-    // ========== 攻击 ==========
+    // ========== 攻击（枪械射击） ==========
     private void OnAttack(InputOutputPayload output)
     {
-        if (IsSelecting && output.KeyState == InputKeyState.Down)
+        if (output.KeyState != InputKeyState.Down) return;
+
+        var cam = TargetCamera != null ? TargetCamera : Camera.main;
+        if (cam == null) return;
+
+        var mainEntity = MasterFactory.Instance.FindByUUID(_mainCharacterUuid);
+        if (mainEntity?.LogicObject == null) return;
+
+        // 1. 枪口坐标
+        Vector3 muzzlePos = mainEntity.LogicObject.transform.position + Vector3.up * 1.2f;
+
+        // 2. 摄像机中心交点
+        Ray camRay = cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+        Vector3 centerPoint = camRay.origin + camRay.direction * RayDistance;
+        if (Physics.Raycast(camRay, out RaycastHit camHit, RayDistance, SelectLayerMask))
         {
-            Log("=== 确认选择 ===");
-            var hit = RaycastEntity();
-            EndSelect(hit);
-            return;
+            centerPoint = camHit.point;
         }
 
-        if (output.KeyState == InputKeyState.Down)
-        {
-            var entities = ResolveByScope(output.Scope);
-            var uuids = ToUuids(entities);
-            Log($"攻击解析到 {uuids.Count} 个实体");
+        // 3. 从枪口向交点打射线
+        Vector3 shootDir = (centerPoint - muzzlePos).normalized;
+        List<string> hitUuids = new List<string>();
+        Debug.Log($"有交点 = {shootDir}");
 
-            _result.HasResult = true;
-            _result.Action = output.Action;
-            _result.Uuids = uuids;
-            _result.Frame = output.Frame;
+        if (Physics.Raycast(muzzlePos, shootDir, out RaycastHit shootHit, RayDistance, SelectLayerMask))
+        {
+            var mono = EntityMono.FindInParents(shootHit.collider.gameObject);
+            if (mono != null && mono.Entity != null && mono.UUID != _mainCharacterUuid)
+            {
+                hitUuids.Add(mono.UUID); // 打中的人
+            }
+        }
+
+        // 4. 填入结果：受害者是 hitUuids，接收者是主角
+        _result.HasResult = true;
+        _result.Action = output.Action; // "Attack"
+        _result.Uuids = hitUuids;
+        _result.ReceiverUuids.Add(_mainCharacterUuid); // 告诉中转层发给主角
+        _result.Frame = output.Frame;
+        //Debug.Log("1");
+    }
+
+    // ========== 选择（P键，切换主角） ==========
+    private void OnSelect(InputOutputPayload output)
+    {
+        if (output.KeyState != InputKeyState.Down) return;
+
+        var hit = RaycastEntity();
+        if (hit != null)
+        {
+            var mono = EntityMono.FindInParents(hit);
+            if (mono != null)
+            {
+                _mainCharacterUuid = mono.UUID; // 摄像机内部同步，无需中转层干预
+                _result.HasResult = true;
+                _result.Action = "SelectMainCharacter";
+                _result.SingleUuid = mono.UUID;
+                _result.Uuids = new List<string> { mono.UUID };
+                _result.ReceiverUuids.Add(mono.UUID); // 发给新主角自己
+                _result.Frame = output.Frame;
+            }
         }
     }
+
+
 
     // ========== 交互 ==========
     private void OnInteract(InputOutputPayload output)
@@ -136,6 +186,21 @@ public class CameraEntry_Default : CameraEntryBase
             Log("=== 选择结束：无目标 ===");
         }
     }
+
+    //测试输入
+    private void Test_Input(InputOutputPayload output)
+    {
+        var entities = ResolveByScope(output.Scope);
+        var uuids = ToUuids(entities);
+        if (uuids.Count == 0) return;
+
+        _result.HasResult = true;
+        _result.Action = output.Action;
+        _result.Uuids = uuids;
+        _result.Frame = output.Frame;
+    }
+
+    
 
     private void Update()
     {

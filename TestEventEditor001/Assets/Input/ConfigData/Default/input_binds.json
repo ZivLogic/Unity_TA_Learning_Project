@@ -52,7 +52,7 @@
       "AllowContext": ["GameWorld"],
       "ListenState": ["Down", "Hold"],
       "ClickCdThreshold": 0.3,
-      "Scope": "Area_Sphere_3"
+      "Scope": "Single"
     },
     {
       "ActionKey": "AreaSelect",
@@ -65,17 +65,24 @@
       "Scope": "Area_Sphere_3"
     },
     {
-      "ActionKey": "MoveDiagonal",
-      "IsCombo": true,
-      "Key1": "W",
-      "Key2": "A",
-      "Action": "MoveDiagonal",
+      "ActionKey": "Inpt_Test_01",
+      "IsCombo": false,
+      "Key1": "T",
+      "Action": "Inpt_Test_01",
       "AllowContext": ["GameWorld"],
-      "ListenState": ["Down", "Hold", "Up"],
-      "Scope": "Self",
-      "TriggerMode": "AllDown",
-      "MaxTimeWindow": 0.1,
-      "AllowPassthrough": true
+      "ListenState": ["Down"],
+      "ClickCdThreshold": 0.05,
+      "Scope": "Self"
+    },
+   {
+      "ActionKey": "Inpt_Test_02",
+      "IsCombo": false,
+      "Key1": "U",
+      "Action": "Inpt_Test_02",
+      "AllowContext": ["GameWorld"],
+      "ListenState": ["Down"],
+      "ClickCdThreshold": 0.05,
+      "Scope": "Self"
     }
   ]
 }

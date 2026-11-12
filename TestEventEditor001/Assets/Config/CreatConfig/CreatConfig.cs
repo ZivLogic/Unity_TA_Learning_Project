@@ -109,24 +109,24 @@ public class CreatConfig : MonoBehaviour
                     {
                         new Dictionary<string, object>
                         {
-                            { "type", "capsule" },
+                            { "type", "box" },
                             { "center", new Dictionary<string, object>
                                 {
-                                    { "x", 0.0f },
-                                    { "y", 0.5f },
-                                    { "z", 0.0f }
+                                    { "x", 0f },
+                                    { "y", 1f },
+                                    { "z", -0.6f }
                                 }
                             },
-                            { "radius", 0.3f },
-                            { "height", 0.5f },
+                            { "radius", 0f },
+                            { "height", 0f },
                             { "size", new Dictionary<string, object>
                                 {
-                                    { "x", 0.0f },
-                                    { "y", 0.0f },
-                                    { "z", 0.0f }
+                                    { "x", 2f },
+                                    { "y", 2f },
+                                    { "z", 2f }
                                 }
                             },
-                            { "direction", 1 },
+                            { "direction", 0 },
                             { "convex", false },
                             { "physicsMaterial", "" }
                         }
@@ -173,6 +173,20 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
+                { "scriptId", "player_tag" },
+                { "scriptName", "PlayerTag" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
+                { "scriptId", "aim_line_script" },
+                { "scriptName", "AimLineScript" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
                 { "scriptId", "camera_rig" },
                 { "scriptName", "CameraRigScript" },
                 { "executionOrder", 0 },
@@ -214,7 +228,19 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "pawn_physics" },
                 { "materialId", "pawn_black" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry" } },
+                { "poolId", "pawn_pool" }
+            },
+            new Dictionary<string, object>
+            {
+                { "blueprintId", "test_AI" },
+                { "tag", "Pawn" },
+                { "modelPath", "TestGameObject/Ball_Test_001" },  // 你的棋子预制体
+                { "defaultHeight", 0.5f },
+                { "physicsConfigId", "ball_physics" },
+                { "materialId", "" },
+                { "audioIds", new List<object> { "pawn_move" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
@@ -226,7 +252,13 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "ball_physics" },
                 { "materialId", "" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "character_input_entry", "test_entry", "camera_rig" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", 
+                    "character_input_entry", 
+                    "test_entry", 
+                    "camera_rig" , 
+                    "player_tag",
+                    "aim_line_script"
+                } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
@@ -418,8 +450,18 @@ public class CreatConfig : MonoBehaviour
                 {"count", 20 },
                 {"spawnCount", 5 },
                 {"prewarm", true},
-                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0.5 }, { "z", 0 } } },
+                {"basePosition", new Dictionary<string, object> { { "x", 505 }, { "y", 2 }, { "z", 505 } } },
                 {"spacing", new Dictionary<string, object> { { "x", 1 }, { "y", 0 }, { "z", 0 } } },
+                {"tagOverride", ""}
+            },
+             new Dictionary<string, object>
+            {
+                {"blueprintId", "test_AI" },
+                {"count", 1 },
+                {"spawnCount", 1 },
+                {"prewarm", true},
+                {"basePosition", new Dictionary<string, object> { { "x", 520 }, { "y", 2 }, { "z", 520 } } },
+                {"spacing", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
                 {"tagOverride", ""}
             },
             new Dictionary<string, object>
@@ -428,7 +470,7 @@ public class CreatConfig : MonoBehaviour
                 {"count", 1 },
                 {"spawnCount", 1 },
                 {"prewarm", true},
-                {"basePosition", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
+                {"basePosition", new Dictionary<string, object> { { "x", 500 }, { "y", 2 }, { "z", 500 } } },
                 {"spacing", new Dictionary<string, object> { { "x", 0 }, { "y", 0 }, { "z", 0 } } },
                 {"tagOverride", ""}
             },

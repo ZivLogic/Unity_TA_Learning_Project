@@ -5,8 +5,8 @@ using UnityEngine;
 /// <summary>
 /// 输入系统主管理器
 /// 单键 + 多键组合
-/// 顺序：状态 → 上下文 → 状态机/拦截 → 范围 → CD → 输出
-/// 组合支持 Down/Hold/Up，Up 优先组合解除，再走单键
+/// 顺序：组合优先（独立表） → 单键（独立表）
+/// 新增：组合释放缓冲窗口（防状态残留）
 /// </summary>
 public class InputManager : MonoBehaviour
 {
@@ -29,15 +29,14 @@ public class InputManager : MonoBehaviour
     private Dictionary<int, List<InputKeyConfig>> _mouseBindGroup
         = new Dictionary<int, List<InputKeyConfig>>();
 
-    // ========== 排序后的配置（组合优先）==========
-    private List<InputKeyConfig> _sortedBinds = new List<InputKeyConfig>();
+    // ========== 拆分后的表 ==========
+    private List<InputKeyConfig> _comboBinds = new List<InputKeyConfig>();
+    private List<InputKeyConfig> _singleBinds = new List<InputKeyConfig>();
 
     // ========== 组合快照 ==========
-    // 键名字符串 → 按下时间
     private Dictionary<string, float> _heldKeys = new Dictionary<string, float>();
 
     // ========== 组合激活状态 ==========
-    // 正在生效的组合 ActionKey
     private HashSet<string> _comboActive = new HashSet<string>();
 
     // ========== 标准化输出 ==========
@@ -51,6 +50,12 @@ public class InputManager : MonoBehaviour
     public bool IsRecordingKey { get; private set; }
     private string _curModifyActionKey;
     private Action<KeyCode> _recordCallback;
+
+    // ========== 【新增】组合释放缓冲 ==========
+    // 记录刚释放的组合键结束时间（用于给单键 Up 让路）
+    private Dictionary<string, float> _comboReleaseTimers = new Dictionary<string, float>();
+    private const float RELEASE_BUFFER_TIME = 0.05f; // 50ms，约 2~3 帧的安全窗口
+
 
     // ========== 外部入口 ==========
     public InputConfigManager ConfigMgr => _configMgr;
@@ -117,7 +122,8 @@ public class InputManager : MonoBehaviour
     {
         _keyBindGroup.Clear();
         _mouseBindGroup.Clear();
-        _sortedBinds.Clear();
+        _comboBinds.Clear();
+        _singleBinds.Clear();
 
         var container = _configMgr.GetBindContainer();
         if (container == null) return;
@@ -125,7 +131,6 @@ public class InputManager : MonoBehaviour
         foreach (var cfg in container.Items)
         {
             if (cfg == null || !cfg.IsEnable) continue;
-            //Debug.Log($"[Bind] {cfg.ActionKey} MouseIndex={cfg.MouseButtonIndex} Key1={cfg.Key1}");
 
             if (cfg.MouseButtonIndex >= 0)
             {
@@ -157,26 +162,24 @@ public class InputManager : MonoBehaviour
                 }
             }
 
-            _sortedBinds.Add(cfg);
+            if (cfg.IsCombo)
+                _comboBinds.Add(cfg);
+            else
+                _singleBinds.Add(cfg);
         }
 
-        _sortedBinds.Sort((a, b) =>
-        {
-            if (a.IsCombo != b.IsCombo) return b.IsCombo.CompareTo(a.IsCombo);
-            return b.KeyCount.CompareTo(a.KeyCount);
-        });
-        //Debug.Log($"[Input] 键盘绑定数={_keyBindGroup.Count} 鼠标绑定数={_mouseBindGroup.Count}");
+        _comboBinds.Sort((a, b) => b.KeyCount.CompareTo(a.KeyCount));
     }
 
     private void RegisterSampleKeys()
     {
         _snapshot.ClearSampleKeys();
+
         foreach (var key in _keyBindGroup.Keys)
             _snapshot.RegisterSampleKey(key);
 
-        foreach (var cfg in _sortedBinds)
+        foreach (var cfg in _comboBinds)
         {
-            if (!cfg.IsCombo) continue;
             RegisterKey(cfg.Key2);
             RegisterKey(cfg.Key3);
             RegisterKey(cfg.AltKey2);
@@ -213,55 +216,104 @@ public class InputManager : MonoBehaviour
         }
 
         UpdateComboSnapshot();
+        CleanupReleaseTimers();
 
-        foreach (var cfg in _sortedBinds)
+        // ==========================================
+        // 第一梯队：组合表
+        // ==========================================
+        foreach (var cfg in _comboBinds)
         {
-            if (!cfg.IsEnable) continue;
+            var comboState = GetComboState(cfg);
+            if (comboState == InputKeyState.None) continue;
 
-            if (cfg.IsCombo)
+            if (comboState == InputKeyState.Down)
             {
-                var comboState = GetComboState(cfg);
-                if (comboState == InputKeyState.None) continue;
-
-                // 组合还没成立，但状态是 Down/Hold → 检查是否命中
-                if (comboState == InputKeyState.Down)
+                if (!CheckCombo(cfg))
                 {
-                    if (!CheckCombo(cfg))
-                    {
-                        _comboActive.Remove(cfg.ActionKey);
-                        continue;
-                    }
-
-                    // 单键穿透：第三键 Down 那一帧只输出单键
-                    if (cfg.AllowPassthrough && IsThirdKeyNewlyDown(cfg))
-                    {
-                        CheckPassthrough(cfg);
-                        return;
-                    }
+                    _comboActive.Remove(cfg.ActionKey);
+                    continue;
                 }
 
-                // Up：组合解除，输出 Up
-                if (!ProcessBind(cfg, comboState)) continue;
-                WriteOutput(cfg, comboState, ResolveScope(cfg.Scope));
-                return;
+                if (cfg.AllowPassthrough && IsThirdKeyNewlyDown(cfg))
+                {
+                    CheckPassthrough(cfg);
+                    return;
+                }
             }
-            else
+
+            // 【核心修改1】组合键释放，记录安全窗口时间
+            if (comboState == InputKeyState.Up)
             {
-                var state = GetSingleState(cfg);
-                if (state == InputKeyState.None) continue;
-                if (!ProcessBind(cfg, state)) continue;
-                WriteOutput(cfg, state, ResolveScope(cfg.Scope));
+                _comboReleaseTimers[cfg.ActionKey] = Time.unscaledTime;
+            }
+
+            if (!ProcessBind(cfg, comboState)) continue;
+
+            WriteOutput(cfg, comboState, ResolveScope(cfg.Scope));
+
+            // 【核心修改2】如果是 Up，让它输出完后，继续往下走去处理单键的 Up。
+            // 如果是 Down/Hold，依然 return 拦截单键。
+            if (comboState != InputKeyState.Up)
+            {
                 return;
             }
+        }
+
+        // ==========================================
+        // 第二梯队：单键表
+        // ==========================================
+        foreach (var cfg in _singleBinds)
+        {
+            var state = GetSingleState(cfg);
+            if (state == InputKeyState.None) continue;
+
+            bool isReleaseBufferActive = false;
+            if (state == InputKeyState.Up && _comboReleaseTimers.Count > 0)
+            {
+                isReleaseBufferActive = true;
+            }
+
+            if (!ProcessBind(cfg, state)) continue;
+
+            WriteOutput(cfg, state, ResolveScope(cfg.Scope));
+
+            // 【核心修改3】如果在安全窗口内，且是 Up 状态，不 return，让同帧的其他单键也能输出 Up
+            if (isReleaseBufferActive && state == InputKeyState.Up)
+            {
+                continue;
+            }
+
+            return;
+        }
+    }
+
+    // 清理过期的安全窗口
+    private void CleanupReleaseTimers()
+    {
+        if (_comboReleaseTimers.Count == 0) return;
+
+        List<string> expiredKeys = null;
+        foreach (var kv in _comboReleaseTimers)
+        {
+            if (Time.unscaledTime - kv.Value > RELEASE_BUFFER_TIME)
+            {
+                if (expiredKeys == null) expiredKeys = new List<string>();
+                expiredKeys.Add(kv.Key);
+            }
+        }
+
+        if (expiredKeys != null)
+        {
+            foreach (var key in expiredKeys)
+                _comboReleaseTimers.Remove(key);
         }
     }
 
     // ========== 组合快照 ==========
     private void UpdateComboSnapshot()
     {
-        foreach (var cfg in _sortedBinds)
+        foreach (var cfg in _comboBinds)
         {
-            if (!cfg.IsEnable) continue;
             UpdateHeldKey(cfg.Key1);
             UpdateHeldKey(cfg.Key2);
             UpdateHeldKey(cfg.Key3);
@@ -335,7 +387,6 @@ public class InputManager : MonoBehaviour
         if (!IsHeld(cfg.Key1)) return false;
         if (!string.IsNullOrEmpty(cfg.Key2) && !IsHeld(cfg.Key2)) return false;
         if (!string.IsNullOrEmpty(cfg.Key3) && !IsHeld(cfg.Key3)) return false;
-        if (!IsInTimeWindow(cfg)) return false;
         return true;
     }
 
@@ -344,35 +395,12 @@ public class InputManager : MonoBehaviour
         return !string.IsNullOrEmpty(key) && _heldKeys.ContainsKey(key);
     }
 
-    private bool IsInTimeWindow(InputKeyConfig cfg)
-    {
-        if (cfg.MaxTimeWindow <= 0) return true;
-        var keys = new List<string>();
-        if (!string.IsNullOrEmpty(cfg.Key1)) keys.Add(cfg.Key1);
-        if (!string.IsNullOrEmpty(cfg.Key2)) keys.Add(cfg.Key2);
-        if (!string.IsNullOrEmpty(cfg.Key3)) keys.Add(cfg.Key3);
-        if (keys.Count < 2) return true;
-
-        float min = float.MaxValue, max = float.MinValue;
-        foreach (var k in keys)
-        {
-            if (!_heldKeys.TryGetValue(k, out var t)) return false;
-            min = Mathf.Min(min, t);
-            max = Mathf.Max(max, t);
-        }
-        return (max - min) <= cfg.MaxTimeWindow;
-    }
-
     // ========== 单键状态 ==========
     private InputKeyState GetSingleState(InputKeyConfig cfg)
     {
-        // 鼠标
         if (cfg.MouseButtonIndex >= 0)
-        {
             return _snapshot.GetMouseState(cfg.MouseButtonIndex);
-        }
 
-        // 键盘
         var key = InputHelper.GetPrimaryKey(cfg);
         var code = InputHelper.StringToKeyCode(key);
         if (code == KeyCode.None) return InputKeyState.None;
@@ -390,9 +418,8 @@ public class InputManager : MonoBehaviour
 
     private void CheckPassthrough(InputKeyConfig combo)
     {
-        foreach (var cfg in _sortedBinds)
+        foreach (var cfg in _singleBinds)
         {
-            if (!cfg.IsEnable || cfg.IsCombo) continue;
             if (cfg.Key1 == combo.Key1 || cfg.Key1 == combo.Key2 || cfg.Key1 == combo.Key3) continue;
 
             var state = GetSingleState(cfg);
@@ -436,11 +463,7 @@ public class InputManager : MonoBehaviour
         }
 
         var container = _configMgr.GetScopeContainer();
-        if (container == null)
-        {
-            Debug.LogWarning("[InputManager]范围配置缓存为空");
-            return null;
-        }
+        if (container == null) return null;
 
         var scope = container.Get(scopeId);
         if (scope == null)
@@ -619,6 +642,51 @@ public class InputManager : MonoBehaviour
     public InputOutputPayload GetStandardOutput()
     {
         return _currentOutput;
+    }
+
+    // ========== 暴露接口 ==========
+    /// <summary>
+    /// 查询指定动作当前是否处于按住（按下/持续）状态
+    /// </summary>
+    public bool IsActionHeld(string actionKey)
+    {
+        if (string.IsNullOrEmpty(actionKey)) return false;
+
+        // 1. 先从单键表找
+        foreach (var cfg in _singleBinds)
+        {
+            if (cfg.ActionKey == actionKey)
+            {
+                var state = GetSingleState(cfg);
+                return state == InputKeyState.Down || state == InputKeyState.Hold;
+            }
+        }
+
+        // 2. 如果是组合键，检查所有绑定的物理键是否按住
+        foreach (var cfg in _comboBinds)
+        {
+            if (cfg.ActionKey == actionKey)
+            {
+                // 只要组合里的所有键都按着，就算处于按下状态
+                return CheckCombo(cfg);
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 根据物理按键字符串（如 "W"）查询是否按住
+    /// </summary>
+    public bool IsKeyHeldByString(string keyStr)
+    {
+        if (string.IsNullOrEmpty(keyStr)) return false;
+        var code = InputHelper.StringToKeyCode(keyStr);
+        if (code == KeyCode.None) return false;
+
+        // 直接向底层的双帧快照要当前状态
+        var state = _snapshot.GetKeyState(code);
+        return state == InputKeyState.Down || state == InputKeyState.Hold;
     }
 
     public void ClearOutput()

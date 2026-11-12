@@ -94,45 +94,44 @@ public class InputMediator : MonoBehaviour
         if (output.Frame == _lastFrame) return;
         _lastFrame = output.Frame;
 
-        Log($"收到：{output.Action} {output.KeyState}");
+        if (_cameraEntry == null) return;
 
-        if (_cameraEntry == null)
-        {
-            Log("无摄像机入口");
-            return;
-        }
-
+        // 1. 摄像机处理输入
         _cameraEntry.ReceiveInput(output);
 
         var result = _cameraEntry.GetResult();
         if (result == null || !result.HasResult) return;
 
-        // 主角选择结果
+        // 2. 处理主角切换（这个全游戏唯一，中转层需要特殊接住）
         if (result.Action == "SelectMainCharacter")
         {
             SetMainCharacter(result.SingleUuid);
             return;
         }
 
-        // 查工厂总表
-        var validUuids = new List<string>();
-        foreach (var uuid in result.Uuids)
+        // 3. 纯中立的数据转发
+        // 不管 Action 是什么，只看接收者是谁（ReceiverUuids）
+        var receivers = result.ReceiverUuids.Count > 0 ? result.ReceiverUuids : result.Uuids;
+
+        foreach (var uuid in receivers)
         {
-            if (MasterFactory.Instance.FindByUUID(uuid) == null) continue;
-            validUuids.Add(uuid);
+            var entity = MasterFactory.Instance.FindByUUID(uuid);
+            if (entity == null) continue;
+
+            var entry = FindInputEntry(entity);
+            if (entry == null) continue;
+
+            var evt = new EntityInputEvent
+            {
+                Action = result.Action,     // "Attack"
+                KeyState = output.KeyState,
+                Frame = result.Frame,
+                TargetUuids = result.Uuids  // 注意：这里装的是被击中的人（可能为空）
+            };
+
+            entry.ReceiveInput(evt);
+            //Debug.Log($"{evt.Action}, {uuid}");
         }
-
-        if (validUuids.Count == 0) return;
-
-        var evt = new EntityInputEvent
-        {
-            Action = result.Action,
-            KeyState = output.KeyState,
-            Frame = result.Frame,
-            TargetUuids = validUuids
-        };
-
-        InjectToEntities(evt);
     }
 
     // ========== 注入实体 ==========
@@ -176,13 +175,13 @@ public class InputMediator : MonoBehaviour
             }
         }
 
-        // 默认主角
-        var player = MasterFactory.Instance.FindFirstByTag("Player");
-        if (player != null)
-        {
-            SetMainCharacter(player.UUID);
-            Log($"启动默认主角：{player.UUID}");
-        }
+        //// 默认主角
+        //var player = MasterFactory.Instance.FindFirstByTag("Player");
+        //if (player != null)
+        //{
+        //    SetMainCharacter(player.UUID);
+        //    Log($"启动默认主角：{player.UUID}");
+        //}
     }
 
     private void Log(string msg)
