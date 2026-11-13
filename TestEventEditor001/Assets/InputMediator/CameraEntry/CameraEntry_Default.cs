@@ -63,50 +63,7 @@ public class CameraEntry_Default : CameraEntryBase
         Log("=== 进入选择状态 ===");
     }
 
-    // ========== 攻击（枪械射击） ==========
-    private void OnAttack(InputOutputPayload output)
-    {
-        if (output.KeyState != InputKeyState.Down) return;
-
-        var cam = TargetCamera != null ? TargetCamera : Camera.main;
-        if (cam == null) return;
-
-        var mainEntity = MasterFactory.Instance.FindByUUID(_mainCharacterUuid);
-        if (mainEntity?.LogicObject == null) return;
-
-        // 1. 枪口坐标
-        Vector3 muzzlePos = mainEntity.LogicObject.transform.position + Vector3.up * 1.2f;
-
-        // 2. 摄像机中心交点
-        Ray camRay = cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
-        Vector3 centerPoint = camRay.origin + camRay.direction * RayDistance;
-        if (Physics.Raycast(camRay, out RaycastHit camHit, RayDistance, SelectLayerMask))
-        {
-            centerPoint = camHit.point;
-        }
-
-        // 3. 从枪口向交点打射线
-        Vector3 shootDir = (centerPoint - muzzlePos).normalized;
-        List<string> hitUuids = new List<string>();
-        Debug.Log($"有交点 = {shootDir}");
-
-        if (Physics.Raycast(muzzlePos, shootDir, out RaycastHit shootHit, RayDistance, SelectLayerMask))
-        {
-            var mono = EntityMono.FindInParents(shootHit.collider.gameObject);
-            if (mono != null && mono.Entity != null && mono.UUID != _mainCharacterUuid)
-            {
-                hitUuids.Add(mono.UUID); // 打中的人
-            }
-        }
-
-        // 4. 填入结果：受害者是 hitUuids，接收者是主角
-        _result.HasResult = true;
-        _result.Action = output.Action; // "Attack"
-        _result.Uuids = hitUuids;
-        _result.ReceiverUuids.Add(_mainCharacterUuid); // 告诉中转层发给主角
-        _result.Frame = output.Frame;
-        //Debug.Log("1");
-    }
+    
 
     // ========== 选择（P键，切换主角） ==========
     private void OnSelect(InputOutputPayload output)
@@ -200,14 +157,96 @@ public class CameraEntry_Default : CameraEntryBase
         _result.Frame = output.Frame;
     }
 
-    
 
-    private void Update()
+
+    // 【新增】供外部（瞄准线、攻击逻辑）读取的准星数据
+    public Vector3 CurrentAimPoint { get; private set; }
+    public Vector3 CurrentMuzzlePos { get; private set; }
+
+    // 专用于攻击和准星的 LayerMask（防止打到主角自己）
+    [Header("射击判定层")]
+    public LayerMask ShootLayerMask = ~0;
+
+    // 摄像机自己缓存枪口，不依赖中转层
+    private Transform _cachedMuzzlePoint;
+
+
+    private void LateUpdate()
     {
-        if (IsSelecting && Input.GetKeyDown(KeyCode.Escape))
+        var mediator = InputMediator.Instance;
+        var mainEntity = mediator?.MainCharacterEntity;
+
+        // 1. 如果主角实体存在，但还没缓存枪口，就去扒
+        if (mainEntity != null && _cachedMuzzlePoint == null)
         {
-            IsSelecting = false;
-            Log("取消选择");
+            var attachment = FindAttachment(mainEntity);
+            if (attachment != null)
+            {
+                _cachedMuzzlePoint = attachment.MuzzlePoint;
+                Debug.Log("[摄像机] 成功获取主角枪口挂载点");
+            }
+        }
+
+        // 2. 如果主角还没就绪，空转
+        if (mainEntity == null || _cachedMuzzlePoint == null)
+            return;
+
+        // 3. 更新枪口坐标
+        CurrentMuzzlePos = _cachedMuzzlePoint.position;
+
+        // 4. 更新准星点（摄像机正中心射线）
+        var cam = TargetCamera != null ? TargetCamera : Camera.main;
+        if (cam != null)
+        {
+            Ray camRay = cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+            if (Physics.Raycast(camRay, out RaycastHit camHit, RayDistance, ShootLayerMask))
+                CurrentAimPoint = camHit.point;
+            else
+                CurrentAimPoint = camRay.origin + camRay.direction * RayDistance;
         }
     }
+
+    // 辅助方法：从主角实体里找挂载点脚本
+    private CharacterAttachmentScript FindAttachment(Entity entity)
+    {
+        if (entity?.LogicScripts == null) return null;
+        foreach (var script in entity.LogicScripts)
+        {
+            if (script is CharacterAttachmentScript attachment)
+                return attachment;
+        }
+        return null;
+    }
+
+    // ========== 攻击方法 ==========
+    private void OnAttack(InputOutputPayload output)
+    {
+        if (output.KeyState != InputKeyState.Down) return;
+        if (_cachedMuzzlePoint == null) return;
+
+        // 从这里开始，射线判定就和前面写的一样了
+        Vector3 muzzlePos = CurrentMuzzlePos;
+        Vector3 shootDir = (CurrentAimPoint - muzzlePos).normalized;
+
+        List<string> hitUuids = new List<string>();
+        float radius = 0.1f;
+
+        muzzlePos += shootDir * 0.1f; // 起点微推，防止卡碰撞体
+
+        if (Physics.SphereCast(muzzlePos, radius, shootDir, out RaycastHit shootHit, RayDistance, ShootLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            var mono = EntityMono.FindInParents(shootHit.collider.gameObject);
+            if (mono != null && mono.Entity != null && mono.UUID != _mainCharacterUuid)
+            {
+                hitUuids.Add(mono.UUID);
+            }
+        }
+
+        _result.HasResult = true;
+        _result.Action = output.Action;
+        _result.Uuids = hitUuids;
+        _result.ReceiverUuids.Add(_mainCharacterUuid);
+        _result.Frame = output.Frame;
+    }
+
 }

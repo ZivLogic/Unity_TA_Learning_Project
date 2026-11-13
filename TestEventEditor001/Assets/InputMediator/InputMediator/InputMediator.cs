@@ -24,6 +24,9 @@ public class InputMediator : MonoBehaviour
     private string _mainCharacterUuid;
     private int _lastFrame = -1;
 
+    public Entity MainCharacterEntity { get; private set; }
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -72,10 +75,21 @@ public class InputMediator : MonoBehaviour
     }
 
     // ========== Ö÷½Ç ==========
+
     public void SetMainCharacter(string uuid)
     {
         _mainCharacterUuid = uuid;
         Log($"Ö÷½Ç×¢²á£º{uuid ?? "null"}");
+
+        if (!string.IsNullOrEmpty(uuid) && MasterFactory.Instance != null)
+        {
+            // Ö»ÄÃ Entity
+            MainCharacterEntity = MasterFactory.Instance.FindByUUID(uuid);
+        }
+        else
+        {
+            MainCharacterEntity = null;
+        }
 
         if (_cameraEntry != null)
             _cameraEntry.SetMainCharacter(uuid);

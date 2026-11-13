@@ -1,86 +1,58 @@
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public class AimLineScript : LogicScriptBase
 {
-    public override string ContainerId => ""; // 随便取个，不需要存数据的话留空即可
+    public override string ContainerId => "";
 
     [Header("瞄准线表现")]
-    public float maxDistance = 100f;
-    public Color lineColor = Color.red;
+    public Color lineColor = new Color(1f, 0f, 0f, 0.5f); // 半透明红色，更好看
 
     private LineRenderer _lineRenderer;
-    private Camera _mainCam;
 
-
-    public string cameraId = "Camera_Main";
-
+    private Transform _muzzlePoint;
 
     public override void OnAllStateInjected()
     {
-        _mainCam = FindCamera();
-
         // 动态创建一个 LineRenderer
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        _lineRenderer.startWidth = 0.05f;
-        _lineRenderer.endWidth = 0.01f;
-        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        _lineRenderer.startColor = lineColor;
-        _lineRenderer.endColor = lineColor;
-    }
+        _lineRenderer.startWidth = 0.1f;
+        _lineRenderer.endWidth = 0.0f; // 末端变细
+        _lineRenderer.useWorldSpace = true; // 必须设为 true
 
-    private Camera FindCamera()
-    {
-        if (!string.IsNullOrEmpty(cameraId))
+        // 【修复 URP 不显示的问题】使用 URP 的无光照 Shader
+        Shader lineShader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (lineShader == null) lineShader = Shader.Find("Unlit/Color"); // 保底
+        if (lineShader == null) lineShader = Shader.Find("Sprites/Default"); // 极差保底
+
+        _lineRenderer.material = new Material(lineShader);
+        _lineRenderer.material.color = lineColor;
+
+        // 如果你不想让这条线投射阴影
+        _lineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        _lineRenderer.receiveShadows = false;
+
+        // 找自己身上的挂载点
+        foreach (var s in Entity.LogicScripts)
         {
-            var registry = ConfigAPI.Get<CameraRegistryConfig>();
-            if (registry?.cameras != null)
+            if (s is CharacterAttachmentScript attachment)
             {
-                foreach (var entry in registry.cameras)
-                {
-                    if (entry.cameraId != cameraId) continue;
-                    if (!string.IsNullOrEmpty(entry.cameraTag))
-                    {
-                        var go = GameObject.FindGameObjectWithTag(entry.cameraTag);
-                        if (go != null) return go.GetComponent<Camera>();
-                    }
-                }
+                _muzzlePoint = attachment.MuzzlePoint;
+                Debug.Log("辅助线挂载成功");
+                break;
             }
         }
-        return Camera.main;
     }
 
     private void LateUpdate()
     {
-        if (_mainCam == null || _lineRenderer == null) return;
+        if (_lineRenderer == null || _muzzlePoint == null) return;
 
-        // 1. 射线起点：角色逻辑根节点的位置（稍微抬高一点，比如胸口）
-        Vector3 startPos = Entity.LogicObject.transform.position + Vector3.up * 1.2f;
-
-        // 2. 射线终点：获取摄像机屏幕正中心射出的射线，计算交点
-        Ray camRay = _mainCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
-
-        // 默认终点是最大距离
-        Vector3 endPos = startPos + (camRay.direction * maxDistance);
-        Vector3 hitPoint = endPos;
-
-        // 3. 从角色原点向目标方向发射物理射线，检测真正的碰撞点
-        Vector3 dirToCenter = (camRay.origin + camRay.direction * maxDistance - startPos).normalized;
-
-        if (Physics.Raycast(startPos, dirToCenter, out RaycastHit hit, maxDistance))
+        var camEntry = InputMediator.Instance.GetCameraEntry() as CameraEntry_Default;
+        if (camEntry != null && camEntry.CurrentAimPoint != Vector3.zero)
         {
-            // 如果打到了别人，瞄准线就停在别人身上
-            hitPoint = hit.point;
+            _lineRenderer.SetPosition(0, _muzzlePoint.position);
+            _lineRenderer.SetPosition(1, camEntry.CurrentAimPoint);
         }
-        else
-        {
-            // 没打到人，瞄准线指向摄像机正中心前方
-            hitPoint = startPos + dirToCenter * maxDistance;
-        }
-
-        // 4. 绘制
-        _lineRenderer.SetPosition(0, startPos);
-        _lineRenderer.SetPosition(1, hitPoint);
     }
 
     public override void LoadFromEntry(ILogicStateEntry entry) { }

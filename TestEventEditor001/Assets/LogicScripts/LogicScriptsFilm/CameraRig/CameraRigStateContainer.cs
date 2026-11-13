@@ -23,6 +23,8 @@ public class CameraRigStateContainer : ConfigDefinition
         public float camPitch = 20f;
         public float camHeight = 1.5f;
 
+        public float shoulderOffset = 2.0f;
+
         public float snapshotDelay = 0.15f;
         public float followLerp = 12f;
 

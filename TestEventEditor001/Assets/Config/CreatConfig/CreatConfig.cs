@@ -187,6 +187,13 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
+                { "scriptId", "character_attachment_script" },
+                { "scriptName", "CharacterAttachmentScript" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
                 { "scriptId", "camera_rig" },
                 { "scriptName", "CameraRigScript" },
                 { "executionOrder", 0 },
@@ -234,7 +241,7 @@ public class CreatConfig : MonoBehaviour
             new Dictionary<string, object>
             {
                 { "blueprintId", "test_AI" },
-                { "tag", "Pawn" },
+                { "tag", "AI" },
                 { "modelPath", "TestGameObject/Ball_Test_001" },  // 你的棋子预制体
                 { "defaultHeight", 0.5f },
                 { "physicsConfigId", "ball_physics" },
@@ -257,6 +264,7 @@ public class CreatConfig : MonoBehaviour
                     "test_entry", 
                     "camera_rig" , 
                     "player_tag",
+                    "character_attachment_script",
                     "aim_line_script"
                 } },
                 { "poolId", "pawn_pool" }

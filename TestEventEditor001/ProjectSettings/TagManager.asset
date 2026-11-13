@@ -9,6 +9,7 @@ TagManager:
   - Pawn
   - Floor
   - UI_Test
+  - AI
   layers:
   - Default
   - TransparentFX
