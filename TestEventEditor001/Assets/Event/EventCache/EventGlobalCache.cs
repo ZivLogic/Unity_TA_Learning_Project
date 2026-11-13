@@ -160,7 +160,7 @@ namespace EventSystemV2
                         MethodToKeyList[fullName] = new List<string>();
                     }
                     MethodToKeyList[fullName].Add(paramName);
-                    Debug.Log($"加载了事件{fullName}的回调");
+                    //Debug.Log($"加载了事件{fullName}的回调");
                 }
 
                 GlobalMethodParams[fullName] = paramInfo;

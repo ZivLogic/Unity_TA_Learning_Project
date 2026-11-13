@@ -19,6 +19,7 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
         RegisterInput("Inpt_Test_01", HandleMoveRight);
         RegisterInput("Inpt_Test_02", HandleMoveDown);
         RegisterInput("Attack", HandleAttackResult);
+        RegisterInput("Interact", HandleInteractResult);
     }
 
     private void Update()
@@ -114,6 +115,31 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
 
     [EventPublishAttr]
     public void OnShootPublish(List<string> Uuids, float damage) { }
+
+
+    // 主角交互脚本里
+    private void HandleInteractResult(EntityInputEvent e)
+    {
+        if (e.KeyState != InputKeyState.Down) return;
+
+        if (e.TargetUuids == null || e.TargetUuids.Count == 0)
+        {
+            Debug.Log("没选到交互物");
+            return;
+        }
+
+        string targetUuid = e.TargetUuids[0];
+        Debug.Log($"检测到 {e.TargetUuids.Count} 个可交互实体，准备与 {targetUuid} 等交互");
+
+        // 发包给目标实体（使用你的事件系统）
+        if (EventEntry != null)
+        {
+            EventEntry.EmitFromExternal(this, nameof(OnInteractPublish), new List<string> { targetUuid });
+        }
+    }
+
+    [EventPublishAttr]
+    public void OnInteractPublish(List<string> Uuids) { }
 
     public override void LoadFromEntry(ILogicStateEntry entry) { }
     public override ILogicStateEntry SaveToEntry() => null;

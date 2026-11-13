@@ -7,7 +7,7 @@
       "MergeMode": "And",
       "ClearAdditiveOnBaseSwitch": true,
       "IsEnable": true,
-      "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self"],
+      "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self", "Trigger"],
       "AllowCategories": ["Pickable", "NPC", "Door"],
       "AllowValueKeys": [],
       "AllowAreaModelIds": ["SphereRadius", "BoxSize", "Sphere"],

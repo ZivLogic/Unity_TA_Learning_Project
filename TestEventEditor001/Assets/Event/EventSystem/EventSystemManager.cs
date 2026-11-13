@@ -56,7 +56,7 @@ namespace EventSystemV2
                         if (kv != ID.Key || !evt.Value.GlobalEnable)
                         { continue; }
                         PublishEventDict[evt.Value.EventClassFullName] = ID.Key;
-                        Debug.Log($"系统层注册发布事件：{evt.Value.EventClassFullName}, 系统ID：{ID.Key}");
+                        //Debug.Log($"系统层注册发布事件：{evt.Value.EventClassFullName}, 系统ID：{ID.Key}");
                     }
                 }
                 foreach (var ID in IsEnableID)
@@ -66,7 +66,7 @@ namespace EventSystemV2
                         if (kv != ID.Key || !evt.Value.GlobalEnable)
                         { continue; }
                         ListenEventDict[evt.Value.EventClassFullName] = ID.Key;
-                        Debug.Log($"系统层注册监听事件：{evt.Value.EventClassFullName}, 系统ID：{ID.Key}");
+                        //Debug.Log($"系统层注册监听事件：{evt.Value.EventClassFullName}, 系统ID：{ID.Key}");
                     }
                 }
             }

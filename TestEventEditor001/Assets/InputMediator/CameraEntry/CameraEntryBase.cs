@@ -132,6 +132,9 @@ public abstract class CameraEntryBase : MonoBehaviour
             case SelectScopeType.Global:
                 result.AddRange(ResolveGlobal());
                 break;
+            case SelectScopeType.Trigger:
+                result.AddRange(ResolveTrigger(scope));
+                break;
         }
         return result;
     }
@@ -248,6 +251,46 @@ public abstract class CameraEntryBase : MonoBehaviour
             result.Add(e.Root);
         }
         return result;
+    }
+
+    protected List<GameObject> ResolveTrigger(SelectScope scope)
+    {
+        var result = new List<GameObject>();
+
+        // 1. 锚点：主角的位置
+        var mainEntity = MasterFactory.Instance.FindByUUID(_mainCharacterUuid);
+        if (mainEntity?.LogicObject == null) return result;
+        Vector3 center = mainEntity.LogicObject.transform.position;
+
+        // 2. 遍历全图实体
+        var all = MasterFactory.Instance.GetAllEntities();
+        foreach (var e in all)
+        {
+            if (e?.Root == null) continue;
+            if (!IsActive(e.Root)) continue;
+            if (e.UUID == _mainCharacterUuid) continue; // 不选自己
+
+            // 3. 距离判定（复用 Area 的数据）
+            if (Vector3.Distance(center, e.Root.transform.position) <= scope.Radius)
+            {
+                // 【核心过滤】只保留实现了 IInteractable 的实体
+                if (HasInteractable(e))
+                {
+                    result.Add(e.Root);
+                }
+            }
+        }
+        return result;
+    }
+
+    // 辅助判断：实体是否有交互接口
+    private bool HasInteractable(Entity entity)
+    {
+        foreach (var s in entity.LogicScripts)
+        {
+            if (s is IInteractable) return true;
+        }
+        return false;
     }
 
     protected bool IsActive(GameObject go)

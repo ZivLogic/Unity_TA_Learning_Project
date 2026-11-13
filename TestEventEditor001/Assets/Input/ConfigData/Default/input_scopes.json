@@ -17,6 +17,14 @@
       "Remark": "单个锚点"
     },
     {
+      "ScopeId": "Trigger",
+      "ScopeType": "Trigger",
+      "AreaModelId": "Sphere",
+      "Radius": 3.0,
+      "IncludeSelf": false,
+      "Remark": "交互触发域_球形半径3"
+    },
+    {
       "ScopeId": "Category_Interactable",
       "ScopeType": "Category",
       "CategoryTag": "Interactable",

@@ -194,6 +194,13 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
+                { "scriptId", "chest_interact_script" },
+                { "scriptName", "ChestInteractScript" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
                 { "scriptId", "camera_rig" },
                 { "scriptName", "CameraRigScript" },
                 { "executionOrder", 0 },
@@ -235,7 +242,7 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "pawn_physics" },
                 { "materialId", "pawn_black" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry", "chest_interact_script" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>

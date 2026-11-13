@@ -103,7 +103,7 @@ public class ConfigManager : MonoBehaviour
 
             _metaInfos[metaInfo.ConfigId] = metaInfo;
 
-            Debug.Log($"[ConfigManager] 发现配置: {metaInfo.ConfigId} (优先级: {metaInfo.Priority})");
+            //Debug.Log($"[ConfigManager] 发现配置: {metaInfo.ConfigId} (优先级: {metaInfo.Priority})");
         }
     }
 
@@ -148,7 +148,7 @@ public class ConfigManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"  ✅ '{metaInfo.ConfigId}' 依赖 '{depId}' (优先级:{depMeta.Priority} < {metaInfo.Priority})");
+                    //Debug.Log($"  ✅ '{metaInfo.ConfigId}' 依赖 '{depId}' (优先级:{depMeta.Priority} < {metaInfo.Priority})");
                 }
             }
         }

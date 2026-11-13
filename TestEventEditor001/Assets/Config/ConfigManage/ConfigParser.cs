@@ -19,7 +19,7 @@ public static class ConfigParser
             jsonText = ResolveReferences(jsonText, configManager);
 
             // 调试：打印替换后的 JSON
-            Debug.Log($"[ConfigParser] 替换后的 JSON:\n{jsonText}");
+            //Debug.Log($"[ConfigParser] 替换后的 JSON:\n{jsonText}");
         }
 
         T config = JsonUtility.FromJson<T>(jsonText);

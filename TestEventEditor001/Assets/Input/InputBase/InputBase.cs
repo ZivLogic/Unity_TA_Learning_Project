@@ -7,7 +7,8 @@ public enum SelectScopeType
     Category,
     ValueRange,
     Area,
-    Global
+    Global,
+    Trigger
 }
 
 // ‰»Î◊¥Ã¨

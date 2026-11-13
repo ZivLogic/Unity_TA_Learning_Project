@@ -101,6 +101,7 @@ public class CameraEntry_Default : CameraEntryBase
         _result.HasResult = true;
         _result.Action = output.Action;
         _result.Uuids = uuids;
+        _result.ReceiverUuids.Add(_mainCharacterUuid);
         _result.Frame = output.Frame;
     }
 

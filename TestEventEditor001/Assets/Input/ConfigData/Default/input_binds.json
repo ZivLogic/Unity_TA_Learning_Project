@@ -54,6 +54,16 @@
       "ClickCdThreshold": 0.3,
       "Scope": "Single"
     },
+   {
+      "ActionKey": "Interact",
+      "IsCombo": false,
+      "Key1": "F",
+      "Action": "Interact",
+      "AllowContext": ["GameWorld"],
+      "ListenState": ["Down"],
+      "ClickCdThreshold": 0.3,
+      "Scope": "Trigger"
+    },
     {
       "ActionKey": "AreaSelect",
       "IsCombo": false,
