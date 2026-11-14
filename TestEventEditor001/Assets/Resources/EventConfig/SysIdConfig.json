@@ -19,6 +19,30 @@
       "ListenEvent": {
         "E_TEST_002": true
       }
+    },
+    "EVENTCLASS": {
+      "SysId": "EVENTCLASS",
+      "Remark": "",
+      "PublishEvent": {
+        "E_EVENTCLASSTEST_001": true,
+        "E_Event001": true,
+        "E_EVENTCLASS_001": true
+      },
+      "ListenEvent": {
+        "E_EVENTCLASSTEST_001": true,
+        "E_Event001": true,
+        "E_EVENTCLASS_001": true
+      }
+    },
+    "EVENTCLASS_002": {
+      "SysId": "EVENTCLASS_002",
+      "Remark": "",
+      "PublishEvent": {
+        "E_EVENTTESTCLASS_002": true
+      },
+      "ListenEvent": {
+        "E_EVENTTESTCLASS_002": true
+      }
     }
   },
   "ItemsNoEnable": {},
@@ -28,6 +52,12 @@
     ],
     "TESTINPUT": [
       "CharacterInputEntry.InputMoveToEvent"
+    ],
+    "EVENTCLASS": [
+      "CharacterInputEntry.Test_Class_Event"
+    ],
+    "EVENTCLASS_002": [
+      "CharacterInputEntry.Test_Class_Event_002"
     ]
   },
   "SysIDToListenMethod": {
@@ -36,6 +66,12 @@
     ],
     "TESTINPUT": [
       "TestEntry.TestInputToListen"
+    ],
+    "EVENTCLASS": [
+      "TestEntry.Test_Class_Event"
+    ],
+    "EVENTCLASS_002": [
+      "TestEntry.Test_Class_Event_002"
     ]
   }
 }

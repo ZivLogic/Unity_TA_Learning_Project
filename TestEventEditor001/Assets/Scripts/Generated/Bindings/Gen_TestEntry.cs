@@ -13,5 +13,11 @@ public partial class TestEntry
         // 绑定事件: E_TEST_002
         RegisterMethod("TestInputToListen", evt => 
             TestInputToListen(((E_TEST_002)evt).vle, ((E_TEST_002)evt).name));
+        // 绑定事件: E_EVENTCLASS_001
+        RegisterMethod("Test_Class_Event", evt => 
+            Test_Class_Event(((E_EVENTCLASS_001)evt).evt));
+        // 绑定事件: E_EVENTTESTCLASS_002
+        RegisterMethod("Test_Class_Event_002", evt => 
+            Test_Class_Event_002(((E_EVENTTESTCLASS_002)evt).evt));
     }
 }

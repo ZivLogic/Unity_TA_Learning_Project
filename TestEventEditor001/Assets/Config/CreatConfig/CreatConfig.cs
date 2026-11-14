@@ -201,6 +201,13 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
+                { "scriptId", "state_machine_script" },
+                { "scriptName", "StateMachineScript" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
                 { "scriptId", "camera_rig" },
                 { "scriptName", "CameraRigScript" },
                 { "executionOrder", 0 },
@@ -249,7 +256,7 @@ public class CreatConfig : MonoBehaviour
             {
                 { "blueprintId", "test_AI" },
                 { "tag", "AI" },
-                { "modelPath", "TestGameObject/Ball_Test_001" },  // 你的棋子预制体
+                { "modelPath", "TestGameObject/Ball_Test_001" },  
                 { "defaultHeight", 0.5f },
                 { "physicsConfigId", "ball_physics" },
                 { "materialId", "" },
@@ -272,7 +279,8 @@ public class CreatConfig : MonoBehaviour
                     "camera_rig" , 
                     "player_tag",
                     "character_attachment_script",
-                    "aim_line_script"
+                    "aim_line_script",
+                    "state_machine_script"
                 } },
                 { "poolId", "pawn_pool" }
             },
@@ -441,6 +449,13 @@ public class CreatConfig : MonoBehaviour
                 {"scriptName", "PawnAttackRange" },
                 {"containerType", "PawnAttackRangeStateContainer" },
                 {"savePath", "Assets/Config/ConfigData/logic_state_pawn_attack_range.json" }
+            },
+            new Dictionary<string, object>
+            {
+                {"containerId", "entity_state_machine" },
+                {"scriptName", "StateMachineScript" },
+                {"containerType", "StateMachineStateContainer" },
+                {"savePath", "Assets/Config/ConfigData/entity_state_machine.json" }
             },
             new Dictionary<string, object>
             {

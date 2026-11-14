@@ -1,3 +1,3 @@
 ﻿{
-  "entries": [{"containerId":"logic_state_pawn_attack_range","scriptName":"PawnAttackRange","containerType":"PawnAttackRangeStateContainer","savePath":"Assets/Config/ConfigData/logic_state_pawn_attack_range.json"},{"containerId":"logic_state_camera_rig","scriptName":"CameraRigScript","containerType":"CameraRigStateContainer","savePath":"Assets/Config/ConfigData/logic_state_camera_rig.json"}]
+  "entries": [{"containerId":"logic_state_pawn_attack_range","scriptName":"PawnAttackRange","containerType":"PawnAttackRangeStateContainer","savePath":"Assets/Config/ConfigData/logic_state_pawn_attack_range.json"},{"containerId":"entity_state_machine","scriptName":"StateMachineScript","containerType":"StateMachineStateContainer","savePath":"Assets/Config/ConfigData/entity_state_machine.json"},{"containerId":"logic_state_camera_rig","scriptName":"CameraRigScript","containerType":"CameraRigStateContainer","savePath":"Assets/Config/ConfigData/logic_state_camera_rig.json"}]
 }

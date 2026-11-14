@@ -16,8 +16,8 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
     {
         // 移动相关的输入事件我们直接不用管了，全交给 Update 轮询
         // 这里只保留其他瞬时的交互按键（比如测试的按键）
-        RegisterInput("Inpt_Test_01", HandleMoveRight);
-        RegisterInput("Inpt_Test_02", HandleMoveDown);
+        RegisterInput("Inpt_Test_01", HandleTestClass);
+        RegisterInput("Inpt_Test_02", HandleTestClass_002);
         RegisterInput("Attack", HandleAttackResult);
         RegisterInput("Interact", HandleInteractResult);
     }
@@ -89,6 +89,52 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
 
     [EventPublishAttr]
     public void InputMoveToEvent(List<string> UUIDS, int vle, string name) { }
+
+
+
+
+
+    private void HandleTestClass(EntityInputEvent e)
+    {
+        if (e.KeyState != InputKeyState.Down) return;
+
+        var snapshot = new Event_Class_Test_001 { TestName = "TestEventClass" };
+
+        string snapshotJson = JsonUtility.ToJson(snapshot);
+
+        if (EventEntry != null)
+        {
+            EventEntry.EmitFromExternal(this, nameof(Test_Class_Event), new List<string> { "Pawn_0005" }, snapshotJson);
+        }
+    }
+
+    [EventPublishAttr]
+    public void Test_Class_Event(List<string> UUIDS, string evt) { }
+
+
+
+
+
+    private void HandleTestClass_002(EntityInputEvent e)
+    {
+        if (e.KeyState != InputKeyState.Down) return;
+
+        var snapshot = new Event_Class_Test_001 { TestName = "TestEventClass" };
+
+        string snapshotJson = JsonUtility.ToJson(snapshot);
+
+        if (EventEntry != null)
+        {
+            EventEntry.EmitFromExternal(this, nameof(Test_Class_Event_002), new List<string> { "Pawn_0005" }, snapshot);
+        }
+    }
+
+    [EventPublishAttr]
+    public void Test_Class_Event_002(List<string> UUIDS, Event_Class_Test_001 evt) { }
+
+
+
+
 
     private void HandleAttackResult(EntityInputEvent e)
     {

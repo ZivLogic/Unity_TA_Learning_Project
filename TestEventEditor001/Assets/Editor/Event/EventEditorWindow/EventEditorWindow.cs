@@ -980,7 +980,7 @@ namespace EventSystemV2
             {
                 string eventName = kv.Key;
                 EventItem eventItem = kv.Value;
-                bool needSave = false;
+                //bool needSave = false;
 
                 // 检查发布方
                 if (eventItem.PublishMethodToSystemID?.ContainsValue(sysId) == true)
@@ -989,7 +989,7 @@ namespace EventSystemV2
                     eventItem.EventPublish = "";
                     eventItem.PublishMethodToSystemID.Clear();
                     eventItem.PublishSysId?.Clear();
-                    needSave = true;
+                    //needSave = true;
                 }
 
                 // 检查监听方
@@ -1014,7 +1014,7 @@ namespace EventSystemV2
 
                     string mappingKey = $"{eventItem.EventPublish}_{listenMethod}";
                     eventItem.KeyConnection?.Remove(mappingKey);
-                    needSave = true;
+                    //needSave = true;
                 }
 
                 // 如果事件变成空，标记待删除

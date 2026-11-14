@@ -323,7 +323,7 @@ namespace EventSystemV2
                 foreach (var p in methodParams.Parameters)
                 {
                     // 如果是 UUID 字段，直接跳过，不消耗 payloadIndex
-                    if (p.Name == "UUID" || p.Name == "UUIDS" || p.Name == "TargetId" || p.Name == "TargetIds")
+                    if (p.Name == "UUID" || p.Name == "UUIDS")
                         continue;
 
                     // 取出对应的 payload 数据并赋值给事件类的同名属性

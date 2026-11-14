@@ -25,6 +25,23 @@ public partial class TestEntry : EventEntryBase
         Debug.Log($"输入转事件成功，值：{vle}，名字：{name}，实体ID：{Entity.UUID}");
     }
 
+    [EventListenAttr]
+    public void Test_Class_Event(string evt)
+    {
+        if (!string.IsNullOrEmpty(evt))
+        {
+            var snapshot = JsonUtility.FromJson<Event_Class_Test_001>(evt);
+
+            Debug.Log($"收到自定义类型：{snapshot.TestName}");
+        }
+    }
+
+    [EventListenAttr]
+    public void Test_Class_Event_002(Event_Class_Test_001 evt)
+    {
+        Debug.Log($"收到自定义类型2：{evt.TestName}");
+    }
+
     public void TEST_001()
     {
         string uuid = "Pawn_0003";
@@ -37,4 +54,9 @@ public partial class TestEntry : EventEntryBase
 
         TestEventPublish(list,Value, MSG);
     }
+}
+
+public class Event_Class_Test_001
+{
+    public string TestName;
 }
