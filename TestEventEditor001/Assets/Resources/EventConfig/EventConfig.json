@@ -237,6 +237,64 @@
         "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_EVENTTESTCLASS_002.cs"
       },
       "IsOldEvent": false
+    },
+    "BUFF_TEST_001": {
+      "EventName": "BUFF_TEST_001",
+      "EventClassFullName": "E_BUFF_TEST_001",
+      "QueueType": 0,
+      "GlobalEnable": true,
+      "EventPublish": "CharacterInputEntry.OnShootPublish",
+      "EventListen": [
+        "TestEntry.Buff_Test_001"
+      ],
+      "ListenMethodDict": {
+        "TestEntry.Buff_Test_001": "Buff_Test_001"
+      },
+      "PublishSysId": [
+        "ATRRCH"
+      ],
+      "ListenSysId": [
+        "ATRRCH"
+      ],
+      "PublishMethodToSystemID": {
+        "CharacterInputEntry.OnShootPublish": "ATRRCH"
+      },
+      "ListenMethodToSystemID": {
+        "TestEntry.Buff_Test_001": "ATRRCH"
+      },
+      "PublishClassList": [
+        "CharacterInputEntry"
+      ],
+      "ListenClassList": [
+        "TestEntry"
+      ],
+      "PublishClassName": {
+        "CharacterInputEntry.OnShootPublish": "CharacterInputEntry"
+      },
+      "ListenClassName": {
+        "TestEntry.Buff_Test_001": "TestEntry"
+      },
+      "PublishKey": {
+        "CharacterInputEntry.OnShootPublish": [
+          "UUIDS",
+          "snapshot"
+        ]
+      },
+      "ListenKey": {
+        "TestEntry.Buff_Test_001": [
+          "snapshot"
+        ]
+      },
+      "KeyConnection": {
+        "CharacterInputEntry.OnShootPublish_TestEntry.Buff_Test_001": {
+          "snapshot": "snapshot"
+        }
+      },
+      "CodePath": {
+        "EventClass": "Assets/Scripts/Generated/Events/E_BUFF_TEST_001.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_BUFF_TEST_001.cs"
+      },
+      "IsOldEvent": false
     }
   },
   "MethodInstances": {
@@ -252,7 +310,8 @@
       "TestEventListen",
       "TestInputToListen",
       "Test_Class_Event",
-      "Test_Class_Event_002"
+      "Test_Class_Event_002",
+      "Buff_Test_001"
     ],
     "TestPublish": [
       "TestEventPublish",
@@ -278,7 +337,8 @@
       "TestEventListen",
       "TestInputToListen",
       "Test_Class_Event",
-      "Test_Class_Event_002"
+      "Test_Class_Event_002",
+      "Buff_Test_001"
     ],
     "TestListen": [
       "TestEventListen",
@@ -295,12 +355,14 @@
     "TestEntry.TestEventPublish": "TEST_001",
     "CharacterInputEntry.InputMoveToEvent": "TEST_002",
     "CharacterInputEntry.Test_Class_Event": "EVENTCLASS_001",
-    "CharacterInputEntry.Test_Class_Event_002": "EVENTTESTCLASS_002"
+    "CharacterInputEntry.Test_Class_Event_002": "EVENTTESTCLASS_002",
+    "CharacterInputEntry.OnShootPublish": "BUFF_TEST_001"
   },
   "ListenMethodToEvent": {
     "TestEntry.TestEventListen": "TEST_001",
     "TestEntry.TestInputToListen": "TEST_002",
     "TestEntry.Test_Class_Event": "EVENTCLASS_001",
-    "TestEntry.Test_Class_Event_002": "EVENTTESTCLASS_002"
+    "TestEntry.Test_Class_Event_002": "EVENTTESTCLASS_002",
+    "TestEntry.Buff_Test_001": "BUFF_TEST_001"
   }
 }

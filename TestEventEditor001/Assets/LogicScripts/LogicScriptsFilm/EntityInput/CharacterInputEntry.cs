@@ -2,9 +2,17 @@ using UnityEngine;
 using EventSystemV2;
 using System.Collections.Generic;
 
-public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
+public class CharacterInputEntry : EntityInputEntry, INeedEventEntry, IEntityStateMachineProvider
 {
     public EventEntryBase EventEntry { get; set; }
+
+    private EntityStateMachineBase _stateMachine;
+
+    public void InjectStateMachine(EntityStateMachineBase stateMachine)
+    {
+        _stateMachine = stateMachine;
+        Debug.Log($"[输入入口]绑定状态机：{stateMachine.GetType().Name}");
+    }
 
     [Header("移动")]
     public float MoveSpeed = 3f;
@@ -138,7 +146,11 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
 
     private void HandleAttackResult(EntityInputEvent e)
     {
-        //Debug.Log("检测到攻击");
+        //测试更改状态
+        _stateMachine.TryChangeAction(EntityActionState.Attacking);
+        //测试添加Buff
+        _stateMachine.AddBuff("Burning");
+
         if (e.KeyState != InputKeyState.Down) return;
         Debug.Log("检测到攻击");
 
@@ -152,15 +164,23 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry
 
         Debug.Log($"打中了！目标：{e.TargetUuids[0]}");
 
+        //测试状态发送
+        var state = _stateMachine.GetSnapshot();
+        //Debug.Log($"ID:{state.UUID}, 生命状态:{state.Lifecycle}, 活动状态:{state.Action}");
+        //foreach (var Buff in state.Tags)
+        //    Debug.Log($"Buff状态:{Buff}");
+
+        //var state_002 = new EntityStateSnapshot {Tags = new string[] { "Burning" } };
+
         // 发包给受害者
         if (EventEntry != null)
         {
-            EventEntry.EmitFromExternal(this, nameof(OnShootPublish), e.TargetUuids, 10f);
+            EventEntry.EmitFromExternal(this, nameof(OnShootPublish), e.TargetUuids, state);
         }
     }
 
     [EventPublishAttr]
-    public void OnShootPublish(List<string> Uuids, float damage) { }
+    public void OnShootPublish(List<string> UUIDS, EntityStateSnapshot snapshot) { }
 
 
     // 主角交互脚本里

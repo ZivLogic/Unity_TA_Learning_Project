@@ -3,8 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class TestEntry : EventEntryBase
+public partial class TestEntry : EventEntryBase, IEntityStateMachineProvider
 {
+    private EntityStateMachineBase _stateMachine;
+
+    public void InjectStateMachine(EntityStateMachineBase stateMachine)
+    {
+        _stateMachine = stateMachine;
+        if (stateMachine != null)
+        {
+            Debug.Log($"[{Entity.UUID}的事件入口]绑定状态机：{stateMachine.GetType().Name}");
+            return;
+        }
+        Debug.Log($"{Entity.UUID}没有绑定状态机");
+    }
+
+
     [EventListenAttr]
     public void TestEventListen(int value,string msg)
     {
@@ -40,6 +54,21 @@ public partial class TestEntry : EventEntryBase
     public void Test_Class_Event_002(Event_Class_Test_001 evt)
     {
         Debug.Log($"收到自定义类型2：{evt.TestName}");
+    }
+
+    [EventListenAttr]
+    public void Buff_Test_001(EntityStateSnapshot snapshot)
+    {
+        Debug.Log("接收到伤害事件");
+        foreach (var Buff in snapshot.Tags)
+        {
+            Debug.Log($"收到状态：{Buff}");
+            if (Buff == "Burning")
+            {
+                Debug.Log($"{Entity.UUID}接收到燃烧攻击事件");
+                _stateMachine.AddBuff( Buff );
+            }
+        }
     }
 
     public void TEST_001()

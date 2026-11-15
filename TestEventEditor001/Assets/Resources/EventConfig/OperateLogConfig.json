@@ -29,6 +29,16 @@
       "OperateTime": "2026-11-14 17:35:05",
       "TargetEvent": "选择的事件：EVENTTESTCLASS_002",
       "Content": "保存了事件：EVENTTESTCLASS_002"
+    },
+    {
+      "OperateTime": "2026-11-15 23:32:04",
+      "TargetEvent": "选择的事件：BUFF_TEST_001",
+      "Content": "保存了事件：BUFF_TEST_001"
+    },
+    {
+      "OperateTime": "2026-11-15 23:37:02",
+      "TargetEvent": "选择的事件：BUFF_TEST_001",
+      "Content": "保存了事件：BUFF_TEST_001"
     }
   ]
 }

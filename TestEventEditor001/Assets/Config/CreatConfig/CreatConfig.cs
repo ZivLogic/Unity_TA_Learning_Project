@@ -201,8 +201,15 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
-                { "scriptId", "state_machine_script" },
-                { "scriptName", "StateMachineScript" },
+                { "scriptId", "player_state_machine_script" },
+                { "scriptName", "PlayerStateMachineScript" },
+                { "executionOrder", 0 },
+                { "enabled", true }
+            },
+            new Dictionary<string, object>
+            {
+                { "scriptId", "AI_state_machine_script" },
+                { "scriptName", "AIStateMachineScript" },
                 { "executionOrder", 0 },
                 { "enabled", true }
             },
@@ -261,7 +268,7 @@ public class CreatConfig : MonoBehaviour
                 { "physicsConfigId", "ball_physics" },
                 { "materialId", "" },
                 { "audioIds", new List<object> { "pawn_move" } },
-                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry" } },
+                { "logicScriptIds", new List<object> { "pawn_attack_range", "test_entry", "AI_state_machine_script" } },
                 { "poolId", "pawn_pool" }
             },
             new Dictionary<string, object>
@@ -280,7 +287,7 @@ public class CreatConfig : MonoBehaviour
                     "player_tag",
                     "character_attachment_script",
                     "aim_line_script",
-                    "state_machine_script"
+                    "player_state_machine_script"
                 } },
                 { "poolId", "pawn_pool" }
             },
@@ -452,10 +459,17 @@ public class CreatConfig : MonoBehaviour
             },
             new Dictionary<string, object>
             {
-                {"containerId", "entity_state_machine" },
-                {"scriptName", "StateMachineScript" },
-                {"containerType", "StateMachineStateContainer" },
-                {"savePath", "Assets/Config/ConfigData/entity_state_machine.json" }
+                {"containerId", "player_state_storage" },
+                {"scriptName", "PlayerStateMachineScript" },
+                {"containerType", "PlayerStateContainer" },
+                {"savePath", "Assets/Config/ConfigData/player_state_storage.json" }
+            },
+            new Dictionary<string, object>
+            {
+                {"containerId", "ai_state_storage" },
+                {"scriptName", "AIStateMachineScript" },
+                {"containerType", "AIStateContainer" },
+                {"savePath", "Assets/Config/ConfigData/ai_state_storage.json" }
             },
             new Dictionary<string, object>
             {
@@ -519,7 +533,88 @@ public class CreatConfig : MonoBehaviour
     }
 
 
+    //ÕÊº“◊¥Ã¨ª˙≈‰÷√
+    private static void GenerateEntityState_Player_Config()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("ActionRules", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                {"SourceState","Idle"  },
+                {"BlockedActions", new List<string>
+                {
+                    "Moving",
+                    "Attacking"
+                } }
+            }
+        })
+        .Add("LifecycleRules", new List<object>
+        {
+            new Dictionary<string, object>
+        {
+            {"SourceState","Dead"  },
+            {"BlockedActions", new List<string>
+            {
+                "Moving",
+                "Attacking"
+            } }
+        }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/player_rule_config.json");
+    }
 
+    //AI◊¥Ã¨ª˙≈‰÷√
+    private static void GenerateEntityState_AI_Config()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("ActionRules", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                {"SourceState","Idle"  },
+                {"BlockedActions", new List<string>
+                {
+                    "Moving",
+                    "Attacking"
+                } }
+            }
+        })
+        .Add("LifecycleRules", new List<object>
+        {
+            new Dictionary<string, object>
+        {
+            {"SourceState","Dead"  },
+            {"BlockedActions", new List<string>
+            {
+                "Moving",
+                "Attacking"
+            } }
+        }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/ai_rule_config.json");
+    }
+
+    //BUFF◊¥Ã¨≈‰÷√
+    private static void GenerateEntityStateBuffConfig()
+    {
+        var builder = new ConfigBuilder();
+        builder.Add("Buffs", new List<object>
+        {
+            new Dictionary<string, object>
+            {
+                {"BuffName","Burning"  },
+                {"Duration", 5f },
+                {"IsPermanent",false},
+                {"DefaultTickInterval", 1f},
+                {"PrecisionThreshold", 2f },
+                {"PrecisionTickInterval", 0.5f},
+                {"IsEnable", true},
+                {"IsRefreshable", false }
+            }
+        });
+        builder.ExportToFileFormat("Assets/Config/ConfigData/buff_meta_config.json");
+    }
 
 
 
@@ -541,6 +636,9 @@ public class CreatConfig : MonoBehaviour
         GenerateMapPlacements();
         GenerateLogicState();
         GeneratePrductionLauncher();
+        GenerateEntityState_Player_Config();
+        GenerateEntityStateBuffConfig();
+        GenerateEntityState_AI_Config();
         Debug.Log("À˘”–≤‚ ‘≈‰÷√“—…˙≥…£°");
     }
 

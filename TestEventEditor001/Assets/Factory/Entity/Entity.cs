@@ -42,15 +42,12 @@ public class Entity
     // 逻辑脚本引用
     public List<MonoBehaviour> LogicScripts = new();
 
-    #region ===== 四大维度状态黑板 =====
+    #region ===== 三维度状态黑板 =====
 
-    // 1. 生命周期
+    // 1. 生命周期（包含存活、死亡、暂停）
     public EntityLifecycleState Lifecycle { get; set; } = EntityLifecycleState.Alive;
 
-    // 2. 游戏流程
-    public GameFlowState GameFlow { get; set; } = GameFlowState.Normal;
-
-    // 3. 动作状态（封装一下，方便触发事件）
+    // 2. 动作状态（封装一下，方便触发事件）
     private EntityActionState _action = EntityActionState.Idle;
     public EntityActionState Action
     {
@@ -61,14 +58,13 @@ public class Entity
             {
                 var old = _action;
                 _action = value;
-                OnActionChanged?.Invoke(old, value); // 通知外部（如动画、AI）
+                OnActionChanged?.Invoke(old, value);
             }
         }
     }
 
-    // 4. 叠加标签（Buff/状态依赖）
+    // 3. 附加标签（Buff/状态依赖）
     private readonly HashSet<string> _stateTags = new HashSet<string>();
-
     public void AddTag(string tag) => _stateTags.Add(tag);
     public void RemoveTag(string tag) => _stateTags.Remove(tag);
     public bool HasTag(string tag) => _stateTags.Contains(tag);
@@ -79,15 +75,11 @@ public class Entity
 
     #endregion
 
-    //示例写法，实体根不定义有什么状态，一般不在实体根快捷查找
-    #region ===== 快捷判断（供业务层极速查询） =====
-
-    /// <summary>是否存活</summary>
+    #region ===== 快捷判断 =====
     public bool IsAlive => Lifecycle == EntityLifecycleState.Alive;
+    public bool IsPaused => Lifecycle == EntityLifecycleState.Paused;
 
-    /// <summary>是否能够行动（活着 + 正常流程 + 没被眩晕）</summary>
     public bool CanAct => IsAlive
-                          && GameFlow == GameFlowState.Normal
                           && Action != EntityActionState.Stunned
                           && Action != EntityActionState.Hit;
     #endregion

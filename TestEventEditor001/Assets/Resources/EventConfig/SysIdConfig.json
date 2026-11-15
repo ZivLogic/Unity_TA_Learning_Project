@@ -43,6 +43,16 @@
       "ListenEvent": {
         "E_EVENTTESTCLASS_002": true
       }
+    },
+    "ATRRCH": {
+      "SysId": "ATRRCH",
+      "Remark": "",
+      "PublishEvent": {
+        "E_BUFF_TEST_001": true
+      },
+      "ListenEvent": {
+        "E_BUFF_TEST_001": true
+      }
     }
   },
   "ItemsNoEnable": {},
@@ -58,6 +68,9 @@
     ],
     "EVENTCLASS_002": [
       "CharacterInputEntry.Test_Class_Event_002"
+    ],
+    "ATRRCH": [
+      "CharacterInputEntry.OnShootPublish"
     ]
   },
   "SysIDToListenMethod": {
@@ -72,6 +85,9 @@
     ],
     "EVENTCLASS_002": [
       "TestEntry.Test_Class_Event_002"
+    ],
+    "ATRRCH": [
+      "TestEntry.Buff_Test_001"
     ]
   }
 }
