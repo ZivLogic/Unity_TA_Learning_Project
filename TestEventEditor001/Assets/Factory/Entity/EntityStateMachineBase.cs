@@ -35,6 +35,9 @@ public abstract class EntityStateMachineBase : LogicScriptBase
                     provider.InjectStateMachine(this);
             }
         }
+
+        _isStateReady = true;
+        Debug.Log($"[状态机] {Entity.UUID} 状态就绪，开始计算 Buff");
     }
 
     protected abstract void LoadMetaConfigs();
@@ -58,6 +61,13 @@ public abstract class EntityStateMachineBase : LogicScriptBase
 
     public virtual bool TryChangeAction(EntityActionState newAction)
     {
+        // 未就绪时拒绝状态变更，防止在初始化阶段被乱改
+        if (!_isStateReady)
+        {
+            Debug.LogWarning($"[状态机] 未就绪，拒绝动作变更：{newAction}");
+            return false;
+        }
+
         // 1. 生命周期拦截（比如死亡禁止攻击）
         if (_lifecycleRules.TryGetValue(_currentLifecycle, out var blockedByLife) && blockedByLife.Contains(newAction))
         {
@@ -148,6 +158,9 @@ public abstract class EntityStateMachineBase : LogicScriptBase
         public bool IsPaused;
     }
 
+    /// <summary>状态是否已完全就绪（防止未初始化完就开始计算）</summary>
+    protected bool _isStateReady = false;
+
     // ===== Buff 触发方法注册表 =====
     // Key: BuffName (如 "Burning")
     // Value: 具体触发时执行的逻辑
@@ -167,6 +180,12 @@ public abstract class EntityStateMachineBase : LogicScriptBase
     /// </summary>
     public virtual void AddBuff(string buffName)
     {
+        if (!_isStateReady)
+        {
+            Debug.LogWarning($"[状态机] 未就绪，拒绝添加 Buff：{buffName}");
+            return;
+        }
+
         if (!_buffMetas.TryGetValue(buffName, out var meta) || !meta.IsEnable) return;
 
         var existing = _activeBuffs.Find(b => b.Meta.BuffName == buffName);
@@ -224,6 +243,9 @@ public abstract class EntityStateMachineBase : LogicScriptBase
 
     protected virtual void UpdateBuffTimers()
     {
+        // 未就绪时完全不处理 Buff 计时
+        if (!_isStateReady) return;
+
         if (_activeBuffs.Count == 0) return;
 
         for (int i = _activeBuffs.Count - 1; i >= 0; i--)
@@ -317,68 +339,47 @@ public abstract class EntityStateMachineBase : LogicScriptBase
         };
     }
 
+    // 存储读取逻辑的注册表：Key = 数据类型（如 typeof(PlayerStateEntry)）
+    protected Dictionary<Type, Action<ILogicStateEntry>> _stateLoaders = new();
+
+    /// <summary>
+    /// 子类必须实现此方法，在方法里调用 RegisterStateLoader 注册自己的类型
+    /// </summary>
+    protected abstract void RegisterAllLoaders();
+
+    /// <summary>
+    /// 子类注册自己的状态读取逻辑
+    /// </summary>
+    protected void RegisterStateLoader(Type entryType, Action<ILogicStateEntry> loader)
+    {
+        if (entryType == null || loader == null) return;
+        _stateLoaders[entryType] = loader;
+    }
+
+
     public override void LoadFromEntry(ILogicStateEntry entry)
     {
+        // 1. 【时序修复】强制子类注册，防子类没来得及注册
+        _stateLoaders.Clear(); // 防止重复添加
+        RegisterAllLoaders();
+
+        // 2. 加载配置
         LoadMetaConfigs();
         LoadBuffMetaConfigs();
 
-        if (entry is PlayerStateContainer.PlayerStateEntry data)
+        if (entry == null) return;
+
+        // 3. 查表分发
+        if (_stateLoaders.TryGetValue(entry.GetType(), out var loader))
         {
-            if (Enum.TryParse(data.Lifecycle, out EntityLifecycleState lc)) _currentLifecycle = lc;
-            if (Enum.TryParse(data.Action, out EntityActionState act)) _currentAction = act;
-            if (Enum.TryParse(data.PrePausedLifecycle, out EntityLifecycleState plc)) _prePauseLifecycle = plc;
-            if (Enum.TryParse(data.PrePausedAction, out EntityActionState pac)) _prePauseAction = pac;
-
-            Entity.Lifecycle = _currentLifecycle;
-            Entity.Action = _currentAction;
-
-            // 清空当前运行时的 Buff 列表
-            _activeBuffs.Clear();
-
-            if (data.Buffs != null)
-            {
-                foreach (var buffStr in data.Buffs)
-                {
-                    // 1. 拆分字符串 "BuffName|RemainingTime"
-                    string[] parts = buffStr.Split('|');
-                    if (parts.Length != 2)
-                    {
-                        Debug.LogError($"[状态机] 解析 Buff 字符串失败：{buffStr}");
-                        continue;
-                    }
-
-                    string buffName = parts[0];
-                    string timeStr = parts[1];
-
-                    // 2. 查找配置
-                    if (!_buffMetas.TryGetValue(buffName, out var meta))
-                    {
-                        Debug.LogWarning($"[状态机] 找不到 Buff 配置：{buffName}，跳过加载");
-                        continue;
-                    }
-
-                    // 3. 解析时间
-                    bool isPermanent = (timeStr == "Max");
-                    float remainingTime = isPermanent ? float.MaxValue : float.Parse(timeStr);
-
-                    // 4. 还原为运行时的 BuffInstance
-                    _activeBuffs.Add(new BuffInstance
-                    {
-                        Meta = meta,
-                        EndTime = isPermanent ? float.MaxValue : Time.time + remainingTime,
-                        CurrentInterval = meta.DefaultTickInterval,
-                        NextTickTime = meta.DefaultTickInterval > 0 ? Time.time + meta.DefaultTickInterval : float.MaxValue,
-                        IsPaused = false
-                    });
-
-                    // 5. 恢复 Entity 的 Tags 权威信息
-                    Entity.AddTag(buffName);
-                }
-            }
-
-            Debug.Log($"[状态机] 加载完成，恢复了 {_activeBuffs.Count} 个 Buff");
+            loader.Invoke(entry);
+        }
+        else
+        {
+            Debug.LogWarning($"[状态机] 未注册该类型的状态加载器：{entry.GetType().Name}");
         }
     }
+
 
     #endregion
 }

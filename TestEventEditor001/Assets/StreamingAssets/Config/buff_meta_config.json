@@ -1,0 +1,3 @@
+﻿{
+  "Buffs": [{"BuffName":"Burning","Duration":5,"IsPermanent":false,"DefaultTickInterval":1,"PrecisionThreshold":2,"PrecisionTickInterval":0.5,"IsEnable":true,"IsRefreshable":false}]
+}

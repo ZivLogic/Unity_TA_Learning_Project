@@ -10,7 +10,7 @@
       "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self", "Trigger"],
       "AllowCategories": ["Pickable", "NPC", "Door"],
       "AllowValueKeys": [],
-      "AllowAreaModelIds": ["SphereRadius", "BoxSize", "Sphere"],
+      "AllowAreaModelIds": ["Box", "Sphere"],
       "Remark": "和平模式：可交互、可移动，不可攻击"
     },
     {
@@ -23,7 +23,7 @@
       "AllowScopeTypes": ["Single", "Category", "Area", "Self"],
       "AllowCategories": ["Enemy", "NPC"],
       "AllowValueKeys": [],
-      "AllowAreaModelIds": ["SphereRadius"],
+      "AllowAreaModelIds": ["Sphere"],
       "Remark": "战斗模式：可攻击"
     },
     {
@@ -36,7 +36,7 @@
       "AllowScopeTypes": ["Single", "Category", "Area", "Global", "Self"],
       "AllowCategories": ["Furniture", "NPC"],
       "AllowValueKeys": [],
-      "AllowAreaModelIds": ["SphereRadius", "BoxSize"],
+      "AllowAreaModelIds": ["Sphere", "Box"],
       "Remark": "家园模式：不可攻击，可交互家具"
     },
     {

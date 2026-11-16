@@ -67,4 +67,66 @@ public class PlayerStateMachineScript : EntityStateMachineBase
         }
         Debug.Log("[玩家] 状态拦截规则表加载完毕");
     }
+
+    protected override void RegisterAllLoaders()
+    {
+        RegisterStateLoader(typeof(PlayerStateContainer.PlayerStateEntry), LoadPlayerState);
+    }
+
+    private void LoadPlayerState(ILogicStateEntry entry)
+    {
+        var data = (PlayerStateContainer.PlayerStateEntry)entry;
+
+        if (Enum.TryParse(data.Lifecycle, out EntityLifecycleState lc)) _currentLifecycle = lc;
+        if (Enum.TryParse(data.Action, out EntityActionState act)) _currentAction = act;
+        if (Enum.TryParse(data.PrePausedLifecycle, out EntityLifecycleState plc)) _prePauseLifecycle = plc;
+        if (Enum.TryParse(data.PrePausedAction, out EntityActionState pac)) _prePauseAction = pac;
+
+        Entity.Lifecycle = _currentLifecycle;
+        Entity.Action = _currentAction;
+
+        // 清空当前运行时的 Buff 列表
+        _activeBuffs.Clear();
+
+        if (data.Buffs != null)
+        {
+            foreach (var buffStr in data.Buffs)
+            {
+                // 1. 拆分字符串 "BuffName|RemainingTime"
+                string[] parts = buffStr.Split('|');
+                if (parts.Length != 2)
+                {
+                    Debug.LogError($"[状态机] 解析 Buff 字符串失败：{buffStr}");
+                    continue;
+                }
+
+                string buffName = parts[0];
+                string timeStr = parts[1];
+
+                // 2. 查找配置
+                if (!_buffMetas.TryGetValue(buffName, out var meta))
+                {
+                    Debug.LogWarning($"[状态机] 找不到 Buff 配置：{buffName}，跳过加载");
+                    continue;
+                }
+
+                // 3. 解析时间
+                bool isPermanent = (timeStr == "Max");
+                float remainingTime = isPermanent ? float.MaxValue : float.Parse(timeStr);
+
+                // 4. 还原为运行时的 BuffInstance
+                _activeBuffs.Add(new BuffInstance
+                {
+                    Meta = meta,
+                    EndTime = isPermanent ? float.MaxValue : Time.time + remainingTime,
+                    CurrentInterval = meta.DefaultTickInterval,
+                    NextTickTime = meta.DefaultTickInterval > 0 ? Time.time + meta.DefaultTickInterval : float.MaxValue,
+                    IsPaused = false
+                });
+
+                // 5. 恢复 Entity 的 Tags 权威信息
+                Entity.AddTag(buffName);
+            }
+        }
+    }
 }

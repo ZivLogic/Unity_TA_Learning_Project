@@ -1,0 +1,3 @@
+﻿{
+  "terrains": [{"terrainId":"test_terrain","terrainType":"flat","height":0,"noiseScale":0,"noiseAmplitude":0,"groundTexture":"","heightMapPath":""}]
+}

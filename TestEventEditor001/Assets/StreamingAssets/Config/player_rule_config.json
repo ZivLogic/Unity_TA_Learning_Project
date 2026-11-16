@@ -1,0 +1,4 @@
+﻿{
+  "ActionRules": [{"SourceState":"Idle","BlockedActions":["Moving","Attacking"]}],
+  "LifecycleRules": [{"SourceState":"Dead","BlockedActions":["Moving","Attacking"]}]
+}

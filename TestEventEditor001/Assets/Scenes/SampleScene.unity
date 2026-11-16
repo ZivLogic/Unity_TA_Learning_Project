@@ -442,7 +442,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 320257261}
-  - component: {fileID: 320257260}
   m_Layer: 0
   m_Name: TestOBJ
   m_TagString: Untagged
@@ -450,18 +449,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &320257260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 320257258}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7527b37cc973254c89ed0830b75148d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &320257261
 Transform:
   m_ObjectHideFlags: 0
@@ -625,6 +612,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ddb13de06cdd547870e48066eb4e13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  remoteBaseUrl: http://127.0.0.1:8000/
+  enableRemoteCheck: 1
 --- !u!4 &630142281
 Transform:
   m_ObjectHideFlags: 0
@@ -1092,7 +1081,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 320257260}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: TestMono, Assembly-CSharp
         m_MethodName: TestUI
         m_Mode: 1

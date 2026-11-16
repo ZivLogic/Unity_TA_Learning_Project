@@ -42,6 +42,13 @@ public class ConfigManager : MonoBehaviour
     public event Action<string, ConfigDefinition> OnConfigLoaded;
     public event Action OnAllConfigsLoaded;
 
+    // 新增：版本号（运行时从 version.json 读）
+    public string CurrentConfigVersion { get; private set; } = "0.0.0";
+
+    private static string HotConfigDir;
+
+    private static string DefaultConfigDir;
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -52,6 +59,14 @@ public class ConfigManager : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
+
+        HotConfigDir = Path.Combine(Application.persistentDataPath, "Config");
+        DefaultConfigDir = Path.Combine(Application.streamingAssetsPath, "Config");
+
+        EnsureRuntimeDirs();
+
+        // 读当前生效版本号（优先热更目录）
+        CurrentConfigVersion = ReadVersion();
 
         // 1. 扫描所有配置类
         ScanAllConfigClasses();
@@ -65,6 +80,61 @@ public class ConfigManager : MonoBehaviour
         // 4. 加载所有配置
         LoadAllConfigs();
     }
+
+    [Serializable]
+    public class ConfigFileEntry
+    {
+        public string name;
+        public string md5;
+    }
+
+    [Serializable]
+    public class ConfigVersionInfo
+    {
+        public string version;
+        public string updatedAt;
+        public string minAppVersion;
+        public string note;
+        public ConfigFileEntry[] files; // 改成对象数组
+    }
+
+    /// <summary>确保运行时目录存在</summary>
+    private void EnsureRuntimeDirs()
+    {
+        Directory.CreateDirectory(HotConfigDir);
+        // backup / tmp 由更新器按需创建，这里不强制
+    }
+
+    /// <summary>读取当前生效版本号</summary>
+    private string ReadVersion()
+    {
+        // 优先热更目录的 version.json
+        string hotVer = Path.Combine(HotConfigDir, "version.json");
+        if (File.Exists(hotVer))
+        {
+            try
+            {
+                var v = JsonUtility.FromJson<ConfigVersionInfo>(File.ReadAllText(hotVer));
+                if (v != null && !string.IsNullOrEmpty(v.version)) return v.version;
+            }
+            catch (Exception e) { Debug.LogWarning($"[ConfigManager] 热更版本号解析失败: {e.Message}"); }
+        }
+
+        // 回退出厂版本
+        string defVer = Path.Combine(DefaultConfigDir, "version.json");
+        if (File.Exists(defVer))
+        {
+            try
+            {
+                var v = JsonUtility.FromJson<ConfigVersionInfo>(File.ReadAllText(defVer));
+                if (v != null && !string.IsNullOrEmpty(v.version)) return v.version;
+            }
+            catch (Exception e) { Debug.LogWarning($"[ConfigManager] 出厂版本号解析失败: {e.Message}"); }
+        }
+
+        return "0.0.0";
+    }
+
 
     #region 1. 扫描配置类
 
@@ -129,7 +199,7 @@ public class ConfigManager : MonoBehaviour
                 if (!_metaInfos.ContainsKey(depId))
                 {
                     Debug.LogError(
-                        $"[ConfigManager] ❌ 配置 '{metaInfo.ConfigId}' 依赖的配置 '{depId}' 不存在！\n" +
+                        $"[ConfigManager] 配置 '{metaInfo.ConfigId}' 依赖的配置 '{depId}' 不存在！\n" +
                         $"  请检查 [Config] 标记中的 dependsOn 参数。"
                     );
                     continue;
@@ -140,7 +210,7 @@ public class ConfigManager : MonoBehaviour
                 if (depMeta.Priority >= metaInfo.Priority)
                 {
                     Debug.LogError(
-                        $"[ConfigManager] ❌ 配置 '{metaInfo.ConfigId}' (优先级:{metaInfo.Priority}) " +
+                        $"[ConfigManager] 配置 '{metaInfo.ConfigId}' (优先级:{metaInfo.Priority}) " +
                         $"依赖的配置 '{depId}' (优先级:{depMeta.Priority}) 优先级不合法！\n" +
                         $"  被依赖的配置优先级必须更小（更早加载）。\n" +
                         $"  请修改 '{depId}' 的优先级为小于 {metaInfo.Priority} 的值。"
@@ -148,7 +218,7 @@ public class ConfigManager : MonoBehaviour
                 }
                 else
                 {
-                    //Debug.Log($"  ✅ '{metaInfo.ConfigId}' 依赖 '{depId}' (优先级:{depMeta.Priority} < {metaInfo.Priority})");
+                    //Debug.Log($"  '{metaInfo.ConfigId}' 依赖 '{depId}' (优先级:{depMeta.Priority} < {metaInfo.Priority})");
                 }
             }
         }
@@ -171,7 +241,7 @@ public class ConfigManager : MonoBehaviour
         {
             if (visiting.Contains(configId))
             {
-                Debug.LogError($"[ConfigManager] ❌ 检测到循环依赖: {configId}");
+                Debug.LogError($"[ConfigManager] 检测到循环依赖: {configId}");
                 return;
             }
 
@@ -231,12 +301,13 @@ public class ConfigManager : MonoBehaviour
         }
 
         OnAllConfigsLoaded?.Invoke();
-        Debug.Log($"[ConfigManager] ✅ 所有配置加载完成，共 {_loadedConfigs.Count} 个");
+        Debug.Log($"[ConfigManager] 所有配置加载完成，共 {_loadedConfigs.Count} 个");
     }
 
     /// <summary>
     /// 加载单个配置
     /// </summary>
+    /// <summary>加载单个配置：优先热更目录，回退出厂目录</summary>
     private void LoadConfig(string configId)
     {
         if (_loadedConfigs.ContainsKey(configId)) return;
@@ -247,29 +318,30 @@ public class ConfigManager : MonoBehaviour
         try
         {
             // 1. 尝试从 JSON 文件加载
-            string fullPath = Path.Combine(Application.dataPath, "Config/ConfigData", metaInfo.JsonPath);
+            string hotPath = Path.Combine(HotConfigDir, metaInfo.JsonPath);
+            string defPath = Path.Combine(DefaultConfigDir, metaInfo.JsonPath);
+            string fullPath = File.Exists(hotPath) ? hotPath : defPath;
 
             if (File.Exists(fullPath))
             {
                 string jsonText = File.ReadAllText(fullPath);
-
-                // 使用反射调用 ConfigParser.Parse<T>
                 var parseMethod = typeof(ConfigParser).GetMethod("Parse");
                 var genericParse = parseMethod.MakeGenericMethod(metaInfo.ConfigType);
                 config = genericParse.Invoke(null, new object[] { jsonText, this }) as ConfigDefinition;
 
-                Debug.Log($"[ConfigManager] 从文件加载配置: {configId} ← {metaInfo.JsonPath}");
+                bool isHot = fullPath == hotPath;
+                Debug.Log($"[ConfigManager] 加载配置: {configId} ← {(isHot ? "热更" : "出厂")} {fullPath}");
             }
             else
             {
                 // 2. 创建默认实例
                 config = Activator.CreateInstance(metaInfo.ConfigType) as ConfigDefinition;
-                Debug.LogWarning($"[ConfigManager] ⚠️ 配置文件不存在，使用默认值: {configId} (查找路径: {fullPath})");
+                Debug.LogWarning($"[ConfigManager] 配置文件不存在，使用默认值: {configId} (查找: {hotPath} / {defPath})");
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"[ConfigManager] ❌ 加载配置失败: {configId}\n{e}");
+            Debug.LogError($"[ConfigManager] 加载配置失败: {configId}\n{e}");
             config = Activator.CreateInstance(metaInfo.ConfigType) as ConfigDefinition;
         }
 
@@ -280,9 +352,30 @@ public class ConfigManager : MonoBehaviour
         OnConfigLoaded?.Invoke(configId, config);
     }
 
+
     #endregion
 
     #region 公共接口
+    /// <summary>
+    /// 重新加载所有配置（热更替换文件后调用）
+    /// </summary>
+    public void ReloadAll()
+    {
+        //定义标记，接听某个标记后其他系统才刷新配置
+
+        Debug.Log("[ConfigManager] 开始重新加载配置...");
+
+        _loadedConfigs.Clear();
+
+        // 重新读版本号（可能已经从出厂切到热更目录）
+        CurrentConfigVersion = ReadVersion();
+
+        // 重新走一遍加载流程
+        LoadAllConfigs();
+
+        Debug.Log($"[ConfigManager] 配置已重新加载，当前版本: {CurrentConfigVersion}");
+    }
+
 
     /// <summary>
     /// 获取配置
@@ -303,7 +396,7 @@ public class ConfigManager : MonoBehaviour
             return config as T;
         }
 
-        Debug.LogError($"[ConfigManager] ❌ 配置未找到: {configId}");
+        Debug.LogError($"[ConfigManager] 配置未找到: {configId}");
         return null;
     }
 

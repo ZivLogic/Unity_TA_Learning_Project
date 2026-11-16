@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class CreatConfig : MonoBehaviour
 {
+    
+
     // 1. “Ù∆µ≈‰÷√
     private static void GenerateAudioConfig()
     {
@@ -23,7 +26,8 @@ public class CreatConfig : MonoBehaviour
                 { "playMode", "manual" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/audio_configs.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "audio_configs.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 2. ≤ƒ÷ ≈‰÷√
@@ -52,7 +56,8 @@ public class CreatConfig : MonoBehaviour
                 { "renderLayer", "Default" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/material_database.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "material_database.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 3. ŒÔ¿Ì≈‰÷√
@@ -134,7 +139,8 @@ public class CreatConfig : MonoBehaviour
                 }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/physics_configs.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "physics_configs.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 4. ¬ﬂº≠Ω≈±æ≈‰÷√
@@ -221,7 +227,8 @@ public class CreatConfig : MonoBehaviour
                 { "enabled", true }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/logic_scripts.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "logic_scripts.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 5. ∂‘œÛ≥ÿ≈‰÷√
@@ -238,7 +245,8 @@ public class CreatConfig : MonoBehaviour
                 { "autoExpand", true }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/object_pools.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "object_pools.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 6.  µÃÂ¿∂Õº
@@ -304,7 +312,8 @@ public class CreatConfig : MonoBehaviour
                 { "poolId", "pawn_pool" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/entity_blueprints.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "entity_blueprints.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 7. UI¿∂Õº
@@ -329,7 +338,8 @@ public class CreatConfig : MonoBehaviour
                 { "alwaysOnTop", false }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/ui_blueprints.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "ui_blueprints.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 8. ª≠≤º◊¢≤·±Ì
@@ -348,7 +358,8 @@ public class CreatConfig : MonoBehaviour
                 { "renderMode", "ScreenSpace" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/canvas_registry.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "canvas_registry.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 9. …„œÒª˙◊¢≤·±Ì
@@ -366,7 +377,8 @@ public class CreatConfig : MonoBehaviour
                 { "priority", 0 }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/camera_registry.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "camera_registry.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 10. µÿÕº◊‹¿¿
@@ -388,7 +400,8 @@ public class CreatConfig : MonoBehaviour
                 { "terrainConfigId", "test_terrain" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/map_overview.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "map_overview.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 11. µÿ–Œ≈‰÷√
@@ -408,7 +421,8 @@ public class CreatConfig : MonoBehaviour
                 { "heightMapPath", "" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/terrain_configs.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "terrain_configs.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     // 12. µÿÕº∑≈÷√
@@ -440,7 +454,8 @@ public class CreatConfig : MonoBehaviour
                 { "spawnCondition", "always" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/map_placements.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "map_placements.json");
+        builder.ExportToFileFormat(filePath);
 
     }
 
@@ -479,7 +494,8 @@ public class CreatConfig : MonoBehaviour
                 {"savePath", "Assets/Config/ConfigData/logic_state_camera_rig.json" }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/logic_state_registry.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "logic_state_registry.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     //¿∂Õº◊¢≤·±Ì
@@ -529,7 +545,8 @@ public class CreatConfig : MonoBehaviour
                 {"tagOverride", ""}
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/production_configs.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "production_configs.json");
+        builder.ExportToFileFormat(filePath);
     }
 
 
@@ -561,7 +578,8 @@ public class CreatConfig : MonoBehaviour
             } }
         }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/player_rule_config.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "player_rule_config.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     //AI◊¥Ã¨ª˙≈‰÷√
@@ -592,7 +610,8 @@ public class CreatConfig : MonoBehaviour
             } }
         }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/ai_rule_config.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "ai_rule_config.json");
+        builder.ExportToFileFormat(filePath);
     }
 
     //BUFF◊¥Ã¨≈‰÷√
@@ -613,7 +632,8 @@ public class CreatConfig : MonoBehaviour
                 {"IsRefreshable", false }
             }
         });
-        builder.ExportToFileFormat("Assets/Config/ConfigData/buff_meta_config.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "buff_meta_config.json");
+        builder.ExportToFileFormat(filePath);
     }
 
 
