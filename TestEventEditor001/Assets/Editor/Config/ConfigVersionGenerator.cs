@@ -3,17 +3,18 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic; // 新增
+using System.Collections.Generic;
 
 public static class ConfigVersionGenerator
 {
-    private const string ConfigDir = "Assets/StreamingAssets/Config";
     private const string VersionFile = "version.json";
 
     [MenuItem("Tools/Config/Generate Version File")]
     public static void Generate()
     {
-        string fullDir = Path.GetFullPath(Application.streamingAssetsPath);
+        // 【修正点】：加上 Config 子目录
+        string fullDir = Path.Combine(Application.streamingAssetsPath, "Config");
+
         if (!Directory.Exists(fullDir))
         {
             Debug.LogError($"[ConfigVersion] 配置目录不存在: {fullDir}");
@@ -22,7 +23,7 @@ public static class ConfigVersionGenerator
 
         string root = fullDir + Path.DirectorySeparatorChar;
 
-        // 获取所有 json 文件名
+        // 获取 Config 目录下的所有 json 文件名
         var fileNames = Directory.GetFiles(fullDir, "*.json", SearchOption.TopDirectoryOnly)
             .Select(p => p.Substring(root.Length).Replace('\\', '/'))
             .Where(f => !string.Equals(f, VersionFile, StringComparison.OrdinalIgnoreCase))
@@ -31,29 +32,29 @@ public static class ConfigVersionGenerator
 
         if (fileNames.Length == 0)
         {
-            Debug.LogWarning("[ConfigVersion] 没有找到任何配置 json");
+            Debug.LogWarning($"[ConfigVersion] 在 {fullDir} 没有找到任何配置 json，请检查文件是否放对位置。");
             return;
         }
 
         // 构造对象数组
-        var files = new List<ConfigManager.ConfigFileEntry>();
+        var files = new List<ConfigFileEntry>();
         foreach (var fileName in fileNames)
         {
-            // 在构造 files 的循环里：
-            files.Add(new ConfigManager.ConfigFileEntry
+            files.Add(new ConfigFileEntry
             {
                 name = fileName,
                 md5 = GetMD5(Path.Combine(fullDir, fileName))
             });
         }
 
+        // 读取旧版本号
         string version = "0.0.1";
         string versionPath = Path.Combine(fullDir, VersionFile);
         if (File.Exists(versionPath))
         {
             try
             {
-                var old = JsonUtility.FromJson<ConfigManager.ConfigVersionInfo>(
+                var old = JsonUtility.FromJson<ConfigVersionInfo>(
                     File.ReadAllText(versionPath));
                 if (old != null && !string.IsNullOrEmpty(old.version))
                     version = old.version;
@@ -64,21 +65,21 @@ public static class ConfigVersionGenerator
             }
         }
 
-        var info = new ConfigManager.ConfigVersionInfo
+        var info = new ConfigVersionInfo
         {
-            version = version,
+            version = version, // 注意：这里只是读取旧版本号，不会自动给你 +1
             updatedAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
             note = "自动生成",
             files = files.ToArray()
         };
 
+        // 写入 version.json
         File.WriteAllText(versionPath, JsonUtility.ToJson(info, true));
         AssetDatabase.Refresh();
 
-        Debug.Log($"[ConfigVersion] 已生成 {versionPath}，版本 {version}，文件 {files.Count} 个");
+        Debug.Log($"[ConfigVersion] 成功！已生成 {versionPath}，版本 {version}，包含 {files.Count} 个文件");
     }
 
-    // 在 ConfigVersionGenerator 里加个辅助方法
     private static string GetMD5(string filePath)
     {
         using (var md5 = System.Security.Cryptography.MD5.Create())

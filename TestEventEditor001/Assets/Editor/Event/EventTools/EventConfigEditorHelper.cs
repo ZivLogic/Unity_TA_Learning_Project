@@ -15,11 +15,12 @@ namespace EventSystemV2
         static EventConfigEditorHelper()
         {
             //确保配置路径存在并刷新
-            if (!System.IO.Directory.Exists(EventConfigHelper.BaseConfigDir))
+            if (!System.IO.Directory.Exists(EventConfigHelper.DefaultDir))
             {
-                System.IO.Directory.CreateDirectory(EventConfigHelper.BaseConfigDir);
+                System.IO.Directory.CreateDirectory(EventConfigHelper.DefaultDir);
                 AssetDatabase.Refresh();
             }
+
 
             //监听刷新
             EditorApplication.update += OnEditorUpdate;

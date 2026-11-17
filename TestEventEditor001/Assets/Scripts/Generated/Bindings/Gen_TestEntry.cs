@@ -22,5 +22,8 @@ public partial class TestEntry
         // 绑定事件: E_BUFF_TEST_001
         RegisterMethod("Buff_Test_001", evt => 
             Buff_Test_001(((E_BUFF_TEST_001)evt).snapshot));
+        // 绑定事件: E_TEST_EVENT_003
+        RegisterMethod("Test_Class_Event_003", evt => 
+            Test_Class_Event_003(((E_TEST_EVENT_003)evt).TEST));
     }
 }

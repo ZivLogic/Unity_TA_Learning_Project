@@ -21,7 +21,7 @@ namespace EventSystemV2
         private const string BINDING_PATH = GENERATED_PATH + "Bindings/";
 
         //配置总父级文件夹
-        public const string BaseConfigDir = "Assets/Resources/EventConfig/";
+        public const string BaseConfigDir = "Assets/StreamingAssets/EventConfig/";
 
         //必须在Editor文件夹中
         [MenuItem("Tools/事件系统/生成所有事件代码")]

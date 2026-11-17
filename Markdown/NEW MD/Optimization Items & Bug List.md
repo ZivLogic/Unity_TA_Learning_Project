@@ -628,3 +628,324 @@
 **文档结束。**
 
 ## 
+
+
+
+## 新增清单2026.11.17
+
+# 项目痛点清单（外部审查版）
+
+> 生成方式：基于对配置/工厂/输入/事件/上层逻辑五大系统的完整代码审查 + 与作者自有《已知问题与待修点》交叉比对。
+> 标注约定：**【新】** = 作者台账未覆盖或未明确；**【已知】** = 台账已有（P0/P1/P2 编号）。
+> 严重度沿用作者体系：🔴 P0 阻塞 / 🟠 P1 重要 / 🟡 P2 优化。
+> 说明：作者已在修的部分（如事件配置打包读取、Area ModelId 命名）不再重复列为待办，仅在涉及处备注。
+
+------
+
+## 0. 最致命（先看这两条，都是【新】）
+
+### 🔴 ISSUE-N-001 状态机规则让玩家初始状态锁死
+
+- **位置**：`player_rule_config` / `ai_rule_config` 的 `ActionRules`；`EntityStateMachineBase.TryChangeAction`
+- **现象**：规则为 `SourceState:"Idle" → BlockedActions:["Moving","Attacking"]`。状态机初始 `_currentAction = Idle`，`TryChangeAction(Moving/Attacking)` 时 `_actionRules[Idle].Contains(新动作)` 命中 → 拦截。
+- **影响**：**玩家一出生就既不能移动也不能攻击**，攻击状态切换也永远失败。这是当前最致命的逻辑断点，比输入层问题更早卡死一切行为。
+- **备注**：这不是配置错位，是**规则语义写反**——Idle 应"允许"进入 Moving/Attacking，而不是"禁止"。之前我一度记成字段错位，已修正为"语义反了"。
+
+### 🔴 ISSUE-N-002 输入幽灵状态的完整根因链（作者已确认"没想通"）
+
+- **位置**：`InputManager.Update` / `InputSnapshotBuffer` / `InputMediator.Update`
+- **根因（四件事叠加）**：
+  1. `_currentOutput` 是**单槽位**——组合 `Up` 写入后 fallthrough 到单键又 `WriteOutput` 覆盖，组合 Up 丢失；
+  2. `Down` 在双帧快照里**只存在恰好一帧**；
+  3. `InputManager.Update` 与 `InputMediator.Update` **执行顺序未定义**，消费方可能晚一帧读到已推进成 Hold/None 的快照；
+  4. 移动轮询快照、攻击走事件 KeyState，**两个权威不同源**。
+- **影响**：瞬时事件丢失、重复触发、状态残留。`RELEASE_BUFFER_TIME` 是治标（只改"放行"），没改变"单槽位"和"双权威"两个根。
+- **备注**：作者已用"移动改轮询"绕开，但绕开 ≠ 解决，反而扩大了双轨分裂。
+
+------
+
+## 1. 配置系统
+
+### 🟠 ISSUE-N-101 热更 JSON 校验形同虚设【新】
+
+- **位置**：`ConfigUpdater.DownloadAndApply` 第 4 步
+- **现象**：用 `JsonUtility.FromJson<object>(json)` 校验，但 JsonUtility 无法反序列化到 `object`，既不抛错也不拦坏 JSON。
+- **影响**：下载的损坏配置会"通过校验"，替换后才在加载时崩。
+
+### 🟠 ISSUE-N-102 `ConfigAPI.OnConfigLoaded<T>` 匿名 lambda 永不退订【新】
+
+- **位置**：`ConfigAPI.OnConfigLoaded`
+- **现象**：`ConfigManager.Instance.OnConfigLoaded += (id,config)=>{...}` 无 `-=` 机会；`ReloadAll` 后叠加。
+- **影响**：事件泄漏 + 重复回调，热更次数越多越明显。
+
+### 🟠 ISSUE-N-103 热更 `ReloadAll` 后旧引用不失效【新】
+
+- **位置**：`ConfigManager.ReloadAll`
+- **现象**：重建 `_loadedConfigs`，但 Factory/LogicStateManager/已实例化实体仍持有旧配置对象引用，无失效通知。
+- **影响**：热更后新旧配置共存，逻辑状态管理器尤其明显（其本身未接热更）。
+
+### 🟡 ISSUE-N-104 `@ref` 按字符串索引数组不支持【新】
+
+- **位置**：`ConfigManager.ResolveIndexedField`
+- **现象**：数组分支只认 `int.TryParse`，注释示例 `materials["bread_tree"].path` 是字符串索引 → 返回 null。
+- **影响**：引用机制与实际数据结构（数组而非字典）不匹配。
+
+### 🟡 ISSUE-N-105 `CompareVersion` 非数字段当 0【新】
+
+- **位置**：`ConfigUpdater.CompareVersion`
+- **现象**：`1.2.3-beta` 的 `beta` 被 `TryParse` 失败后当 0。
+- **影响**：带后缀的版本号比较结果不可预期。
+
+### 🟡 ISSUE-N-106 `ConfigBuilder` 序列化不严谨【新】
+
+- **位置**：`ConfigBuilder.GetObjStr`
+- **现象**：字符串不转义（引号/换行/反斜杠会生成非法 JSON）；`float.ToString()` 受区域文化影响（部分语言环境小数点是逗号）。
+- **影响**：生成的配置 JSON 潜在非法。
+
+### 🟡 ISSUE-N-107 远程文件名路径穿越【新】
+
+- **位置**：`ConfigUpdater.DownloadAndApply`
+- **现象**：`fileName` 来自远程 `version.json` 未校验，`Path.Combine(TmpDir, "../x")` 可越界写。
+- **影响**：安全/健壮性隐患（作品集展示时应体现已处理）。
+
+### 🟡 ISSUE-N-108 `md5` 字段生成了但从不校验【新】
+
+- **位置**：`ConfigVersionGenerator` 生成 `md5`，`ConfigUpdater` 下载后不比对。
+- **影响**：字段成了摆设，文件损坏无法发现。
+
+### 🟡 ISSUE-N-109 配置类字段与生成 JSON 不一致【新】
+
+- **位置**：`CreatConfig` vs `TerrainConfigs`/`MaterialDatabaseConfig`
+- **现象**：`TerrainData` 缺 `diffuseTexture/normalTexture/tileSize/groundColor`；`MaterialData` 缺 `lodLevel`。
+- **影响**：JsonUtility 缺字段静默给默认值，难发现。
+
+------
+
+## 2. 工厂系统
+
+### 🔴 ISSUE-N-201 PoolFactory 作流水线第 6 步 → "创建即入池"【新，最高危】
+
+- **位置**：`MasterFactory.RegisterFactories`（PoolFactory 排第 6）
+- **现象**：所有带 `poolId` 且非预热模式的实体，`CreateEntity` 走完流水线就被 `Push` 入池（`SetActive(false)`）。
+- **影响**：`MapFactory.PlaceEntity`（注释写"不走对象池"，实际走）和 `ProduceDirectly`（prewarm=false 且带 poolId）都会**一出生就隐藏**，后面设 position 设到了不可见物体上。这是"创建"与"入池"被混为一步的架构性缺陷。
+
+### 🟠 ISSUE-N-202 `RenderFactory` 默认材质用 `Standard` Shader【新】
+
+- **位置**：`RenderFactory.GetDefaultMaterial`
+- **现象**：`Shader.Find("Standard")` 在 URP 下不存在 → `new Material(null)` 报错。
+- **影响**：材质加载失败的兜底路径在 URP 项目里本身就会崩。
+
+### 🟠 ISSUE-N-203 `MapFactory.ClearMap` 绕过 `DestroyEntity` + 脚本注册表残留【新】
+
+- **位置**：`MapFactory.ClearMap` / `MasterFactory.OnEntityMonoDestroyed`
+- **现象**：`ClearMap` 用 `GameObject.Destroy` 直删，走 `OnEntityMonoDestroyed` 保底路径；而该路径只清实体索引表和池表，**不 `UnregisterScript`**。
+- **影响**：`MasterFactory._scriptsByType` 残留已销毁脚本引用，之后 `SaveAllStates` 对已销毁 MonoBehaviour 调 `SaveToEntry` → MissingReference。
+
+### 🟠 ISSUE-N-204 `EventEntryBase.Initialize()` 重复调用【已知 ISSUE-P1-002，补现象】
+
+- **位置**：`LogicFactory.Process`
+- **现象**：`Initialize()` 在 `foreach(logicScriptIds)` 循环内，每挂一个脚本就重扫并重 `Initialize()` 一次，`INeedEventEntry` 重复注入。
+- **影响**：N 个脚本 → 初始化 N 次。
+
+### 🟠 ISSUE-N-205 逻辑状态存档路径是编辑器路径【新】
+
+- **位置**：`LogicStateManager.WriteContainerToJson` + 注册表 `savePath`
+- **现象**：`savePath` 为 `"Assets/Config/ConfigData/..."`，打包后不存在。
+- **影响**：真机存档失效（同事件系统 P0 同性质问题，作者已修事件侧，逻辑状态侧尚未）。
+
+### 🟠 ISSUE-N-206 UUID 不持久，存读档靠 UUID 匹配会错位【已知 FEAT-005，补影响】
+
+- **位置**：`MasterFactory.GenerateUUID`（`tag_计数` 全局递增）
+- **现象**：跨会话从 0001 重来，而 `LogicStateManager` 靠 UUID 匹配实体。
+- **影响**：重启后"恢复场景"错位/失配。
+
+### 🟡 ISSUE-N-207 池化实体仍留在索引表【新】
+
+- **位置**：`MasterFactory.RegisterEntity`
+- **现象**：`FindAllByTag/FindFirstByTag` 会混入 inactive 池化体；`Pop` 后 position/状态不重置。
+- **影响**：查询"活跃实体"结果不准确。
+
+### 🟡 ISSUE-N-208 `GetBlueprint` 每次线性遍历两个配置数组【新】
+
+- **位置**：`MasterFactory.GetBlueprint`
+- **影响**：蓝图查找 O(n)，且多实体共享同一 blueprint 引用，运行时改动会广播。
+
+------
+
+## 3. 输入系统
+
+### 🔴 ISSUE-N-301 同帧多键输入被"单槽位 + return"吃掉【新】
+
+- **位置**：`InputManager.Update` 单键梯队
+- **现象**：命中第一个单键就 `return`，`_currentOutput` 单槽。按住 W 再按 A（斜向）或移动中攻击，同帧只有一个能输出。
+- **影响**：斜向移动、移动+攻击等组合输入丢失。
+
+### 🟠 ISSUE-N-302 备用键（AltKey）是死代码【新】
+
+- **位置**：`InputManager.GetSingleState` / `GetComboState`
+- **现象**：`RebuildBindGroups` 注册了 `AltKey1` 参与采样，但检测只读 `Key1`（单键）/`Key1/2/3`（组合）。
+- **影响**：`input_binds.json` 里配置的方向键 `AltKey1` 永远触发不了。
+
+### 🟠 ISSUE-N-303 `_comboReleaseTimers` 是全局开关而非精确匹配【新】
+
+- **位置**：`InputManager.Update`
+- **现象**：只要 `Count > 0`（任意组合释放过），`isReleaseBufferActive` 就对**所有**单键 Up 生效。
+- **影响**：一个组合释放污染 50ms 内所有单键 Up 行为。
+
+### 🟠 ISSUE-N-304 `MaxTimeWindow`/`TriggerMode` 声明了但未生效【新】
+
+- **位置**：`InputKeyConfig` / `CheckCombo`
+- **现象**：`CheckCombo` 只判断"所有键都按住"，`_heldKeys` 时间戳从未被消费。
+- **影响**：组合"按下时间窗"约束是空配置，隔很久先后按下也算一次组合。
+
+### 🟠 ISSUE-N-305 `SelectScopeValidator` 只校验基础状态【新】
+
+- **位置**：`InputManager.ProcessBind`
+- **现象**：`stateCfg = GetCurrentBaseConfig()`，Hit/UIMenu 等附加状态的范围限制完全不参与校验。
+- **影响**：附加状态的范围约束失效。
+
+### 🟠 ISSUE-N-306 主角"双源真相"【新】
+
+- **位置**：`CameraEntry_Default.OnSelect` vs `InputMediator.SetMainCharacter`
+- **现象**：OnSelect 直接改 camera 的 `_mainCharacterUuid`（注释"无需中转层干预"），中介层的 `_mainCharacterUuid`/`MainCharacterEntity` 不同步。
+- **影响**：摄像机认定的人和中介层认定的人脱节。
+
+### 🟡 ISSUE-N-307 `Peace` 状态没挂 `PeaceLimit` 拦截器【新，配置数据】
+
+- **位置**：`input_states.json`
+- **现象**：Peace 的 `InterceptorList` 只有 `["Global"]`（只拦 OpenDebugPanel），而 `PeaceLimit`（拦 Attack）定义了却**没被任何状态引用**。
+- **影响**：Peace 模式（备注"不可攻击"）实际**能攻击**。
+
+### 🟡 ISSUE-N-308 选择流程半成品【新】
+
+- **位置**：`CameraEntry_Default`
+- **现象**：`OnSelect` 定义但未注册；`EndSelect` 无调用方；`OnEnterSelect` 进入选择态后无"左键确认"接线。
+- **影响**：AreaSelect 流程跑不通。
+
+------
+
+## 4. 事件系统
+
+### 🟠 ISSUE-N-401 系统ID事件状态 Add/Delete 用不同 key【新】
+
+- **位置**：`EventEditorWindow.UpdateSysIdEventStatus` vs `DeleteEvent`
+- **现象**：写入用 `EventClassFullName`（`"E_xxx"`），删除用 `EventName`（不带前缀）。
+- **影响**：删事件后系统ID里残留脏数据删不掉。
+
+### 🟠 ISSUE-N-402 `AllToConfig` 空 `EventPublish` 越界崩溃【新】
+
+- **位置**：`EventEditorWindow.AllToConfig`
+- **现象**：`EventPublish.Split('.')[1]` 在发布方为空时长度 1，`[1]` 抛 `IndexOutOfRangeException`。
+- **影响**：发布方为空时点保存崩溃（HelpBox 只提示不拦截）。
+
+### 🟠 ISSUE-N-403 路由字段两套命名【新】
+
+- **位置**：`EventUtil.BuildEvent` vs `EventCodeGenerator`
+- **现象**：`BuildEvent` 写 `TargetId/TargetIds`，跳过 payload 判断用 `"UUID"/"UUIDS"`；生成器同样两套。
+- **影响**：发布方法参数名恰为 UUID 时行为错位。
+
+### 🟠 ISSUE-N-404 `DynamicInvoke` 不捕获异常【新】
+
+- **位置**：`EventManager.DispatchTyped`
+- **现象**：一个监听器抛异常中断整个派发循环。
+- **影响**：同一事件后续监听器全部收不到。
+
+### 🟠 ISSUE-N-405 `Package.Get<T>` 对已销毁 Unity 对象崩溃【新】
+
+- **位置**：`Package.Get<T>`
+- **现象**：`obj is UnityEngine.Object unityObj && typeof(T).IsAssignableFrom(unityObj.GetType())`，已销毁对象 `GetType()` 抛 `MissingReferenceException`。
+
+### 🟠 ISSUE-N-406 三套派发通路并存【新，架构级】
+
+- **位置**：`EventManager` + `EventUtil`
+- **现象**：①老弱类型 `On/Off/Dispatch` + 6 个 `*Queue`（**无生产者，死代码**）；②强类型 `typedListeners` + 6 个 `*TypedQueue`；③`EmitToTargets`/`EmitGlobal` 同步直投（**绕过 CanPublish/CanListen 校验**）。
+- **影响**：时序语义不统一，校验时有时无。
+
+### 🟠 ISSUE-N-407 两套 `GlobalMethodParams` 并存【新】
+
+- **位置**：`EventEditorWindow` vs `EventGlobalCache`
+- **现象**：窗口有自己的 `GlobalMethodParams` 字段，但 `CheckTypeMetch` 用全局的。
+- **影响**：窗口私有副本与全局缓存可能不一致。
+
+### 🟠 ISSUE-N-408 编辑器窗口与运行时共享静态 `EventGlobalCache`【新】
+
+- **影响**：窗口打开时改的未保存脏数据会被运行时读到，编辑器态污染运行态。
+
+### 🟡 ISSUE-N-409 6 个协程空转 + 队列无上限 + `EmitGlobal` O(n) 广播【新】
+
+- **位置**：`EventManager.Start` / 各 `Process*` / `DispatchGlobal`
+- **影响**：无事件也每帧/定时轮询；事件堆积无上限；全局广播随实体数线性增长。
+
+------
+
+## 5. 上层逻辑脚本
+
+### 🟠 ISSUE-N-501 `HandleAttackResult` 状态变更在 KeyState 判断之前【新】
+
+- **位置**：`CharacterInputEntry.HandleAttackResult`
+- **现象**：`TryChangeAction` 和 `AddBuff` 在 `if (e.KeyState != Down) return` **之前**执行；攻击 `ListenState=["Down","Hold"]`。
+- **影响**：Hold 每 0.1s 重复触发 `AddBuff("Burning")` 和状态切换。
+
+### 🟠 ISSUE-N-502 `_stateMachine` 注入时序有 null 风险【新】
+
+- **位置**：`CharacterInputEntry.HandleAttackResult`
+- **现象**：`_stateMachine` 靠 `IEntityStateMachineProvider.InjectStateMachine` 注入，注入发生在状态机 `OnAllStateInjected` 里，而 `NotifyAllScriptsReady` 遍历字典顺序不保证。
+- **影响**：输入事件早于注入到达 → NRE。
+
+### 🟠 ISSUE-N-503 `Event_Class_Test_001` 缺 `[Serializable]`【新】
+
+- **位置**：`CharacterInputEntry.HandleTestClass` / `S_006`
+- **现象**：`JsonUtility.ToJson` 对未标 `[Serializable]` 的类输出空 `{}`。
+- **影响**：自定义类型事件链路（001 路径）实际断掉。
+
+### 🟠 ISSUE-N-504 `OnAllStateInjected` 非幂等【新】
+
+- **位置**：`AimLineScript` / `CharacterAttachmentScript`
+- **现象**：每次 `AddComponent<LineRenderer>` + `new Material`；每次 `new GameObject("MuzzlePoint")`。
+- **影响**：热更后 `ReloadAll→LoadAllStates→NotifyAllScriptsReady` 重复注入，叠加组件 + 材质泄漏。
+
+### 🟠 ISSUE-N-505 硬编码 UUID【新】
+
+- **位置**：`TestEntry.TEST_001`（"Pawn_0003/0004"）/ `HandleMoveRight`（"Pawn_0005"）
+- **影响**：UUID 是运行时 `tag_计数` 生成，顺序一改全部错位。
+
+### 🟠 ISSUE-N-506 `CameraRigScript` 绕过输入系统【已知 ISSUE-P2-013，补根因】
+
+- **位置**：`CameraRigScript.Update`
+- **现象**：`Input.GetAxis("Mouse X/Y")`、`Input.GetKeyDown(Escape)` 直读 Unity 原始输入。
+- **影响**：输入系统"统一权威"在相机视角处失效，双份采样。
+
+### 🟠 ISSUE-N-507 移动直接改带 Rigidbody 物体的 transform【已知 ISSUE-P1-006】
+
+- **位置**：`CharacterInputEntry.Update`
+- **影响**：绕开物理引擎，抖动/穿模。
+
+### 🟠 ISSUE-N-508 `LoadPlayerState` 两份复制粘贴【新】
+
+- **位置**：`PlayerStateMachineScript` / `AIStateMachineScript`
+- **现象**：Buff 字符串解析逻辑完全重复，连方法名 `LoadPlayerState` 都拷进了 AI 类。
+- **影响**：改一处忘一处即隐性不一致。
+
+### 🟠 ISSUE-N-509 `PlayerTag.OnDestroy` 只清静态引用【新】
+
+- **现象**：不通知 `InputMediator` 清空主角。
+- **影响**：销毁主角后中介层仍持悬空 `MainCharacterEntity`。
+
+### 🟡 ISSUE-N-510 池化与 Buff 计时交互【新】
+
+- **位置**：`EntityStateMachineBase.UpdateBuffTimers`
+- **现象**：实体 `SetActive(false)` 后计时停跑，但 `EndTime` 用 `Time.time`，池化期间时间照走。
+- **影响**：Pop 出来后 Buff 一次性过期。
+
+------
+
+## 附：与作者台账的关系
+
+| 类型                         | 说明                                                         |
+| :--------------------------- | :----------------------------------------------------------- |
+| **已修/在修**                | 事件配置打包读取（P0-001）、Area ModelId 命名（P0-002）、配置热更改造 |
+| **台账已覆盖、本文补充根因** | ForbidAll 移动未拦（P1-001）、脚本挂载隐性依赖（P1-002）、MeshCollider（P1-003）、CanPublish 缓存（P1-004）、Rigidbody 抖动（P1-006）、CameraRig 绕过输入（P2-013） |
+| **本文新增（台账未覆盖）**   | ISSUE-N-001（Idle 锁死）、N-002（幽灵状态根因链）、N-201（创建即入池）、N-202（URP 材质兜底崩）、N-203（脚本注册表残留）、N-401/402（事件脏数据/崩溃）、以及各系统 N-1xx~N-5xx 标注【新】的条目 |
+
+------
+

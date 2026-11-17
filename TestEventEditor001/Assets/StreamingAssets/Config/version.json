@@ -1,9 +1,92 @@
 {
-  "version": "0.0.1",
-  "updatedAt": "2026-11-01T00:00:00",
-  "note": "测试版本配置",
-  "files": [
-    { "name": "audio_configs.json", "md5": "" },
-    { "name": "material_database.json", "md5": "" }
- ]
+    "version": "0.0.1",
+    "updatedAt": "2026-11-16T17:36:09Z",
+    "minAppVersion": "",
+    "note": "自动生成",
+    "files": [
+        {
+            "name": "ai_rule_config.json",
+            "md5": "9248c6a25bcfd8c2edf1810ba0ce18d0"
+        },
+        {
+            "name": "ai_state_storage.json",
+            "md5": "3807a975705c102d837b5a595e399ed9"
+        },
+        {
+            "name": "audio_configs.json",
+            "md5": "ad18ff7e6bf0901114b815a79cd886b7"
+        },
+        {
+            "name": "buff_meta_config.json",
+            "md5": "0646db80c2b6020d26dd747fe42d6525"
+        },
+        {
+            "name": "camera_registry.json",
+            "md5": "210bcaf2016a97e5b6961b2661e008e4"
+        },
+        {
+            "name": "canvas_registry.json",
+            "md5": "f5e5be0d96d7cc666a6a315fafea4366"
+        },
+        {
+            "name": "entity_blueprints.json",
+            "md5": "0d1abd64f63c42629f670001231e4fc0"
+        },
+        {
+            "name": "logic_scripts.json",
+            "md5": "96192fd213933833de0dbcc4189687d5"
+        },
+        {
+            "name": "logic_state_camera_rig.json",
+            "md5": "87f99149b070a0ebcafa24ed54d4243d"
+        },
+        {
+            "name": "logic_state_pawn_attack_range.json",
+            "md5": "40b0586e4b03a0f3069adf7302287c9b"
+        },
+        {
+            "name": "logic_state_registry.json",
+            "md5": "994e77f382f2ca156f0d664f35406a06"
+        },
+        {
+            "name": "map_overview.json",
+            "md5": "4a0eca82f916803af0c77f8200235a5b"
+        },
+        {
+            "name": "map_placements.json",
+            "md5": "2409167441f6f31fc081769baf813d7b"
+        },
+        {
+            "name": "material_database.json",
+            "md5": "4b59c022cb98580a729b0dcd1e4839d4"
+        },
+        {
+            "name": "object_pools.json",
+            "md5": "05e60444be5e916be516bceab0ea75f2"
+        },
+        {
+            "name": "physics_configs.json",
+            "md5": "45bb914a2926673dd222d0654ac7713f"
+        },
+        {
+            "name": "player_rule_config.json",
+            "md5": "9248c6a25bcfd8c2edf1810ba0ce18d0"
+        },
+        {
+            "name": "player_state_storage.json",
+            "md5": "77335ced2dc0a28eb7ae925af9c44ac3"
+        },
+        {
+            "name": "production_configs.json",
+            "md5": "e7f0ad24a14fb8204d6f2866c35aded0"
+        },
+        {
+            "name": "terrain_configs.json",
+            "md5": "470cb0058cf83913d8358b4f19d225f5"
+        },
+        {
+            "name": "ui_blueprints.json",
+            "md5": "2822ab062b750e17da75564acc59f1cc"
+        }
+    ]
 }

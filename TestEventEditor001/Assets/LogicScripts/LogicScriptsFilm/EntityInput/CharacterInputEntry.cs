@@ -25,7 +25,7 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry, IEntitySta
         // 移动相关的输入事件我们直接不用管了，全交给 Update 轮询
         // 这里只保留其他瞬时的交互按键（比如测试的按键）
         RegisterInput("Inpt_Test_01", HandleTestClass);
-        RegisterInput("Inpt_Test_02", HandleTestClass_002);
+        RegisterInput("Inpt_Test_02", HandleTestClass_003);
         RegisterInput("Attack", HandleAttackResult);
         RegisterInput("Interact", HandleInteractResult);
     }
@@ -141,6 +141,18 @@ public class CharacterInputEntry : EntityInputEntry, INeedEventEntry, IEntitySta
     public void Test_Class_Event_002(List<string> UUIDS, Event_Class_Test_001 evt) { }
 
 
+    private void HandleTestClass_003(EntityInputEvent e)
+    {
+        if (e.KeyState != InputKeyState.Down) return;
+
+        if (EventEntry != null)
+        {
+            EventEntry.EmitFromExternal(this, nameof(Test_Class_Event_003), new List<string> { "Pawn_0005" }, "测试成功！");
+        }
+    }
+
+    [EventPublishAttr]
+    public void Test_Class_Event_003(List<string> UUIDS, string TEST) { }
 
 
 

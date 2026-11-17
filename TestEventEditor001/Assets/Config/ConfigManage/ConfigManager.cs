@@ -42,12 +42,9 @@ public class ConfigManager : MonoBehaviour
     public event Action<string, ConfigDefinition> OnConfigLoaded;
     public event Action OnAllConfigsLoaded;
 
-    // 新增：版本号（运行时从 version.json 读）
-    public string CurrentConfigVersion { get; private set; } = "0.0.0";
+    private static string HotDir => Path.Combine(ConfigPaths.HotRoot, ConfigDirs.MainConfig);
+    private static string DefaultDir => Path.Combine(ConfigPaths.DefaultRoot, ConfigDirs.MainConfig);
 
-    private static string HotConfigDir;
-
-    private static string DefaultConfigDir;
 
     private void Awake()
     {
@@ -60,13 +57,7 @@ public class ConfigManager : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        HotConfigDir = Path.Combine(Application.persistentDataPath, "Config");
-        DefaultConfigDir = Path.Combine(Application.streamingAssetsPath, "Config");
-
-        EnsureRuntimeDirs();
-
-        // 读当前生效版本号（优先热更目录）
-        CurrentConfigVersion = ReadVersion();
+        
 
         // 1. 扫描所有配置类
         ScanAllConfigClasses();
@@ -79,60 +70,6 @@ public class ConfigManager : MonoBehaviour
 
         // 4. 加载所有配置
         LoadAllConfigs();
-    }
-
-    [Serializable]
-    public class ConfigFileEntry
-    {
-        public string name;
-        public string md5;
-    }
-
-    [Serializable]
-    public class ConfigVersionInfo
-    {
-        public string version;
-        public string updatedAt;
-        public string minAppVersion;
-        public string note;
-        public ConfigFileEntry[] files; // 改成对象数组
-    }
-
-    /// <summary>确保运行时目录存在</summary>
-    private void EnsureRuntimeDirs()
-    {
-        Directory.CreateDirectory(HotConfigDir);
-        // backup / tmp 由更新器按需创建，这里不强制
-    }
-
-    /// <summary>读取当前生效版本号</summary>
-    private string ReadVersion()
-    {
-        // 优先热更目录的 version.json
-        string hotVer = Path.Combine(HotConfigDir, "version.json");
-        if (File.Exists(hotVer))
-        {
-            try
-            {
-                var v = JsonUtility.FromJson<ConfigVersionInfo>(File.ReadAllText(hotVer));
-                if (v != null && !string.IsNullOrEmpty(v.version)) return v.version;
-            }
-            catch (Exception e) { Debug.LogWarning($"[ConfigManager] 热更版本号解析失败: {e.Message}"); }
-        }
-
-        // 回退出厂版本
-        string defVer = Path.Combine(DefaultConfigDir, "version.json");
-        if (File.Exists(defVer))
-        {
-            try
-            {
-                var v = JsonUtility.FromJson<ConfigVersionInfo>(File.ReadAllText(defVer));
-                if (v != null && !string.IsNullOrEmpty(v.version)) return v.version;
-            }
-            catch (Exception e) { Debug.LogWarning($"[ConfigManager] 出厂版本号解析失败: {e.Message}"); }
-        }
-
-        return "0.0.0";
     }
 
 
@@ -318,8 +255,8 @@ public class ConfigManager : MonoBehaviour
         try
         {
             // 1. 尝试从 JSON 文件加载
-            string hotPath = Path.Combine(HotConfigDir, metaInfo.JsonPath);
-            string defPath = Path.Combine(DefaultConfigDir, metaInfo.JsonPath);
+            string hotPath = Path.Combine(HotDir, metaInfo.JsonPath);
+            string defPath = Path.Combine(DefaultDir, metaInfo.JsonPath);
             string fullPath = File.Exists(hotPath) ? hotPath : defPath;
 
             if (File.Exists(fullPath))
@@ -367,13 +304,8 @@ public class ConfigManager : MonoBehaviour
 
         _loadedConfigs.Clear();
 
-        // 重新读版本号（可能已经从出厂切到热更目录）
-        CurrentConfigVersion = ReadVersion();
-
         // 重新走一遍加载流程
         LoadAllConfigs();
-
-        Debug.Log($"[ConfigManager] 配置已重新加载，当前版本: {CurrentConfigVersion}");
     }
 
 
@@ -415,6 +347,47 @@ public class ConfigManager : MonoBehaviour
     {
         return _loadedConfigs.Keys.ToArray();
     }
+
+    /// <summary>返回磁盘上实际存在的配置文件名（热更目录或保底目录任一存在即可）。供 MainConfigSource 使用。</summary>
+    public string[] GetExistingConfigFileNames()
+    {
+        var names = new List<string>();
+        foreach (var meta in _metaInfos.Values)
+        {
+            string hotPath = Path.Combine(HotDir, meta.JsonPath);
+            string defPath = Path.Combine(DefaultDir, meta.JsonPath);
+            if (File.Exists(hotPath) || File.Exists(defPath))
+                names.Add(meta.JsonPath);
+        }
+        return names.ToArray();
+    }
+
+    /// <summary>校验单个配置文件能否反序列化到对应配置类型。供 MainConfigSource.ValidateFile 使用。</summary>
+    public bool ValidateConfigFile(string fileName, string content)
+    {
+        // 按文件名反查配置类型
+        var meta = _metaInfos.Values.FirstOrDefault(m => m.JsonPath == fileName);
+        if (meta == null)
+        {
+            Debug.LogWarning($"[ConfigManager] 未找到配置元信息: {fileName}");
+            return false;
+        }
+
+        try
+        {
+            // 与 LoadConfig 同一套反射解析，但 configManager 传 null，跳过 @ref 引用解析（引用留到加载时）
+            var parseMethod = typeof(ConfigParser).GetMethod("Parse");
+            var genericParse = parseMethod.MakeGenericMethod(meta.ConfigType);
+            var obj = genericParse.Invoke(null, new object[] { content, null }) as ConfigDefinition;
+            return obj != null;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[ConfigManager] 校验失败 {fileName}: {e.Message}");
+            return false;
+        }
+    }
+
 
     /// <summary>
     /// 获取配置元信息（用于调试）
@@ -683,8 +656,8 @@ public class ConfigManager : MonoBehaviour
         => FindByKey<ObjectPoolsConfig.PoolData>("object_pools", "poolId", poolId);
 
     // UI预制体
-    public UIPrefabsConfig.UIPrefab FindUIPrefab(string prefabId)
-        => FindByKey<UIPrefabsConfig.UIPrefab>("ui_prefabs", "prefabId", prefabId);
+    //public UIPrefabsConfig.UIPrefab FindUIPrefab(string prefabId)
+    //    => FindByKey<UIPrefabsConfig.UIPrefab>("ui_prefabs", "prefabId", prefabId);
 
     //音频
     public AudioConfigs.AudioData FindAudioConfig(string audioId)

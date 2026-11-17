@@ -7,10 +7,19 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("远程配置地址（末尾带 /）")]
-    [SerializeField] private string remoteBaseUrl = "http://127.0.0.1:8000/";
+    [SerializeField] private string remoteBaseUrl = "http://127.0.0.1:8000/Main_Config/";
+
+    [Header("事件配置远程地址（末尾带 /）")]
+    [SerializeField] private string eventConfigBaseUrl = "http://127.0.0.1:8000/Event_Config/";
+
 
     [Header("是否启用远程配置检查")]
     [SerializeField] private bool enableRemoteCheck = true;
+
+    private readonly MainConfigSource _mainConfigSource = new MainConfigSource();
+
+    private readonly EventConfigSource _eventConfigSource = new EventConfigSource();
+
 
     private void Awake()
     {
@@ -26,7 +35,7 @@ public class GameManager : MonoBehaviour
         CreateSystem<EventManager>();
         CreateSystem<InputManager>();
         CreateSystem<ConfigManager>();
-        CreateSystem<ConfigUpdater>();
+        CreateSystem<ConfigHotUpdater>();
 
         // 等 ConfigManager.Awake 跑完（它同步加载本地配置）
         yield return null;
@@ -55,36 +64,52 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        bool needUpdate = false;
-        ConfigManager.ConfigVersionInfo remote = null;
-
-        yield return ConfigUpdater.Instance.CheckRemoteVersion(
+        // 主配置热更
+        yield return CheckAndUpdateOne(
+            _mainConfigSource,
             remoteBaseUrl + "version.json",
+            remoteBaseUrl);
+
+        // 事件配置热更
+        yield return CheckAndUpdateOne(
+            _eventConfigSource,
+            eventConfigBaseUrl + "version.json",
+            eventConfigBaseUrl);
+    }
+
+    private IEnumerator CheckAndUpdateOne(IConfigSource source, string versionUrl, string fileBaseUrl)
+    {
+        bool needUpdate = false;
+        ConfigVersionInfo remote = null;
+
+        yield return ConfigHotUpdater.Instance.CheckRemoteVersion(
+            source, versionUrl,
             (need, info) => { needUpdate = need; remote = info; });
 
         if (!needUpdate)
         {
-            Debug.Log("[GameManager] 配置已最新");
+            Debug.Log($"[GameManager] {source.SourceId} 配置已最新");
             yield break;
         }
 
         bool ok = false;
         string msg = null;
 
-        yield return ConfigUpdater.Instance.DownloadAndApply(
-            remote,
-            fileName => remoteBaseUrl + fileName,
+        yield return ConfigHotUpdater.Instance.DownloadAndApply(
+            source, remote,
+            fileName => fileBaseUrl + fileName,
             (success, message) => { ok = success; msg = message; });
 
         if (!ok)
         {
-            Debug.LogError($"[GameManager] 配置更新失败: {msg}，继续用旧配置");
+            Debug.LogError($"[GameManager] {source.SourceId} 配置更新失败: {msg}，继续用旧配置");
             yield break;
         }
 
-        Debug.Log($"[GameManager] 配置已更新到 {remote.version}，重新加载");
-        ConfigManager.Instance.ReloadAll();
+        Debug.Log($"[GameManager] {source.SourceId} 配置已更新到 {remote.version}");
     }
+
+
 
     private void CreateSystem<T>() where T : MonoBehaviour
     {

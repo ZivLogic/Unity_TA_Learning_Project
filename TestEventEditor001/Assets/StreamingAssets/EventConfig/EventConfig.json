@@ -295,6 +295,64 @@
         "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_BUFF_TEST_001.cs"
       },
       "IsOldEvent": false
+    },
+    "TEST_EVENT_003": {
+      "EventName": "TEST_EVENT_003",
+      "EventClassFullName": "E_TEST_EVENT_003",
+      "QueueType": 0,
+      "GlobalEnable": true,
+      "EventPublish": "CharacterInputEntry.Test_Class_Event_003",
+      "EventListen": [
+        "TestEntry.Test_Class_Event_003"
+      ],
+      "ListenMethodDict": {
+        "TestEntry.Test_Class_Event_003": "Test_Class_Event_003"
+      },
+      "PublishSysId": [
+        "TEST_002"
+      ],
+      "ListenSysId": [
+        "TEST_002"
+      ],
+      "PublishMethodToSystemID": {
+        "CharacterInputEntry.Test_Class_Event_003": "TEST_002"
+      },
+      "ListenMethodToSystemID": {
+        "TestEntry.Test_Class_Event_003": "TEST_002"
+      },
+      "PublishClassList": [
+        "CharacterInputEntry"
+      ],
+      "ListenClassList": [
+        "TestEntry"
+      ],
+      "PublishClassName": {
+        "CharacterInputEntry.Test_Class_Event_003": "CharacterInputEntry"
+      },
+      "ListenClassName": {
+        "TestEntry.Test_Class_Event_003": "TestEntry"
+      },
+      "PublishKey": {
+        "CharacterInputEntry.Test_Class_Event_003": [
+          "UUIDS",
+          "TEST"
+        ]
+      },
+      "ListenKey": {
+        "TestEntry.Test_Class_Event_003": [
+          "test"
+        ]
+      },
+      "KeyConnection": {
+        "CharacterInputEntry.Test_Class_Event_003_TestEntry.Test_Class_Event_003": {
+          "test": "TEST"
+        }
+      },
+      "CodePath": {
+        "EventClass": "Assets/Scripts/Generated/Events/E_TEST_EVENT_003.cs",
+        "Binding": "Assets/Scripts/Generated/Bindings/Binding_E_TEST_EVENT_003.cs"
+      },
+      "IsOldEvent": false
     }
   },
   "MethodInstances": {
@@ -302,6 +360,7 @@
       "InputMoveToEvent",
       "Test_Class_Event",
       "Test_Class_Event_002",
+      "Test_Class_Event_003",
       "OnShootPublish",
       "OnInteractPublish"
     ],
@@ -311,6 +370,7 @@
       "TestInputToListen",
       "Test_Class_Event",
       "Test_Class_Event_002",
+      "Test_Class_Event_003",
       "Buff_Test_001"
     ],
     "TestPublish": [
@@ -338,7 +398,8 @@
       "TestInputToListen",
       "Test_Class_Event",
       "Test_Class_Event_002",
-      "Buff_Test_001"
+      "Buff_Test_001",
+      "Test_Class_Event_003"
     ],
     "TestListen": [
       "TestEventListen",
@@ -356,13 +417,15 @@
     "CharacterInputEntry.InputMoveToEvent": "TEST_002",
     "CharacterInputEntry.Test_Class_Event": "EVENTCLASS_001",
     "CharacterInputEntry.Test_Class_Event_002": "EVENTTESTCLASS_002",
-    "CharacterInputEntry.OnShootPublish": "BUFF_TEST_001"
+    "CharacterInputEntry.OnShootPublish": "BUFF_TEST_001",
+    "CharacterInputEntry.Test_Class_Event_003": "TEST_EVENT_003"
   },
   "ListenMethodToEvent": {
     "TestEntry.TestEventListen": "TEST_001",
     "TestEntry.TestInputToListen": "TEST_002",
     "TestEntry.Test_Class_Event": "EVENTCLASS_001",
     "TestEntry.Test_Class_Event_002": "EVENTTESTCLASS_002",
-    "TestEntry.Buff_Test_001": "BUFF_TEST_001"
+    "TestEntry.Buff_Test_001": "BUFF_TEST_001",
+    "TestEntry.Test_Class_Event_003": "TEST_EVENT_003"
   }
 }

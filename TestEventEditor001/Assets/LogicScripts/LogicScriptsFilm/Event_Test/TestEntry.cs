@@ -57,6 +57,13 @@ public partial class TestEntry : EventEntryBase, IEntityStateMachineProvider
     }
 
     [EventListenAttr]
+    public void Test_Class_Event_003(string test)
+    {
+        Debug.Log($"收到测试事件：{test}");
+    }
+
+
+    [EventListenAttr]
     public void Buff_Test_001(EntityStateSnapshot snapshot)
     {
         Debug.Log("接收到伤害事件");

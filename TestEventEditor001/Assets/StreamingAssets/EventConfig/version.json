@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-01-01T00:00:00Z",
+  "minAppVersion": "",
+  "note": "事件配置初始版本",
+  "files": [
+    { "name": "EventConfig.json", "md5": "" },
+    { "name": "SysIdConfig.json", "md5": "" },
+    { "name": "OperateLogConfig.json", "md5": "" },
+    { "name": "VersionConfig.json", "md5": "" }
+  ]
+}

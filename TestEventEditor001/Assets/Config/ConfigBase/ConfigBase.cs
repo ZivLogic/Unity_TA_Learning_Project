@@ -22,7 +22,7 @@ public class ConfigAttribute : Attribute
     public ConfigAttribute(string configId, string jsonPath = null, int priority = 100, params string[] dependsOn)
     {
         ConfigId = configId;
-        JsonPath = jsonPath ?? $"{configId}.Json";
+        JsonPath = jsonPath ?? $"{configId}.json";
         Priority = priority;
         DependsOn = dependsOn ?? Array.Empty<string>();
     }

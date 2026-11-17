@@ -5,7 +5,6 @@ using System;
     configId: "ui_blueprints",
     priority: 200,
     dependsOn: new[] {
-        "ui_prefabs",
         "logic_scripts",
         "canvas_registry",    // ÒÀÀµ»­²¼×¢²á±í
         "camera_registry"     // ÒÀÀµÉãÏñ»ú×¢²á±í
