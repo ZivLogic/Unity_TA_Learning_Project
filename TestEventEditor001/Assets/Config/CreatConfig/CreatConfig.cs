@@ -470,28 +470,28 @@ public class CreatConfig : MonoBehaviour
                 {"containerId", "logic_state_pawn_attack_range" },
                 {"scriptName", "PawnAttackRange" },
                 {"containerType", "PawnAttackRangeStateContainer" },
-                {"savePath", "Assets/Config/ConfigData/logic_state_pawn_attack_range.json" }
+                {"savePath", "logic_state_pawn_attack_range.json" }
             },
             new Dictionary<string, object>
             {
                 {"containerId", "player_state_storage" },
                 {"scriptName", "PlayerStateMachineScript" },
                 {"containerType", "PlayerStateContainer" },
-                {"savePath", "Assets/Config/ConfigData/player_state_storage.json" }
+                {"savePath", "player_state_storage.json" }
             },
             new Dictionary<string, object>
             {
                 {"containerId", "ai_state_storage" },
                 {"scriptName", "AIStateMachineScript" },
                 {"containerType", "AIStateContainer" },
-                {"savePath", "Assets/Config/ConfigData/ai_state_storage.json" }
+                {"savePath", "ai_state_storage.json" }
             },
             new Dictionary<string, object>
             {
                 {"containerId", "logic_state_camera_rig" },
                 {"scriptName", "CameraRigScript" },
                 {"containerType", "CameraRigStateContainer" },
-                {"savePath", "Assets/Config/ConfigData/logic_state_camera_rig.json" }
+                {"savePath", "logic_state_camera_rig.json" }
             }
         });
         string filePath = Path.Combine(Application.streamingAssetsPath, "Config", "logic_state_registry.json");

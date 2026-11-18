@@ -1,3 +1,3 @@
 ﻿{
-  "entries": [{"uuid":"Player_0001","tag":"Player","cameraId":"Camera_Main","attachDistance":3,"attachHeight":1.5,"camDistance":5,"camYaw":61594.31,"camPitch":32.54995,"camHeight":1.5,"shoulderOffset":2,"snapshotDelay":0.15,"followLerp":12}]
+  "entries": [{"uuid":"Player_0001","tag":"Player","cameraId":"Camera_Main","attachDistance":3,"attachHeight":1.5,"camDistance":5,"camYaw":61592.88,"camPitch":-16.05,"camHeight":1.5,"shoulderOffset":2,"snapshotDelay":0.15,"followLerp":12}]
 }

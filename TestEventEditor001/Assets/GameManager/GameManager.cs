@@ -12,6 +12,10 @@ public class GameManager : MonoBehaviour
     [Header("事件配置远程地址（末尾带 /）")]
     [SerializeField] private string eventConfigBaseUrl = "http://127.0.0.1:8000/Event_Config/";
 
+    [Header("输入配置远程地址（末尾带 /）")]
+    [SerializeField] private string inputConfigBaseUrl = "http://127.0.0.1:8000/Input_Config/";
+
+
 
     [Header("是否启用远程配置检查")]
     [SerializeField] private bool enableRemoteCheck = true;
@@ -19,6 +23,8 @@ public class GameManager : MonoBehaviour
     private readonly MainConfigSource _mainConfigSource = new MainConfigSource();
 
     private readonly EventConfigSource _eventConfigSource = new EventConfigSource();
+
+    private readonly InputConfigSource _inputConfigSource = new InputConfigSource();
 
 
     private void Awake()
@@ -75,6 +81,13 @@ public class GameManager : MonoBehaviour
             _eventConfigSource,
             eventConfigBaseUrl + "version.json",
             eventConfigBaseUrl);
+
+        // 输入配置热更
+        yield return CheckAndUpdateOne(
+            _inputConfigSource,
+            inputConfigBaseUrl + "version.json",
+            inputConfigBaseUrl);
+
     }
 
     private IEnumerator CheckAndUpdateOne(IConfigSource source, string versionUrl, string fileBaseUrl)

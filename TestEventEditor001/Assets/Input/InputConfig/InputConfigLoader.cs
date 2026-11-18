@@ -13,28 +13,21 @@ public static class InputConfigLoader
     // ============================================================
     // 路径
     // ============================================================
+    // 保底目录（出厂只读）
+    private static string DefaultDir =>
+        Path.Combine(ConfigPaths.DefaultRoot, ConfigDirs.InputConfig);
 
-    /// <summary>
-    /// 编辑器下的保底配置根目录（绝对路径）
-    /// </summary>
-    private static string EditorDefaultRootFolder =>
-        Path.Combine(
-            Directory.GetCurrentDirectory(),
-            InputConfigConst.EditorDefaultRootFolder);
+    // 热更目录（运行时读优先）
+    private static string HotDir =>
+        Path.Combine(ConfigPaths.HotRoot, ConfigDirs.InputConfig);
 
-    /// <summary>
-    /// 玩家存档根目录
-    /// </summary>
+    // 玩家改键存档目录（独立，不参与热更）
     private static string PlayerRootFolder =>
-        Path.Combine(
-            Application.persistentDataPath,
-            InputConfigConst.PlayerRootFolderName);
+        Path.Combine(ConfigPaths.SaveRoot, ConfigDirs.InputPlayer);
 
-    /// <summary>
-    /// 玩家存档索引文件
-    /// </summary>
     private static string PlayerIndexPath =>
         Path.Combine(PlayerRootFolder, InputConfigConst.PlayerIndexFileName);
+
 
     // ============================================================
     // 目录
@@ -87,36 +80,16 @@ public static class InputConfigLoader
     /// </summary>
     private static string ReadDefaultJson(string jsonFile)
     {
-#if UNITY_EDITOR
-        // 1. 编辑器优先工程目录
-        string editorPath = Path.Combine(EditorDefaultRootFolder, jsonFile);
-        string editorJson = ReadAllTextSafe(editorPath);
-        if (!string.IsNullOrEmpty(editorJson))
-            return editorJson;
-#endif
+        // 热更优先
+        string hot = ReadAllTextSafe(Path.Combine(HotDir, jsonFile));
+        if (!string.IsNullOrEmpty(hot)) return hot;
 
-        // 2. Resources 回退（打包后唯一路径）
-        string resourcePath = $"{InputConfigConst.ResourceDefaultRootFolder}/{StripJsonExt(jsonFile)}";
-        var asset = Resources.Load<TextAsset>(resourcePath);
-        if (asset != null) return asset.text;
+        // 回退保底（StreamingAssets）
+        string def = ReadAllTextSafe(Path.Combine(DefaultDir, jsonFile));
+        if (!string.IsNullOrEmpty(def)) return def;
 
         return null;
     }
-
-    /// <summary>
-    /// 去掉 .json 后缀，Resources 路径不需要后缀
-    /// </summary>
-    private static string StripJsonExt(string fileName)
-    {
-        if (string.IsNullOrEmpty(fileName)) return fileName;
-        if (fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-            return fileName.Substring(0, fileName.Length - 5);
-        return fileName;
-    }
-
-    // ============================================================
-    // 深拷贝
-    // ============================================================
 
     public static InputConfigRoot CloneRoot(InputConfigRoot src)
     {
@@ -261,41 +234,4 @@ public static class InputConfigLoader
         string path = Path.Combine(PlayerRootFolder, fileName);
         if (File.Exists(path)) File.Delete(path);
     }
-
-    // ============================================================
-    // 编辑器工具：导出 Resources 保底配置
-    // ============================================================
-
-#if UNITY_EDITOR
-    /// <summary>
-    /// 把工程目录下的保底配置复制到 Resources 下
-    /// 方便打包前同步
-    /// </summary>
-    public static void ExportDefaultToResources()
-    {
-        string src = EditorDefaultRootFolder;
-        if (!Directory.Exists(src))
-        {
-            Debug.LogError($"[InputConfigLoader]工程目录不存在：{src}");
-            return;
-        }
-
-        string dst = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "Assets/Input/ConfigData/Resources",
-            InputConfigConst.ResourceDefaultRootFolder);
-
-        if (!Directory.Exists(dst))
-            Directory.CreateDirectory(dst);
-
-        foreach (var file in Directory.GetFiles(src, "*.json"))
-        {
-            string fileName = Path.GetFileName(file);
-            string dstFile = Path.Combine(dst, fileName);
-            File.Copy(file, dstFile, true);
-        }
-
-        Debug.Log($"[InputConfigLoader]已导出保底配置到：{dst}");
-    }
-#endif
 }

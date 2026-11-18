@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-01-01T00:00:00Z",
+  "minAppVersion": "",
+  "note": "输入配置初始版本",
+  "files": [
+    { "name": "input_global.json", "md5": "" },
+    { "name": "input_binds.json", "md5": "" },
+    { "name": "input_interceptors.json", "md5": "" },
+    { "name": "input_states.json", "md5": "" },
+    { "name": "input_intents.json", "md5": "" },
+    { "name": "input_area_models.json", "md5": "" },
+    { "name": "input_scopes.json", "md5": "" }
+  ]
+}

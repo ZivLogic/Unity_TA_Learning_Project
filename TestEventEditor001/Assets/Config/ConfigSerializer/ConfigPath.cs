@@ -24,7 +24,8 @@ public static class ConfigDirs
 {
     public const string MainConfig = "Config";                       // 主配置子目录
     public const string EventConfig = "EventConfig";                 // 事件配置子目录
-    public const string InputConfig = "InputConfig";                 // 输入配置子目录
+    public const string InputConfig = "InputConfig";                 // 输入配置（保底+热更，同目录名）
+    public const string InputPlayer = "InputPlayer";                 // 输入改键存档（persistentDataPath 下，独立）
     public const string LogicState = "LogicState";                   // 逻辑状态：运行时存档（persistentDataPath 下）
     public const string LogicStateDefault = "LogicState/Default";    // 逻辑状态：保底默认（StreamingAssets 下，预留走热更）
     public const string VersionFile = "version.json";                // 通用热更版本文件名

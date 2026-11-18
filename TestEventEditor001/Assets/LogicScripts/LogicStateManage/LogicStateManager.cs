@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 
@@ -32,6 +33,14 @@ public class LogicStateManager : MonoBehaviour
     {
         IsAllStateInjected = false;
     }
+
+    // 逻辑状态存档目录（运行时写，游戏存一半的状态，永不热更）
+    private static string SaveDir => Path.Combine(ConfigPaths.SaveRoot, ConfigDirs.LogicState);
+
+    // 逻辑状态保底默认目录（预留，每局初始重置用，以后走热更）
+    private static string DefaultDir => Path.Combine(ConfigPaths.DefaultRoot, ConfigDirs.LogicStateDefault);
+
+
 
     private void Awake()
     {
@@ -166,7 +175,12 @@ public class LogicStateManager : MonoBehaviour
         }
 
         builder.Add("entries", entriesJson);
-        builder.ExportToFileFormat(entry.savePath);
+
+        // 写存档目录（savePath 现在是纯文件名）
+        if (!Directory.Exists(SaveDir)) Directory.CreateDirectory(SaveDir);
+        string path = Path.Combine(SaveDir, entry.savePath);
+        builder.ExportToFileFormat(path);
+
     }
     #endregion
 
@@ -196,39 +210,46 @@ public class LogicStateManager : MonoBehaviour
     //加载单个父容器
     private void LoadContainer(LogicStateRegistry.LogicStateEntry entry)
     {
-        //1.读取父容器配置
-        var containerConfig = ConfigAPI.Get<ConfigDefinition>(entry.containerId);
-        if (containerConfig == null)
+        // 1. 拿容器类型（复用 ConfigManager 的扫描结果，避免再反射扫一遍）
+        var containerType = ConfigManager.Instance.GetConfigType(entry.containerId);
+        if (containerType == null)
         {
-            Debug.LogWarning($"[LogicStateManager] 父容器不存在：{entry.containerId}");
+            Debug.LogWarning($"[LogicStateManager] 容器类型不存在：{entry.containerId}");
             return;
         }
 
-        //2.获取子容器列表
-        var entriesField = containerConfig.GetType().GetField("entries");
-        if (entriesField == null)
+        // 2. 读存档文件（存档目录优先，回退保底默认目录）
+        string json = ReadStateFile(entry.savePath);
+        if (string.IsNullOrEmpty(json))
         {
-            Debug.LogWarning("[LogicStateManager]子容器列表为空");
+            Debug.Log($"[LogicStateManager] 无存档或默认配置，跳过：{entry.savePath}");
             return;
         }
 
-        var entriesArray = entriesField.GetValue(containerConfig) as Array;
-        if (entriesArray == null)return ;
+        // 3. 反序列化到容器类型
+        object containerConfig;
+        try { containerConfig = JsonUtility.FromJson(json, containerType); }
+        catch (Exception e)
+        {
+            Debug.LogError($"[LogicStateManager] 状态反序列化失败 {entry.savePath}: {e.Message}");
+            return;
+        }
+        if (containerConfig == null) return;
 
-        //遍历子容器
+        // 4. 反射拿 entries
+        var entriesField = containerType.GetField("entries");
+        var entriesArray = entriesField?.GetValue(containerConfig) as Array;
+        if (entriesArray == null) return;
+
+        // 5. 遍历子容器（原逻辑不变）
         int LoadedCount = 0;
         foreach (var childEntry in entriesArray)
         {
-            if (childEntry is not ILogicStateEntry stateEntry)continue;
+            if (childEntry is not ILogicStateEntry stateEntry) continue;
 
-            //4.通过UUID查找实体
             var entity = MasterFactory.Instance.FindByUUID(stateEntry.GetUUID());
-
-            //如果找不到，通过Tag查找实体
             if (entity == null && !string.IsNullOrEmpty(stateEntry.GetTag()))
-            {
                 entity = MasterFactory.Instance.FindFirstByTag(stateEntry.GetTag());
-            }
 
             if (entity == null)
             {
@@ -236,7 +257,6 @@ public class LogicStateManager : MonoBehaviour
                 continue;
             }
 
-            //6.查找对应的逻辑脚本
             var script = FindScriptOnEntity(entity, entry.scriptName);
             if (script == null)
             {
@@ -244,12 +264,24 @@ public class LogicStateManager : MonoBehaviour
                 continue;
             }
 
-            //7.调用脚本的加载方法
             script.LoadFromEntry(stateEntry);
             LoadedCount++;
         }
         Debug.Log($"[LogicStateManager] 加载{entry.scriptName} : {LoadedCount} 条数据");
     }
+
+    /// <summary>读状态文件：存档目录优先，回退保底默认目录；都没有返回 null。</summary>
+    private string ReadStateFile(string fileName)
+    {
+        string savePath = Path.Combine(SaveDir, fileName);
+        if (File.Exists(savePath)) return File.ReadAllText(savePath);
+
+        string defPath = Path.Combine(DefaultDir, fileName);
+        if (File.Exists(defPath)) return File.ReadAllText(defPath);
+
+        return null;
+    }
+
     #endregion
 
     #region 工具方法 

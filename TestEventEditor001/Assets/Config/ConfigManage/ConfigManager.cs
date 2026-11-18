@@ -308,6 +308,12 @@ public class ConfigManager : MonoBehaviour
         LoadAllConfigs();
     }
 
+    /// <summary>按 configId 获取配置类型。供逻辑状态系统反序列化存档时使用。</summary>
+    public Type GetConfigType(string configId)
+    {
+        return _metaInfos.TryGetValue(configId, out var meta) ? meta.ConfigType : null;
+    }
+
 
     /// <summary>
     /// 获取配置
